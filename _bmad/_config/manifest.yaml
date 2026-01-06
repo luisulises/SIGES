@@ -1,0 +1,8 @@
+installation:
+  version: 6.0.0-alpha.22
+  installDate: 2026-01-06T19:40:51.559Z
+  lastUpdated: 2026-01-06T19:40:51.559Z
+modules:
+  - core
+ides:
+  - codex
