@@ -51,7 +51,7 @@ GRANULARIDAD DE SALIDA
 
 - Divide la implementación en pasos claros.
 - NO generes grandes bloques de código sin explicación.
-- Indica archivo por archivo qué se crea o modifica.
+- Indica archivo por archivo qué se crea o modifica, antes de mostrar cualquier código.
 - Espera confirmación antes de avanzar al siguiente paso.
 
 --

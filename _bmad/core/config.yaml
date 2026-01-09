@@ -4,6 +4,6 @@
 # Date: 2026-01-06T19:40:51.543Z
 
 user_name: Ulises
-communication_language: Sphanis
-document_output_language: Spanhis
+communication_language: Español
+document_output_language: Español
 output_folder: "{project-root}/_bmad-output"
