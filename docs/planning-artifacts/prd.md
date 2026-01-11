@@ -226,7 +226,7 @@ Mitigacion: recortar primero notificaciones, mantener core de tickets, estados e
 
 ### Creacion y Gestion de Tickets
 - FR5: Usuarios autorizados pueden crear tickets con asunto, proyecto/sistema y descripcion.
-- FR6: El asunto del ticket no es editable despues de creado.
+- FR6: El asunto y la descripcion del ticket no son editables despues de creado.
 - FR7: Tickets nuevos inician en estado Nuevo y sin responsable asignado.
 - FR8: Usuarios pueden ver el detalle completo de un ticket segun su rol y relacion (involucrados).
 

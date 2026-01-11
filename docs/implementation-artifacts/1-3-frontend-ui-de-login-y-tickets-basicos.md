@@ -15,6 +15,7 @@ so that pueda enviar solicitudes sin usar otros canales.
 3. Existe formulario de creacion de ticket (asunto, sistema, descripcion).
 4. El detalle de ticket muestra asunto, descripcion y estado.
 5. La vista se refresca automaticamente en <= 60 s para reflejar cambios.
+6. El detalle no permite editar asunto ni descripcion (solo lectura).
 
 ## Tasks / Subtasks
 
@@ -23,6 +24,7 @@ so that pueda enviar solicitudes sin usar otros canales.
 - [ ] Construir listado de tickets con orden y filtros basicos (AC: #2)
 - [ ] Construir formulario de creacion de ticket (AC: #3)
 - [ ] Construir detalle de ticket con campos base (AC: #4)
+- [ ] Asegurar que asunto y descripcion sean solo lectura en detalle (AC: #6)
 - [ ] Implementar polling para listado/detalle (AC: #5)
 
 ## Dev Notes

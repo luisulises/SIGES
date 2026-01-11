@@ -10,29 +10,33 @@ so that los usuarios puedan autenticarse y registrar solicitudes.
 
 ## Acceptance Criteria
 
-1. Existen tablas roles, usuarios, sistemas, estados_ticket y tickets con columnas base y timestamps.
-2. FKs definidas: usuarios.rol_id -> roles.id; sistemas.coordinador_id -> usuarios.id (nullable); tickets.solicitante_id -> usuarios.id; tickets.responsable_actual_id -> usuarios.id (nullable); tickets.sistema_id -> sistemas.id; tickets.estado_id -> estados_ticket.id.
+1. Existen tablas roles, usuarios, sistemas, estados_ticket, sistemas_coordinadores y tickets con columnas base y timestamps.
+2. FKs definidas: usuarios.rol_id -> roles.id; sistemas_coordinadores.sistema_id -> sistemas.id; sistemas_coordinadores.usuario_id -> usuarios.id; tickets.solicitante_id -> usuarios.id; tickets.responsable_actual_id -> usuarios.id (nullable); tickets.sistema_id -> sistemas.id; tickets.estado_id -> estados_ticket.id.
 3. Existe el estado "Nuevo" en estados_ticket y tickets.responsable_actual_id permite null.
-4. Se puede insertar un ticket con estado "Nuevo" y responsable_actual null sin violar restricciones.
+4. tickets incluye campo interno (bool) con default false.
+5. Se puede insertar un ticket con estado "Nuevo" y responsable_actual null sin violar restricciones.
 
 ## Tasks / Subtasks
 
-- [ ] Crear migraciones para roles, usuarios, sistemas, estados_ticket y tickets (AC: #1)
+- [ ] Crear migraciones para roles, usuarios, sistemas, estados_ticket, sistemas_coordinadores y tickets (AC: #1)
   - [ ] roles: id, nombre (unique)
   - [ ] usuarios: nombre, email (unique), rol_id, activo, created_at, updated_at, desactivado_at
-  - [ ] sistemas: nombre (unique), activo, coordinador_id (nullable)
+  - [ ] sistemas: nombre (unique), activo
   - [ ] estados_ticket: nombre (unique), es_terminal
-  - [ ] tickets: codigo, asunto, descripcion, solicitante_id, sistema_id, estado_id, responsable_actual_id, created_at, updated_at
+  - [ ] sistemas_coordinadores: sistema_id, usuario_id, created_at, updated_at
+  - [ ] tickets: asunto, descripcion, solicitante_id, sistema_id, estado_id, responsable_actual_id, interno, created_at, updated_at
 - [ ] Agregar FKs e indices necesarios (AC: #2)
+- [ ] Agregar unique (sistema_id, usuario_id) en sistemas_coordinadores
 - [ ] Seed de estado "Nuevo" en estados_ticket (AC: #3)
 - [ ] Validar inserts minimos con responsable_actual null (AC: #4)
 
 ## Dev Notes
 
 - Nombres en espanol y snake_case para tablas y columnas de dominio.
-- MVP asume 1 coordinador por sistema (sistemas.coordinador_id).
+- MVP soporta multiples coordinadores por sistema via sistemas_coordinadores.
 - No crear tablas de prioridad o tipo_solicitud en esta historia; se agregan en DB-2.1.
-- codigo puede quedar nullable hasta definir generacion en backend.
+- tickets.interno debe ser bool con default false para soportar visibilidad por rol desde Epic 1.
+- Identificador publico del ticket se definira mas adelante; usar id en MVP.
 
 ### Project Structure Notes
 

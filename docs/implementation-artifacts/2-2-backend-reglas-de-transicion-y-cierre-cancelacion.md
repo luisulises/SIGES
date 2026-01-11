@@ -12,7 +12,7 @@ so that el flujo sea consistente.
 
 1. Un usuario autorizado puede cambiar el estado de un ticket solo si existe una regla en reglas_transicion_estado para su rol.
 2. Si la regla requiere responsable, no se permite transicion a "En progreso" cuando responsable_actual_id es null.
-3. Cerrar ticket solo es posible si el estado actual es "Resuelto" y existe resolucion; solicitante (propietario), coordinador, soporte asignado o admin pueden cerrar.
+3. Cerrar ticket solo es posible si el estado actual es "Resuelto" y existe resolucion; solicitante (propietario), coordinador o admin pueden cerrar.
 4. Cancelar ticket solo es posible para solicitante (propietario) o coordinador/admin; se registra cancelado_at y estado "Cancelado".
 5. Soporte solo puede cambiar estado de tickets asignados; coordinador solo de tickets en sus sistemas; admin puede operar cualquier ticket.
 
@@ -26,6 +26,7 @@ so that el flujo sea consistente.
   - [ ] Exigir responsable_actual_id cuando requiere_responsable = true
 - [ ] Implementar cierre de ticket (AC: #3)
   - [ ] Verificar estado "Resuelto" y resolucion no null
+  - [ ] Validar rol permitido (solicitante/coordinador/admin)
   - [ ] Set estado "Cerrado" y cerrado_at
 - [ ] Implementar cancelacion de ticket (AC: #4)
   - [ ] Verificar rol permitido (solicitante/coordinador/admin)

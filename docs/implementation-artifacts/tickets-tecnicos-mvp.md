@@ -17,9 +17,9 @@
 
 ## Prioridad de entrega (MVP)
 
-- P0.1 DB-1.1 Esquema base: usuarios, roles, sistemas, estados_ticket y tickets.
+- P0.1 DB-1.1 Esquema base: usuarios, roles, sistemas, estados_ticket, sistemas_coordinadores y tickets (incluye ticket.interno).
 - P0.2 BE-1.1 Autenticacion y sesiones con RBAC.
-- P0.3 BE-1.2 CRUD minimo de tickets: crear con asunto/sistema/descripcion; asunto no editable; estado inicial Nuevo.
+- P0.3 BE-1.2 CRUD minimo de tickets: crear con asunto/sistema/descripcion; asunto y descripcion no editables; estado inicial Nuevo.
 - P0.4 BE-1.3 Listado y detalle por rol con orden por ultima actualizacion.
 - P0.5 FE-1.1 UI de login.
 - P0.6 FE-1.2 UI de listado y detalle de tickets con filtros basicos y orden por ultima actualizacion.
@@ -54,7 +54,7 @@
 - P4.3 BE-5.2 Exclusion de usuarios desactivados en notificaciones.
 - P4.4 FE-5.1 Campanita de notificaciones con contador y listado.
 
-- P5.1 DB-6.1 Catalogos y campos administrativos: sistemas, prioridades, tipos_solicitud, usuario.activo, ticket.interno.
+- P5.1 DB-6.1 Catalogos y campos administrativos: sistemas, prioridades, tipos_solicitud, usuario.activo.
 - P5.2 BE-6.1 Gestion de usuarios y roles, con desactivacion y reglas asociadas.
 - P5.3 BE-6.2 Gestion de catalogos (sistemas, tipos_solicitud, prioridades).
 - P5.4 BE-6.3 Tickets internos y modificacion de campos operativos por admin.
@@ -124,8 +124,8 @@
 
 ### Epic 1 - Registro y consulta basica de tickets
 
-- DB-1.1 Esquema base: usuarios, roles, sistemas, estados_ticket y tickets.
-  - Criterios: claves foraneas validas; estado inicial "Nuevo"; responsable_actual null.
+- DB-1.1 Esquema base: usuarios, roles, sistemas, estados_ticket, sistemas_coordinadores y tickets.
+  - Criterios: claves foraneas validas; estado inicial "Nuevo"; responsable_actual null; tickets.interno default false.
 
 ### Epic 2 - Workflow operativo y asignacion
 
@@ -148,15 +148,15 @@
 
 ### Epic 6 - Administracion y gobierno
 
-- DB-6.1 Catalogos y campos administrativos: sistemas, prioridades, tipos_solicitud, usuario.activo, ticket.interno.
-  - Criterios: catalogos con flag activo; tickets internos ocultables.
+- DB-6.1 Catalogos y campos administrativos: sistemas, prioridades, tipos_solicitud, usuario.activo.
+  - Criterios: catalogos con flag activo; usuarios activos/inactivos definidos.
 
 ## Backend
 
 ### Epic 1 - Registro y consulta basica de tickets
 
 - BE-1.1 Autenticacion y sesiones con RBAC.
-- BE-1.2 CRUD minimo de tickets: crear con asunto/sistema/descripcion; asunto no editable; estado inicial Nuevo.
+- BE-1.2 CRUD minimo de tickets: crear con asunto/sistema/descripcion; asunto y descripcion no editables; estado inicial Nuevo.
 - BE-1.3 Listado y detalle por rol con orden por ultima actualizacion.
 
 ### Epic 2 - Workflow operativo y asignacion

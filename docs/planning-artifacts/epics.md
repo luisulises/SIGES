@@ -18,7 +18,7 @@ This document provides the complete epic and story breakdown for Sistema - copia
 - FR3: El sistema aplica visibilidad por rol a comentarios y adjuntos (publicos vs internos).
 - FR4: Administrador puede marcar tickets como internos; quedan ocultos para clientes internos (aunque esten involucrados).
 - FR5: Usuarios autorizados pueden crear tickets con asunto, proyecto/sistema y descripcion.
-- FR6: El asunto del ticket no es editable despues de creado.
+- FR6: El asunto y la descripcion del ticket no son editables despues de creado.
 - FR7: Tickets nuevos inician en estado Nuevo y sin responsable asignado.
 - FR8: Usuarios pueden ver el detalle completo de un ticket segun su rol.
 - FR9: Soporte/coordinador/administrador pueden cambiar estado de tickets que gestionan.
@@ -107,7 +107,7 @@ FR2: Epic 1 - Visibilidad por rol en listados
 FR3: Epic 3 - Visibilidad en comentarios y adjuntos
 FR4: Epic 6 - Tickets internos
 FR5: Epic 1 - Creacion de tickets
-FR6: Epic 1 - Asunto no editable
+FR6: Epic 1 - Asunto y descripcion no editables
 FR7: Epic 1 - Estado inicial
 FR8: Epic 1 - Detalle segun rol
 FR9: Epic 2 - Cambio de estado por soporte/coordinador/admin
@@ -144,7 +144,7 @@ FR39: Epic 1 - Listado segun rol
 FR40: Epic 1 - Orden por ultima actualizacion
 FR41: Epic 6 - Busqueda por asunto/estado/proyecto
 FR42: Epic 5 - Notificaciones por eventos
-FR43: Epic 5 - Canales campanita/correo
+FR43: Epic 5 - Canales campanita (correo post-MVP)
 FR44: Epic 6 - Gestion usuarios/roles
 FR45: Epic 6 - Gestion proyectos/sistemas
 FR46: Epic 6 - Gestion tipos de solicitud
@@ -176,7 +176,7 @@ Auditoria, historial, relaciones/duplicados y registro de tiempo.
 **FRs covered:** FR14, FR33, FR34, FR35, FR36, FR37, FR38, FR52
 
 ### Epic 5: Notificaciones de cambios
-Notificaciones por eventos clave via campanita y correo.
+Notificaciones por eventos clave via campanita in_app (correo post-MVP).
 **FRs covered:** FR29, FR42, FR43
 
 ### Epic 6: Administracion y gobierno
@@ -216,9 +216,9 @@ So that pueda registrar solicitudes y ver su estado.
 **And** registra al solicitante como propietario
 
 **Given** un ticket creado
-**When** intenta editar el asunto
+**When** intenta editar el asunto o la descripcion
 **Then** el sistema rechaza el cambio
-**And** mantiene el asunto original
+**And** mantiene el asunto y la descripcion originales
 
 **Given** usuarios con distintos roles
 **When** consultan listado y detalle de tickets
@@ -237,7 +237,7 @@ So that pueda enviar solicitudes sin usar otros canales.
 **Given** usuario autenticado
 **When** ingresa al formulario y guarda un ticket
 **Then** ve confirmacion y el ticket aparece en su listado
-**And** puede abrir el detalle con asunto, descripcion y estado
+**And** puede abrir el detalle con asunto, descripcion y estado (solo lectura)
 
 **Given** el usuario permanece en la lista o detalle
 **When** pasa el intervalo de actualizacion
@@ -514,13 +514,13 @@ So that tenga trazabilidad completa.
 
 ## Epic 5: Notificaciones de cambios
 
-Notificaciones por eventos clave via campanita y correo.
+Notificaciones por eventos clave via campanita in_app (correo post-MVP).
 
 ### Story 5.1: BD - Esquema de notificaciones
 
 As a administrador del sistema,
 I want una tabla de notificaciones,
-So that el sistema pueda registrar avisos in_app y por correo.
+So that el sistema pueda registrar avisos in_app (correo post-MVP).
 
 **Acceptance Criteria:**
 
@@ -539,7 +539,7 @@ So that este informado sin perseguir a nadie.
 **Given** se crea, asigna, cambia estado, comenta publico o se cierra un ticket
 **When** ocurre el evento
 **Then** se genera una notificacion in_app para solicitante e involucrados activos
-**And** se envia correo y se registra campanita interna
+**And** se registra campanita interna
 
 **Given** usuario desactivado
 **When** ocurre un evento

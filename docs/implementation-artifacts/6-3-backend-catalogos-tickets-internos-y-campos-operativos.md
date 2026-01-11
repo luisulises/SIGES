@@ -20,7 +20,6 @@ so that la operacion sea consistente.
 - [ ] Implementar endpoints CRUD para catalogos (AC: #1)
   - [ ] Validar unicidad de nombre y uso de activo
 - [ ] Implementar flag de ticket interno y su validacion (AC: #2, #4)
-  - [ ] Agregar campo booleano interno en tickets si no existe (migracion)
 - [ ] Implementar endpoints de actualizacion de campos operativos para admin (AC: #3)
 - [ ] Pruebas de feature para catalogos y tickets internos (AC: #1-#4)
 
@@ -28,7 +27,7 @@ so that la operacion sea consistente.
 
 - Si tickets ya tienen flujo operativo, reutilizar el mismo endpoint con permisos admin.
 - En MVP, catalogos administrables: sistemas, prioridades y tipos_solicitud (estados quedan fijos).
-- Usar tickets.interno (bool, default false) como indicador.
+- Usar tickets.interno (bool, default false) como indicador (definido en DB-1.1).
 - Ticket interno afecta visibilidad en listados y detalle (coordinar con filtros de Epic 1).
 
 ### Project Structure Notes

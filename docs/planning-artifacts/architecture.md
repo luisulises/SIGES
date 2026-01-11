@@ -73,11 +73,12 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 - Usuario: id, nombre, email, rol_id, activo, created_at, desactivado_at.
 - Rol: id, nombre.
 - Sistema: id, nombre, activo.
+- SistemaCoordinador: sistema_id, usuario_id, created_at.
 - TipoSolicitud: id, nombre, activo.
 - Prioridad: id, nombre, orden, activo.
 - EstadoTicket: id, nombre, es_terminal.
 - ReglaTransicionEstado: id, estado_origen_id, estado_destino_id, rol_id, requiere_responsable.
-- Ticket: id, codigo, asunto, descripcion, solicitante_id, sistema_id, tipo_solicitud_id, estado_id, prioridad_id, responsable_actual_id, interno, fecha_compromiso, created_at, updated_at, cerrado_at, cancelado_at.
+- Ticket: id, asunto, descripcion, solicitante_id, sistema_id, tipo_solicitud_id, estado_id, prioridad_id, responsable_actual_id, interno, fecha_compromiso, created_at, updated_at, cerrado_at, cancelado_at.
 - AsignacionTicket: id, ticket_id, responsable_id, asignado_por_id, asignado_at, desasignado_at.
 - ComentarioTicket: id, ticket_id, autor_id, cuerpo, visibilidad(publico|interno), created_at.
 - Adjunto: id, ticket_id, comentario_id (nullable), cargado_por_id, nombre_archivo, clave_almacenamiento, visibilidad, created_at.
@@ -90,6 +91,7 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 ### Relaciones y reglas clave
 
 - Ticket pertenece a Sistema, TipoSolicitud, Prioridad y EstadoTicket; solicitante y responsable_actual son Usuarios.
+- Sistema tiene muchos coordinadores via SistemaCoordinador; coordinador accede a tickets del sistema.
 - Ticket tiene muchos ComentarioTicket, Adjunto, AsignacionTicket, EventoAuditoriaTicket, InvolucradoTicket, RelacionTicket y RegistroTiempoTicket.
 - InvolucradoTicket extiende visibilidad de lectura del ticket.
 - Ticket interno es visible solo para roles internos; cliente interno no accede aunque sea involucrado.
@@ -109,16 +111,15 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 ### Starter Options Considered
 
-- Omitido en esta fase por restriccion: no decisiones de framework/starter/instalacion.
-- Se retomara cuando se permita definir stack y versiones.
+- Laravel Breeze (Inertia + Vue) como starter por compatibilidad con el stack confirmado.
 
-### Selected Starter: None (deferred)
+### Selected Starter: Laravel Breeze (Inertia + Vue)
 
-**Rationale:** Mantener independencia de framework y evitar decisiones de instalacion en esta fase.
+**Rationale:** Acelera scaffolding de autenticacion y UI base con Inertia/Vue, alineado al stack definido.
 
-**Initialization Command:** N/A
+**Initialization Command:** Ver `docs/flujo-proyecto.md` (setup con Breeze + Inertia + Vue).
 
-**Architectural Decisions Provided by Starter:** N/A
+**Architectural Decisions Provided by Starter:** Autenticacion base, rutas y vistas iniciales con Inertia/Vue.
 
 ## Core Architectural Decisions
 
@@ -140,7 +141,6 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 - Sin cache en MVP.
 
 **Deferred Decisions (Post-MVP o fase tecnica):**
-- Starter template/stack especifico y versiones.
 - CI/CD y hosting especifico.
 - Observabilidad avanzada (tracing/metrics).
 
@@ -429,7 +429,7 @@ project-root/
 ### Implementation Readiness Validation
 
 **Decision Completeness:**
-- Decisiones core documentadas; versiones y starter diferidos.
+- Decisiones core documentadas; stack y starter confirmados.
 
 **Structure Completeness:**
 - Arbol de proyecto definido con limites claros.
@@ -440,7 +440,7 @@ project-root/
 ### Gap Analysis Results
 
 - Critical gaps: ninguno.
-- Important gaps: definicion de starter/stack concreto y versiones.
+- Important gaps: CI/CD y hosting especifico.
 - Nice-to-have gaps: observabilidad avanzada.
 
 ### Validation Issues Addressed
@@ -471,14 +471,14 @@ project-root/
 
 **Overall Status:** READY FOR IMPLEMENTATION
 
-**Confidence Level:** medium (stack y versiones diferidos).
+**Confidence Level:** medium (CI/CD y hosting diferidos).
 
 **Key Strengths:**
 - Modelo de datos robusto y trazable.
 - Reglas de consistencia claras.
 
 **Areas for Future Enhancement:**
-- Definir starter y versiones.
+- Definir CI/CD y hosting.
 - Observabilidad avanzada.
 
 ### Implementation Handoff
@@ -489,7 +489,7 @@ project-root/
 - Mantener consistencia en naming y formatos.
 
 **First Implementation Priority:**
-- Definir stack/starter concreto y versionado.
+- Preparar repo y setup base (Laravel 10 + Breeze Inertia + Vue + PostgreSQL).
 
 ## Architecture Completion Summary
 
@@ -513,7 +513,7 @@ project-root/
 Este documento es la guia para implementar Sistema - copia. Seguir decisiones, patrones y estructura tal como se documenta.
 
 **First Implementation Priority:**
-Definir stack/starter concreto y versionado antes de iniciar codigo.
+Preparar repo y setup base (Laravel 10 + Breeze Inertia + Vue + PostgreSQL) antes de iniciar codigo.
 
 ### Quality Assurance Checklist
 

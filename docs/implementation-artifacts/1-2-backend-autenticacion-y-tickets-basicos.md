@@ -12,11 +12,11 @@ so that pueda registrar solicitudes y ver su estado.
 
 1. Login con credenciales validas permite iniciar sesion y acceder a endpoints protegidos.
 2. Crear ticket con asunto, sistema_id y descripcion crea un ticket en estado "Nuevo", sin responsable_actual y con solicitante_id del usuario autenticado.
-3. Intentar modificar el asunto de un ticket es rechazado.
+3. Intentar modificar el asunto o la descripcion de un ticket es rechazado.
 4. Listado y detalle aplican visibilidad por rol y relacion:
    - Cliente interno: solo sus tickets y nunca tickets internos.
    - Soporte: tickets asignados + tickets donde es involucrado.
-   - Coordinador: tickets de sistemas donde es coordinador (sistemas.coordinador_id = usuario.id) + tickets donde es involucrado.
+   - Coordinador: tickets de sistemas donde es coordinador (sistemas_coordinadores.usuario_id = usuario.id) + tickets donde es involucrado.
    - Admin: todos.
    - Cualquier usuario involucrado puede ver el ticket aunque no sea solicitante/responsable (excepto cliente interno en tickets internos).
 5. El listado ordena por updated_at descendente.
@@ -32,7 +32,7 @@ so that pueda registrar solicitudes y ver su estado.
   - [ ] GET /api/tickets/{id} (detalle)
 - [ ] Aplicar reglas de visibilidad por rol y por involucrados en listados/detalle (AC: #4)
 - [ ] Excluir tickets internos para cliente interno (AC: #4)
-- [ ] Bloquear cambios de asunto en update (AC: #3)
+- [ ] Bloquear cambios de asunto y descripcion en update (AC: #3)
 - [ ] Pruebas de feature minimas para login, create y visibility (AC: #1-#5)
 
 ## Dev Notes
@@ -41,6 +41,7 @@ so that pueda registrar solicitudes y ver su estado.
 - Controllers delgados; logica en app/Services; validacion en Requests; autorizacion en Policies.
 - Estado inicial "Nuevo" debe resolverse por nombre en estados_ticket (seed previo de DB-1.1).
 - No implementar cambios operativos (prioridad, fechas, estado) en esta historia.
+- Coordinadores se resuelven via sistemas_coordinadores (many-to-many).
 - Involucrados extienden visibilidad de lectura en listados/detalle.
 
 ### Project Structure Notes
