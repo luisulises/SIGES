@@ -1,6 +1,6 @@
 # Story 1.1: BD - Esquema base de usuarios, roles y tickets
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,17 +18,17 @@ so that los usuarios puedan autenticarse y registrar solicitudes.
 
 ## Tasks / Subtasks
 
-- [ ] Crear migraciones para roles, usuarios, sistemas, estados_ticket, sistemas_coordinadores y tickets (AC: #1)
-  - [ ] roles: id, nombre (unique)
-  - [ ] usuarios: nombre, email (unique), rol_id, activo, created_at, updated_at, desactivado_at
-  - [ ] sistemas: nombre (unique), activo
-  - [ ] estados_ticket: nombre (unique), es_terminal
-  - [ ] sistemas_coordinadores: sistema_id, usuario_id, created_at, updated_at
-  - [ ] tickets: asunto, descripcion, solicitante_id, sistema_id, estado_id, responsable_actual_id, interno, created_at, updated_at
-- [ ] Agregar FKs e indices necesarios (AC: #2)
-- [ ] Agregar unique (sistema_id, usuario_id) en sistemas_coordinadores
-- [ ] Seed de estado "Nuevo" en estados_ticket (AC: #3)
-- [ ] Validar inserts minimos con responsable_actual null (AC: #4)
+- [x] Crear migraciones para roles, usuarios, sistemas, estados_ticket, sistemas_coordinadores y tickets (AC: #1)
+  - [x] roles: id, nombre (unique)
+  - [x] usuarios: nombre, email (unique), rol_id, activo, created_at, updated_at, desactivado_at
+  - [x] sistemas: nombre (unique), activo
+  - [x] estados_ticket: nombre (unique), es_terminal
+  - [x] sistemas_coordinadores: sistema_id, usuario_id, created_at, updated_at
+  - [x] tickets: asunto, descripcion, solicitante_id, sistema_id, estado_id, responsable_actual_id, interno, created_at, updated_at
+- [x] Agregar FKs e indices necesarios (AC: #2)
+- [x] Agregar unique (sistema_id, usuario_id) en sistemas_coordinadores
+- [x] Seed de estado "Nuevo" en estados_ticket (AC: #3)
+- [x] Validar inserts minimos con responsable_actual null (AC: #4)
 
 ## Dev Notes
 
@@ -53,11 +53,27 @@ so that los usuarios puedan autenticarse y registrar solicitudes.
 
 ### Agent Model Used
 
-TBD
+Codex (GPT-5)
 
 ### Debug Log References
 
+- `php artisan migrate:fresh --seed`
+- Validacion de insert con `responsable_actual_id` null via `psql` (transaccion con rollback)
+
 ### Completion Notes List
+
+- Migraciones base creadas con FKs y `tickets.interno` por defecto.
+- Estado "Nuevo" sembrado en `estados_ticket`.
+- Insert de ticket con responsable_actual null validado.
+- Riesgo: catalogos de prioridad/tipo_solicitud se agregan en DB-2.1; revisar dependencias posteriores.
 
 ### File List
 
+- database/migrations/2014_10_11_000000_create_roles_table.php
+- database/migrations/2014_10_12_000000_create_users_table.php
+- database/migrations/2026_01_11_000001_create_sistemas_table.php
+- database/migrations/2026_01_11_000002_create_estados_ticket_table.php
+- database/migrations/2026_01_11_000003_create_sistemas_coordinadores_table.php
+- database/migrations/2026_01_11_000004_create_tickets_table.php
+- database/seeders/EstadoTicketSeeder.php
+- database/seeders/DatabaseSeeder.php

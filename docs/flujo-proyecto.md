@@ -119,40 +119,40 @@ Aplicar esta plantilla a cada story antes de marcarla como completada.
 - [x] Preparacion: revisar docs/implementation-artifacts/1-1-bd-esquema-base-de-usuarios-roles-y-tickets.md.
 - [x] Implementacion: completar Tasks/Subtasks de la story.
 - [x] Pruebas: validar AC (migraciones y inserts minimos).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
-- [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
+- [x] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 1-2 Backend - Autenticacion y tickets basicos
 - [x] Preparacion: revisar docs/implementation-artifacts/1-2-backend-autenticacion-y-tickets-basicos.md.
 - [x] Implementacion: completar Tasks/Subtasks de la story.
 - [x] Pruebas: validar AC (login, crear ticket y visibilidad).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
-- [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
+- [x] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 1-3 Frontend - UI de login y tickets basicos
 - [x] Preparacion: revisar docs/implementation-artifacts/1-3-frontend-ui-de-login-y-tickets-basicos.md.
 - [x] Implementacion: completar Tasks/Subtasks de la story.
 - [x] Pruebas: validar AC (login, listado y detalle).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
-- [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
+- [x] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 ### Epic 2 - Workflow operativo y asignacion
 #### 2-1 BD - Esquema de workflow y asignaciones

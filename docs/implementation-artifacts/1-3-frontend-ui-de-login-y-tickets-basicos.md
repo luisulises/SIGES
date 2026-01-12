@@ -1,6 +1,6 @@
 # Story 1.3: Frontend - UI de login y tickets basicos
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -19,13 +19,13 @@ so that pueda enviar solicitudes sin usar otros canales.
 
 ## Tasks / Subtasks
 
-- [ ] Construir pantalla de login (AC: #1)
-  - [ ] Validar error de credenciales
-- [ ] Construir listado de tickets con orden y filtros basicos (AC: #2)
-- [ ] Construir formulario de creacion de ticket (AC: #3)
-- [ ] Construir detalle de ticket con campos base (AC: #4)
-- [ ] Asegurar que asunto y descripcion sean solo lectura en detalle (AC: #6)
-- [ ] Implementar polling para listado/detalle (AC: #5)
+- [x] Construir pantalla de login (AC: #1)
+  - [x] Validar error de credenciales
+- [x] Construir listado de tickets con orden y filtros basicos (AC: #2)
+- [x] Construir formulario de creacion de ticket (AC: #3)
+- [x] Construir detalle de ticket con campos base (AC: #4)
+- [x] Asegurar que asunto y descripcion sean solo lectura en detalle (AC: #6)
+- [x] Implementar polling para listado/detalle (AC: #5)
 
 ## Dev Notes
 
@@ -48,11 +48,30 @@ so that pueda enviar solicitudes sin usar otros canales.
 
 ### Agent Model Used
 
-TBD
+Codex (GPT-5)
 
 ### Debug Log References
 
+- Validacion manual en UI: login, listado, detalle y polling (60s)
+
 ### Completion Notes List
+
+- Vista de tickets con formulario de creacion, listado ordenado y detalle solo lectura.
+- Polling cada 60s en listado y detalle.
+- Ajustes de navegacion y estilos para legibilidad en inputs.
+- Riesgo: sin sistemas activos el formulario no puede crear tickets; requiere seed inicial.
 
 ### File List
 
+- app/Http/Controllers/TicketController.php
+- app/Http/Controllers/Auth/RegisteredUserController.php
+- app/Http/Requests/ProfileUpdateRequest.php
+- app/Providers/RouteServiceProvider.php
+- resources/js/Layouts/AuthenticatedLayout.vue
+- resources/js/Pages/Auth/Register.vue
+- resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.vue
+- resources/js/Pages/Tickets/Index.vue
+- resources/js/Pages/Tickets/Show.vue
+- resources/js/Pages/Welcome.vue
+- resources/js/Components/TextInput.vue
+- routes/web.php

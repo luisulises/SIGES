@@ -1,6 +1,6 @@
 # Story 1.2: Backend - Autenticacion y tickets basicos
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -23,17 +23,17 @@ so that pueda registrar solicitudes y ver su estado.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar autenticacion y middleware de sesion (AC: #1)
-  - [ ] Endpoints de login/logout o flujo equivalente
-  - [ ] Proteccion de endpoints de tickets
-- [ ] Crear endpoints de tickets basicos (AC: #2, #5)
-  - [ ] POST /api/tickets (crear)
-  - [ ] GET /api/tickets (listar con orden por updated_at desc)
-  - [ ] GET /api/tickets/{id} (detalle)
-- [ ] Aplicar reglas de visibilidad por rol y por involucrados en listados/detalle (AC: #4)
-- [ ] Excluir tickets internos para cliente interno (AC: #4)
-- [ ] Bloquear cambios de asunto y descripcion en update (AC: #3)
-- [ ] Pruebas de feature minimas para login, create y visibility (AC: #1-#5)
+- [x] Implementar autenticacion y middleware de sesion (AC: #1)
+  - [x] Endpoints de login/logout o flujo equivalente
+  - [x] Proteccion de endpoints de tickets
+- [x] Crear endpoints de tickets basicos (AC: #2, #5)
+  - [x] POST /api/tickets (crear)
+  - [x] GET /api/tickets (listar con orden por updated_at desc)
+  - [x] GET /api/tickets/{id} (detalle)
+- [x] Aplicar reglas de visibilidad por rol y por involucrados en listados/detalle (AC: #4)
+- [x] Excluir tickets internos para cliente interno (AC: #4)
+- [x] Bloquear cambios de asunto y descripcion en update (AC: #3)
+- [x] Pruebas de feature minimas para login, create y visibility (AC: #1-#5)
 
 ## Dev Notes
 
@@ -59,11 +59,40 @@ so that pueda registrar solicitudes y ver su estado.
 
 ### Agent Model Used
 
-TBD
+Codex (GPT-5)
 
 ### Debug Log References
 
+- `php artisan test --filter TicketApiTest`
+
 ### Completion Notes List
+
+- Auth API con tokens (login/logout) y endpoints CRUD base para tickets.
+- Visibilidad por rol aplicada con `TicketVisibilityService` y `TicketPolicy`.
+- Se agrego `involucrados_ticket` para soportar visibilidad por involucrados antes de Epic 3.
+- `RoleSeeder` + `EstadoTicketSeeder` habilitan rol y estado inicial para pruebas.
+- Riesgo: `involucrados_ticket` se adelanto a Epic 1; validar compatibilidad cuando se implemente Epic 3.
 
 ### File List
 
+- app/Http/Controllers/Api/AuthController.php
+- app/Http/Controllers/Api/TicketController.php
+- app/Http/Requests/Api/LoginRequest.php
+- app/Http/Requests/Api/StoreTicketRequest.php
+- app/Http/Requests/Api/UpdateTicketRequest.php
+- app/Http/Resources/TicketResource.php
+- app/Models/EstadoTicket.php
+- app/Models/Role.php
+- app/Models/Sistema.php
+- app/Models/Ticket.php
+- app/Models/User.php
+- app/Policies/TicketPolicy.php
+- app/Providers/AuthServiceProvider.php
+- app/Services/TicketService.php
+- app/Services/TicketVisibilityService.php
+- database/factories/UserFactory.php
+- database/migrations/2026_01_11_000005_create_involucrados_ticket_table.php
+- database/seeders/RoleSeeder.php
+- database/seeders/DatabaseSeeder.php
+- routes/api.php
+- tests/Feature/Api/TicketApiTest.php
