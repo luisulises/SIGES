@@ -1,6 +1,6 @@
 # Story 2.1: BD - Esquema de workflow y asignaciones
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,19 +18,19 @@ so that el ciclo del ticket se pueda gestionar.
 
 ## Tasks / Subtasks
 
-- [ ] Crear migraciones para prioridades y tipos_solicitud (AC: #1)
-  - [ ] prioridades: nombre (unique), orden, activo
-  - [ ] tipos_solicitud: nombre (unique), activo
-- [ ] Crear migracion para reglas_transicion_estado (AC: #1, #2)
-  - [ ] columnas: estado_origen_id, estado_destino_id, rol_id, requiere_responsable (bool)
-  - [ ] index unico (estado_origen_id, estado_destino_id, rol_id)
-- [ ] Crear migracion para asignaciones_ticket (AC: #1, #2)
-  - [ ] columnas: ticket_id, responsable_id, asignado_por_id, asignado_at, desasignado_at
-  - [ ] indices por ticket_id y responsable_id
-- [ ] Alterar tickets para agregar columnas operativas (AC: #3, #5)
-  - [ ] prioridad_id, tipo_solicitud_id, fecha_compromiso, fecha_entrega, resolucion, cerrado_at, cancelado_at
-  - [ ] agregar FKs e indices de prioridad_id y tipo_solicitud_id
-- [ ] Seed de estados_ticket faltantes (AC: #4)
+- [x] Crear migraciones para prioridades y tipos_solicitud (AC: #1)
+  - [x] prioridades: nombre (unique), orden, activo
+  - [x] tipos_solicitud: nombre (unique), activo
+- [x] Crear migracion para reglas_transicion_estado (AC: #1, #2)
+  - [x] columnas: estado_origen_id, estado_destino_id, rol_id, requiere_responsable (bool)
+  - [x] index unico (estado_origen_id, estado_destino_id, rol_id)
+- [x] Crear migracion para asignaciones_ticket (AC: #1, #2)
+  - [x] columnas: ticket_id, responsable_id, asignado_por_id, asignado_at, desasignado_at
+  - [x] indices por ticket_id y responsable_id
+- [x] Alterar tickets para agregar columnas operativas (AC: #3, #5)
+  - [x] prioridad_id, tipo_solicitud_id, fecha_compromiso, fecha_entrega, resolucion, cerrado_at, cancelado_at
+  - [x] agregar FKs e indices de prioridad_id y tipo_solicitud_id
+- [x] Seed de estados_ticket faltantes (AC: #4)
 
 ## Dev Notes
 
@@ -53,11 +53,26 @@ so that el ciclo del ticket se pueda gestionar.
 
 ### Agent Model Used
 
-TBD
+Codex (GPT-5)
 
 ### Debug Log References
 
+- `php artisan migrate`
+- `php artisan db:seed --class=EstadoTicketSeeder`
+
 ### Completion Notes List
 
+- Tablas base de workflow creadas: prioridades, tipos_solicitud, reglas_transicion_estado, asignaciones_ticket.
+- Campos operativos agregados a tickets con FKs a prioridades y tipos_solicitud.
+- Estados adicionales sembrados con `es_terminal` para Cerrado y Cancelado.
+- Riesgo: faltan catalogos seed para prioridades/tipos_solicitud; definir valores iniciales antes de UI.
+
 ### File List
+
+- database/migrations/2026_01_11_000006_create_prioridades_table.php
+- database/migrations/2026_01_11_000007_create_tipos_solicitud_table.php
+- database/migrations/2026_01_11_000008_create_reglas_transicion_estado_table.php
+- database/migrations/2026_01_11_000009_create_asignaciones_ticket_table.php
+- database/migrations/2026_01_11_000010_add_campos_operativos_to_tickets_table.php
+- database/seeders/EstadoTicketSeeder.php
 

@@ -12,13 +12,25 @@ class EstadoTicketSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('estados_ticket')->updateOrInsert(
-            ['nombre' => 'Nuevo'],
-            [
-                'es_terminal' => false,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        );
+        $estados = [
+            ['nombre' => 'Nuevo', 'es_terminal' => false],
+            ['nombre' => 'En analisis', 'es_terminal' => false],
+            ['nombre' => 'Asignado', 'es_terminal' => false],
+            ['nombre' => 'En progreso', 'es_terminal' => false],
+            ['nombre' => 'Resuelto', 'es_terminal' => false],
+            ['nombre' => 'Cerrado', 'es_terminal' => true],
+            ['nombre' => 'Cancelado', 'es_terminal' => true],
+        ];
+
+        foreach ($estados as $estado) {
+            DB::table('estados_ticket')->updateOrInsert(
+                ['nombre' => $estado['nombre']],
+                [
+                    'es_terminal' => $estado['es_terminal'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
     }
 }
