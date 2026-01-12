@@ -20,3 +20,7 @@ yarn-error.log
 _bmad/
 .codex/
 condex.cmd
+/storage/logs/*.log
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/cache/*
