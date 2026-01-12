@@ -108,17 +108,17 @@ Aplicar esta plantilla a cada story antes de marcarla como completada.
 - [ ] Cierre: actualizar estado en docs/implementation-artifacts/sprint-status.yaml.
 
 ### Fase 0 - Preparacion tecnica (setup)
-- [ ] Preparacion: confirmar stack, versiones y starter (docs/planning-artifacts/architecture.md).
-- [ ] Implementacion: crear proyecto Laravel con Breeze + Inertia + Vue.
-- [ ] Implementacion: configurar PostgreSQL, .env y storage para adjuntos.
-- [ ] Implementacion: aplicar estructura MVC/Services/Policies definida en arquitectura.
+- [x] Preparacion: confirmar stack, versiones y starter (docs/planning-artifacts/architecture.md).
+- [x] Implementacion: crear proyecto Laravel con Breeze + Inertia + Vue.
+- [x] Implementacion: configurar PostgreSQL, .env y storage para adjuntos.
+- [x] Implementacion: aplicar estructura MVC/Services/Policies definida en arquitectura.
 - [ ] Cierre: configurar rama story/1.1-bd-base y flujo de commits.
 
 ### Epic 1 - Registro y consulta basica
 #### 1-1 BD - Esquema base de usuarios, roles y tickets
-- [ ] Preparacion: revisar docs/implementation-artifacts/1-1-bd-esquema-base-de-usuarios-roles-y-tickets.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (migraciones y inserts minimos).
+- [x] Preparacion: revisar docs/implementation-artifacts/1-1-bd-esquema-base-de-usuarios-roles-y-tickets.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (migraciones y inserts minimos).
 - [ ] Cierre: registrar notas y actualizar checklist.
 - [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
 - [ ] DoD: Tasks/Subtasks completadas segun la story.
@@ -129,9 +129,9 @@ Aplicar esta plantilla a cada story antes de marcarla como completada.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 1-2 Backend - Autenticacion y tickets basicos
-- [ ] Preparacion: revisar docs/implementation-artifacts/1-2-backend-autenticacion-y-tickets-basicos.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (login, crear ticket y visibilidad).
+- [x] Preparacion: revisar docs/implementation-artifacts/1-2-backend-autenticacion-y-tickets-basicos.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (login, crear ticket y visibilidad).
 - [ ] Cierre: registrar notas y actualizar checklist.
 - [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
 - [ ] DoD: Tasks/Subtasks completadas segun la story.
@@ -142,9 +142,9 @@ Aplicar esta plantilla a cada story antes de marcarla como completada.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 1-3 Frontend - UI de login y tickets basicos
-- [ ] Preparacion: revisar docs/implementation-artifacts/1-3-frontend-ui-de-login-y-tickets-basicos.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (login, listado y detalle).
+- [x] Preparacion: revisar docs/implementation-artifacts/1-3-frontend-ui-de-login-y-tickets-basicos.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (login, listado y detalle).
 - [ ] Cierre: registrar notas y actualizar checklist.
 - [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
 - [ ] DoD: Tasks/Subtasks completadas segun la story.
@@ -459,3 +459,4 @@ Aplicar esta plantilla a cada story antes de marcarla como completada.
 - [ ] Epic 4: registrar aprendizajes y actualizar epic-4-retrospective en docs/implementation-artifacts/sprint-status.yaml.
 - [ ] Epic 5: registrar aprendizajes y actualizar epic-5-retrospective en docs/implementation-artifacts/sprint-status.yaml.
 - [ ] Epic 6: registrar aprendizajes y actualizar epic-6-retrospective en docs/implementation-artifacts/sprint-status.yaml.
+
