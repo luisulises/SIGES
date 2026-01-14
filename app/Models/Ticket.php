@@ -20,10 +20,21 @@ class Ticket extends Model
         'estado_id',
         'responsable_actual_id',
         'interno',
+        'prioridad_id',
+        'tipo_solicitud_id',
+        'fecha_compromiso',
+        'fecha_entrega',
+        'resolucion',
+        'cerrado_at',
+        'cancelado_at',
     ];
 
     protected $casts = [
         'interno' => 'boolean',
+        'fecha_compromiso' => 'datetime',
+        'fecha_entrega' => 'datetime',
+        'cerrado_at' => 'datetime',
+        'cancelado_at' => 'datetime',
     ];
 
     public function solicitante(): BelongsTo

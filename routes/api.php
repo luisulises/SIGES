@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\TicketWorkflowController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,4 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tickets', [TicketController::class, 'store']);
     Route::get('/tickets/{ticket}', [TicketController::class, 'show']);
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update']);
+
+    Route::post('/tickets/{ticket}/estado', [TicketWorkflowController::class, 'changeState']);
+    Route::post('/tickets/{ticket}/cerrar', [TicketWorkflowController::class, 'close']);
+    Route::post('/tickets/{ticket}/cancelar', [TicketWorkflowController::class, 'cancel']);
 });
