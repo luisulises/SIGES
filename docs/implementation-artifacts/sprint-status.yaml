@@ -41,11 +41,11 @@ development_status:
   1-3-frontend-ui-de-login-y-tickets-basicos: done
   epic-1-retrospective: optional
 
-  epic-2: in-progress
+  epic-2: done
   2-1-bd-esquema-de-workflow-y-asignaciones: done
   2-2-backend-reglas-de-transicion-y-cierre-cancelacion: done
   2-3-backend-asignacion-y-campos-operativos: done
-  2-4-frontend-ui-de-gestion-operativa: ready-for-dev
+  2-4-frontend-ui-de-gestion-operativa: done
   epic-2-retrospective: optional
 
   epic-3: backlog

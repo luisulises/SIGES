@@ -1,18 +1,148 @@
 <script setup>
-import { onBeforeUnmount, onMounted } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
 
 const props = defineProps({
     ticket: {
         type: Object,
         required: true,
     },
+    catalogs: {
+        type: Object,
+        default: () => ({
+            estados: [],
+            prioridades: [],
+            tipos_solicitud: [],
+            sistemas: [],
+            responsables: [],
+        }),
+    },
+    transiciones: {
+        type: Array,
+        default: () => [],
+    },
+    permissions: {
+        type: Object,
+        default: () => ({}),
+    },
     pollInterval: {
         type: Number,
         default: 60000,
     },
 });
+
+const page = usePage();
+const authUser = computed(() => page.props.auth?.user ?? null);
+
+const ticketState = reactive({ ...props.ticket });
+
+const toDateInput = (value) => {
+    if (!value) {
+        return '';
+    }
+
+    const [datePart] = value.split('T');
+    return datePart ?? '';
+};
+
+const syncOperativoForm = () => {
+    operativoForm.responsable_id = ticketState.responsable_actual_id ?? '';
+    operativoForm.prioridad_id = ticketState.prioridad_id ?? '';
+    operativoForm.tipo_solicitud_id = ticketState.tipo_solicitud_id ?? '';
+    operativoForm.sistema_id = ticketState.sistema_id ?? '';
+    operativoForm.fecha_compromiso = toDateInput(ticketState.fecha_compromiso);
+    operativoForm.fecha_entrega = toDateInput(ticketState.fecha_entrega);
+    operativoForm.resolucion = ticketState.resolucion ?? '';
+};
+
+const operativoForm = reactive({
+    responsable_id: ticketState.responsable_actual_id ?? '',
+    prioridad_id: ticketState.prioridad_id ?? '',
+    tipo_solicitud_id: ticketState.tipo_solicitud_id ?? '',
+    sistema_id: ticketState.sistema_id ?? '',
+    fecha_compromiso: toDateInput(ticketState.fecha_compromiso),
+    fecha_entrega: toDateInput(ticketState.fecha_entrega),
+    resolucion: ticketState.resolucion ?? '',
+});
+
+const estadoForm = reactive({
+    estado: '',
+});
+
+const estadoError = ref('');
+const actionError = ref('');
+const operativoErrors = ref({});
+const processing = reactive({
+    estado: false,
+    operativo: false,
+    cerrar: false,
+    cancelar: false,
+});
+
+const roleName = computed(() => props.permissions?.role ?? '');
+const isCliente = computed(() => roleName.value === 'cliente_interno');
+const isSoporte = computed(() => roleName.value === 'soporte');
+const isCoordinador = computed(() => roleName.value === 'coordinador');
+const isAdmin = computed(() => roleName.value === 'admin');
+const isResponsable = computed(() => authUser.value && ticketState.responsable_actual_id === authUser.value.id);
+
+const canOperate = computed(() => props.permissions?.can_operate ?? false);
+const canAssign = computed(() => isAdmin.value || (isCoordinador.value && props.permissions?.is_coordinador_sistema));
+const canCoordinatorFields = computed(() => isAdmin.value || (isCoordinador.value && props.permissions?.is_coordinador_sistema));
+const canSoporteFields = computed(() => isAdmin.value || (isSoporte.value && isResponsable.value));
+const canEditOperativo = computed(() => canAssign.value || canCoordinatorFields.value || canSoporteFields.value);
+
+const catalogs = computed(() => props.catalogs);
+
+const resolveNombre = (items, id, fallback) => {
+    if (!id) {
+        return fallback;
+    }
+
+    return items.find((item) => item.id === id)?.nombre ?? fallback;
+};
+
+const estadoLabel = computed(() => resolveNombre(catalogs.value.estados, ticketState.estado_id, ticketState.estado || 'Sin estado'));
+const sistemaLabel = computed(() => resolveNombre(catalogs.value.sistemas, ticketState.sistema_id, ticketState.sistema || 'Sin sistema'));
+const responsableLabel = computed(() => resolveNombre(catalogs.value.responsables, ticketState.responsable_actual_id, ticketState.responsable || 'Sin responsable'));
+const prioridadLabel = computed(() => resolveNombre(catalogs.value.prioridades, ticketState.prioridad_id, 'Sin prioridad'));
+const tipoLabel = computed(() => resolveNombre(catalogs.value.tipos_solicitud, ticketState.tipo_solicitud_id, 'Sin tipo'));
+
+const transicionesEstado = computed(() =>
+    props.transiciones.filter((transicion) => !['Cerrado', 'Cancelado'].includes(transicion.nombre))
+);
+
+const closeAllowed = computed(() => props.transiciones.some((transicion) => transicion.nombre === 'Cerrado'));
+const cancelAllowed = computed(() => props.transiciones.some((transicion) => transicion.nombre === 'Cancelado'));
+
+const selectedTransition = computed(() =>
+    props.transiciones.find((transicion) => transicion.nombre === estadoForm.estado)
+);
+
+const estadoRequiresResponsable = computed(() => selectedTransition.value?.requiere_responsable);
+const estadoHint = computed(() => {
+    if (!estadoRequiresResponsable.value) {
+        return '';
+    }
+
+    if (ticketState.responsable_actual_id) {
+        return '';
+    }
+
+    return 'Asigna un responsable antes de aplicar esta transicion.';
+});
+
+const fieldError = (errors, field) => {
+    const value = errors?.[field];
+    return Array.isArray(value) ? value[0] : value || '';
+};
 
 const formatDate = (value) => {
     if (!value) {
@@ -22,12 +152,194 @@ const formatDate = (value) => {
     return new Date(value).toLocaleString();
 };
 
+const extractTicket = (response) => response?.data?.data ?? response?.data ?? null;
+
+const applyTicketUpdate = (payload) => {
+    if (!payload) {
+        return;
+    }
+
+    Object.assign(ticketState, payload);
+    syncOperativoForm();
+};
+
+const refreshTransitions = () => {
+    router.reload({
+        only: ['transiciones'],
+        preserveScroll: true,
+        preserveState: true,
+    });
+};
+
+const normalizeId = (value) => {
+    if (value === '' || value === null || value === undefined) {
+        return null;
+    }
+
+    return Number(value);
+};
+
+const buildOperativoPayload = () => {
+    const payload = {};
+
+    if (canAssign.value) {
+        const responsableId = normalizeId(operativoForm.responsable_id);
+        if (responsableId !== ticketState.responsable_actual_id) {
+            payload.responsable_id = responsableId;
+        }
+    }
+
+    if (canCoordinatorFields.value) {
+        const prioridadId = normalizeId(operativoForm.prioridad_id);
+        if (prioridadId !== ticketState.prioridad_id) {
+            payload.prioridad_id = prioridadId;
+        }
+
+        const sistemaId = normalizeId(operativoForm.sistema_id);
+        if (sistemaId !== ticketState.sistema_id) {
+            payload.sistema_id = sistemaId;
+        }
+
+        const fechaCompromiso = operativoForm.fecha_compromiso || null;
+        const currentCompromiso = ticketState.fecha_compromiso ? toDateInput(ticketState.fecha_compromiso) : null;
+        if (fechaCompromiso !== currentCompromiso) {
+            payload.fecha_compromiso = fechaCompromiso;
+        }
+    }
+
+    if (canSoporteFields.value) {
+        const tipoId = normalizeId(operativoForm.tipo_solicitud_id);
+        if (tipoId !== ticketState.tipo_solicitud_id) {
+            payload.tipo_solicitud_id = tipoId;
+        }
+
+        const fechaEntrega = operativoForm.fecha_entrega || null;
+        const currentEntrega = ticketState.fecha_entrega ? toDateInput(ticketState.fecha_entrega) : null;
+        if (fechaEntrega !== currentEntrega) {
+            payload.fecha_entrega = fechaEntrega;
+        }
+
+        const resolucion = operativoForm.resolucion || null;
+        if (resolucion !== (ticketState.resolucion || null)) {
+            payload.resolucion = resolucion;
+        }
+    }
+
+    return payload;
+};
+
+const updateOperativo = async () => {
+    operativoErrors.value = {};
+    actionError.value = '';
+
+    const payload = buildOperativoPayload();
+
+    if (Object.keys(payload).length === 0) {
+        operativoErrors.value = { operacion: 'No hay cambios para aplicar.' };
+        return;
+    }
+
+    processing.operativo = true;
+
+    try {
+        const response = await window.axios.patch(`/api/tickets/${ticketState.id}/operativo`, payload);
+        applyTicketUpdate(extractTicket(response));
+        refreshTransitions();
+    } catch (error) {
+        const data = error.response?.data;
+        operativoErrors.value = data?.errors ?? { operacion: data?.message || 'No se pudo guardar.' };
+    } finally {
+        processing.operativo = false;
+    }
+};
+
+const updateEstado = async () => {
+    estadoError.value = '';
+    actionError.value = '';
+
+    if (!estadoForm.estado) {
+        estadoError.value = 'Selecciona un estado.';
+        return;
+    }
+
+    if (estadoRequiresResponsable.value && !ticketState.responsable_actual_id) {
+        estadoError.value = 'Se requiere responsable para esta transicion.';
+        return;
+    }
+
+    processing.estado = true;
+
+    try {
+        const response = await window.axios.post(`/api/tickets/${ticketState.id}/estado`, {
+            estado: estadoForm.estado,
+        });
+        applyTicketUpdate(extractTicket(response));
+        estadoForm.estado = '';
+        refreshTransitions();
+    } catch (error) {
+        const data = error.response?.data;
+        estadoError.value = fieldError(data?.errors, 'estado') || data?.message || 'No se pudo actualizar el estado.';
+    } finally {
+        processing.estado = false;
+    }
+};
+
+const closeTicket = async () => {
+    actionError.value = '';
+
+    if (!ticketState.resolucion) {
+        actionError.value = 'Agrega una resolucion antes de cerrar el ticket.';
+        return;
+    }
+
+    processing.cerrar = true;
+
+    try {
+        const response = await window.axios.post(`/api/tickets/${ticketState.id}/cerrar`);
+        applyTicketUpdate(extractTicket(response));
+        refreshTransitions();
+    } catch (error) {
+        const data = error.response?.data;
+        actionError.value = data?.message || fieldError(data?.errors, 'estado') || 'No se pudo cerrar el ticket.';
+    } finally {
+        processing.cerrar = false;
+    }
+};
+
+const cancelTicket = async () => {
+    actionError.value = '';
+
+    if (!window.confirm('Seguro que deseas cancelar este ticket?')) {
+        return;
+    }
+
+    processing.cancelar = true;
+
+    try {
+        const response = await window.axios.post(`/api/tickets/${ticketState.id}/cancelar`);
+        applyTicketUpdate(extractTicket(response));
+        refreshTransitions();
+    } catch (error) {
+        const data = error.response?.data;
+        actionError.value = data?.message || fieldError(data?.errors, 'estado') || 'No se pudo cancelar el ticket.';
+    } finally {
+        processing.cancelar = false;
+    }
+};
+
 let intervalId;
 
 const reloadTicket = () => {
+    const isBusy = processing.estado || processing.operativo || processing.cerrar || processing.cancelar;
+
+    if (isBusy) {
+        return;
+    }
+
     router.reload({
-        only: ['ticket'],
+        only: ['ticket', 'transiciones'],
         preserveScroll: true,
+        preserveState: true,
     });
 };
 
@@ -42,11 +354,19 @@ onBeforeUnmount(() => {
         window.clearInterval(intervalId);
     }
 });
+
+watch(
+    () => props.ticket,
+    (newTicket) => {
+        Object.assign(ticketState, newTicket);
+        syncOperativoForm();
+    }
+);
 </script>
 
 <template>
     <AuthenticatedLayout>
-        <Head :title="`Ticket #${ticket.id}`" />
+        <Head :title="`Ticket #${ticketState.id}`" />
 
         <template #header>
             <div class="flex items-center gap-4">
@@ -70,7 +390,7 @@ onBeforeUnmount(() => {
                 </Link>
                 <div>
                     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                        Ticket #{{ ticket.id }}
+                        Ticket #{{ ticketState.id }}
                     </h2>
                     <p class="text-sm text-gray-500 mt-1">
                         Actualizacion automatica cada 60s
@@ -84,28 +404,233 @@ onBeforeUnmount(() => {
                 <div class="bg-white shadow sm:rounded-lg p-6 space-y-6">
                     <div>
                         <div class="text-sm text-gray-500">Asunto</div>
-                        <div class="text-lg font-semibold text-gray-900">{{ ticket.asunto }}</div>
+                        <div class="text-lg font-semibold text-gray-900">{{ ticketState.asunto }}</div>
                     </div>
 
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
                             <div class="text-sm text-gray-500">Estado</div>
-                            <div class="text-base text-gray-900">{{ ticket.estado || 'Sin estado' }}</div>
+                            <div class="text-base text-gray-900">{{ estadoLabel }}</div>
                         </div>
                         <div>
                             <div class="text-sm text-gray-500">Sistema</div>
-                            <div class="text-base text-gray-900">{{ ticket.sistema || 'Sin sistema' }}</div>
+                            <div class="text-base text-gray-900">{{ sistemaLabel }}</div>
                         </div>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-3">
+                        <div>
+                            <div class="text-sm text-gray-500">Responsable</div>
+                            <div class="text-base text-gray-900">{{ responsableLabel }}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-500">Prioridad</div>
+                            <div class="text-base text-gray-900">{{ prioridadLabel }}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-500">Tipo</div>
+                            <div class="text-base text-gray-900">{{ tipoLabel }}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-3 text-sm text-gray-500">
+                        <div>Compromiso: {{ ticketState.fecha_compromiso ? formatDate(ticketState.fecha_compromiso) : 'Sin fecha' }}</div>
+                        <div>Entrega: {{ ticketState.fecha_entrega ? formatDate(ticketState.fecha_entrega) : 'Sin fecha' }}</div>
+                        <div>Resolucion: {{ ticketState.resolucion ? 'Registrada' : 'Pendiente' }}</div>
                     </div>
 
                     <div>
                         <div class="text-sm text-gray-500">Descripcion</div>
-                        <div class="mt-2 whitespace-pre-line text-gray-900">{{ ticket.descripcion }}</div>
+                        <div class="mt-2 whitespace-pre-line text-gray-900">{{ ticketState.descripcion }}</div>
+                    </div>
+
+                    <div>
+                        <div class="text-sm text-gray-500">Resolucion</div>
+                        <div class="mt-2 whitespace-pre-line text-gray-900">
+                            {{ ticketState.resolucion || 'Sin resolucion registrada.' }}
+                        </div>
                     </div>
 
                     <div class="grid gap-4 sm:grid-cols-2 text-sm text-gray-500">
-                        <div>Creado: {{ formatDate(ticket.created_at) }}</div>
-                        <div>Actualizado: {{ formatDate(ticket.updated_at) }}</div>
+                        <div>Creado: {{ formatDate(ticketState.created_at) }}</div>
+                        <div>Actualizado: {{ formatDate(ticketState.updated_at) }}</div>
+                        <div v-if="ticketState.cerrado_at">Cerrado: {{ formatDate(ticketState.cerrado_at) }}</div>
+                        <div v-if="ticketState.cancelado_at">Cancelado: {{ formatDate(ticketState.cancelado_at) }}</div>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow sm:rounded-lg p-6 mt-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Gestion operativa</h3>
+                        <span class="text-sm text-gray-500">Actualiza sin recargar</span>
+                    </div>
+
+                    <div v-if="isCliente" class="mt-6 space-y-4">
+                        <p class="text-sm text-gray-500">
+                            Puedes cerrar o cancelar tu ticket cuando aplique.
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            <SecondaryButton :disabled="!closeAllowed || processing.cerrar" @click="closeTicket">
+                                Cerrar ticket
+                            </SecondaryButton>
+                            <DangerButton :disabled="!cancelAllowed || processing.cancelar" @click="cancelTicket">
+                                Cancelar ticket
+                            </DangerButton>
+                        </div>
+                        <InputError :message="actionError" />
+                    </div>
+
+                    <div v-else class="mt-6 space-y-6">
+                        <div v-if="canOperate" class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-base font-semibold text-gray-900">Estado</h4>
+                                <span class="text-xs text-gray-500">{{ transicionesEstado.length }} transiciones</span>
+                            </div>
+
+                            <div v-if="transicionesEstado.length === 0" class="text-sm text-gray-500">
+                                No hay transiciones disponibles para este ticket.
+                            </div>
+
+                            <div v-else class="grid gap-4 sm:grid-cols-[1fr,auto] items-end">
+                                <div>
+                                    <InputLabel for="estado" value="Nuevo estado" />
+                                    <select
+                                        id="estado"
+                                        v-model="estadoForm.estado"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    >
+                                        <option value="" disabled>Selecciona un estado</option>
+                                        <option v-for="transicion in transicionesEstado" :key="transicion.id" :value="transicion.nombre">
+                                            {{ transicion.nombre }}
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="estadoError" />
+                                    <p v-if="estadoHint" class="mt-2 text-xs text-amber-600">{{ estadoHint }}</p>
+                                </div>
+                                <PrimaryButton :disabled="processing.estado" @click="updateEstado">
+                                    Actualizar estado
+                                </PrimaryButton>
+                            </div>
+                        </div>
+
+                        <form v-if="canEditOperativo" class="space-y-4" @submit.prevent="updateOperativo">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-base font-semibold text-gray-900">Campos operativos</h4>
+                                <span class="text-xs text-gray-500">Segun tu rol</span>
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div v-if="canAssign">
+                                    <InputLabel for="responsable" value="Responsable" />
+                                    <select
+                                        id="responsable"
+                                        v-model="operativoForm.responsable_id"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    >
+                                        <option value="">Sin responsable</option>
+                                        <option v-for="responsable in catalogs.responsables" :key="responsable.id" :value="responsable.id">
+                                            {{ responsable.nombre }}
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="fieldError(operativoErrors, 'responsable_id')" />
+                                </div>
+
+                                <div v-if="canCoordinatorFields">
+                                    <InputLabel for="prioridad" value="Prioridad" />
+                                    <select
+                                        id="prioridad"
+                                        v-model="operativoForm.prioridad_id"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    >
+                                        <option value="">Sin prioridad</option>
+                                        <option v-for="prioridad in catalogs.prioridades" :key="prioridad.id" :value="prioridad.id">
+                                            {{ prioridad.nombre }}
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="fieldError(operativoErrors, 'prioridad_id')" />
+                                </div>
+
+                                <div v-if="canCoordinatorFields">
+                                    <InputLabel for="sistema" value="Sistema" />
+                                    <select
+                                        id="sistema"
+                                        v-model="operativoForm.sistema_id"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    >
+                                        <option value="">Sin sistema</option>
+                                        <option v-for="sistema in catalogs.sistemas" :key="sistema.id" :value="sistema.id">
+                                            {{ sistema.nombre }}
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="fieldError(operativoErrors, 'sistema_id')" />
+                                </div>
+
+                                <div v-if="canCoordinatorFields">
+                                    <InputLabel for="fecha_compromiso" value="Fecha compromiso" />
+                                    <TextInput
+                                        id="fecha_compromiso"
+                                        v-model="operativoForm.fecha_compromiso"
+                                        type="date"
+                                        class="mt-1 block w-full"
+                                    />
+                                    <InputError class="mt-2" :message="fieldError(operativoErrors, 'fecha_compromiso')" />
+                                </div>
+
+                                <div v-if="canSoporteFields">
+                                    <InputLabel for="tipo" value="Tipo de solicitud" />
+                                    <select
+                                        id="tipo"
+                                        v-model="operativoForm.tipo_solicitud_id"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    >
+                                        <option value="">Sin tipo</option>
+                                        <option v-for="tipo in catalogs.tipos_solicitud" :key="tipo.id" :value="tipo.id">
+                                            {{ tipo.nombre }}
+                                        </option>
+                                    </select>
+                                    <InputError class="mt-2" :message="fieldError(operativoErrors, 'tipo_solicitud_id')" />
+                                </div>
+
+                                <div v-if="canSoporteFields">
+                                    <InputLabel for="fecha_entrega" value="Fecha entrega" />
+                                    <TextInput
+                                        id="fecha_entrega"
+                                        v-model="operativoForm.fecha_entrega"
+                                        type="date"
+                                        class="mt-1 block w-full"
+                                    />
+                                    <InputError class="mt-2" :message="fieldError(operativoErrors, 'fecha_entrega')" />
+                                </div>
+                            </div>
+
+                            <div v-if="canSoporteFields">
+                                <InputLabel for="resolucion" value="Resolucion" />
+                                <textarea
+                                    id="resolucion"
+                                    v-model="operativoForm.resolucion"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    rows="3"
+                                />
+                                <InputError class="mt-2" :message="fieldError(operativoErrors, 'resolucion')" />
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <PrimaryButton :disabled="processing.operativo">
+                                    Guardar cambios
+                                </PrimaryButton>
+                                <InputError :message="fieldError(operativoErrors, 'operacion')" />
+                            </div>
+                        </form>
+
+                        <div class="flex flex-wrap gap-3 border-t border-gray-200 pt-6">
+                            <SecondaryButton :disabled="!closeAllowed || processing.cerrar" @click="closeTicket">
+                                Cerrar ticket
+                            </SecondaryButton>
+                            <DangerButton :disabled="!cancelAllowed || processing.cancelar" @click="cancelTicket">
+                                Cancelar ticket
+                            </DangerButton>
+                            <InputError :message="actionError" />
+                        </div>
                     </div>
                 </div>
             </div>

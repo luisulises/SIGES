@@ -1,6 +1,6 @@
 # Story 2.4: Frontend - UI de gestion operativa
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,17 +18,17 @@ so that pueda operar tickets sin friccion.
 
 ## Tasks / Subtasks
 
-- [ ] Agregar seccion "Gestion operativa" en detalle del ticket (AC: #1, #2)
-- [ ] Implementar controles segun rol:
-  - [ ] Estado (select con transiciones permitidas)
-  - [ ] Responsable (selector)
-  - [ ] Prioridad (selector)
-  - [ ] Fecha compromiso / fecha entrega (date inputs)
-  - [ ] Tipo de solicitud y sistema (select)
-  - [ ] Resolucion (textarea)
-- [ ] Mostrar acciones de cerrar/cancelar para cliente interno (AC: #2)
-- [ ] Manejar errores de validacion del backend y mostrarlos en UI (AC: #4)
-- [ ] Actualizar detalle con resultados de API (AC: #3, #5)
+- [x] Agregar seccion "Gestion operativa" en detalle del ticket (AC: #1, #2)
+- [x] Implementar controles segun rol:
+  - [x] Estado (select con transiciones permitidas)
+  - [x] Responsable (selector)
+  - [x] Prioridad (selector)
+  - [x] Fecha compromiso / fecha entrega (date inputs)
+  - [x] Tipo de solicitud y sistema (select)
+  - [x] Resolucion (textarea)
+- [x] Mostrar acciones de cerrar/cancelar para cliente interno (AC: #2)
+- [x] Manejar errores de validacion del backend y mostrarlos en UI (AC: #4)
+- [x] Actualizar detalle con resultados de API (AC: #3, #5)
 
 ## Dev Notes
 
@@ -51,11 +51,19 @@ so that pueda operar tickets sin friccion.
 
 ### Agent Model Used
 
-TBD
+Codex (GPT-5)
 
 ### Debug Log References
 
+- N/A
+
 ### Completion Notes List
 
+- Detalle de ticket muestra gestion operativa con controles y acciones segun rol.
+- Se exponen catalogos/transiciones/permisos desde backend para la UI de tickets.
+- Acciones consumen endpoints de workflow/operativo sin recargar toda la pagina.
 ### File List
+
+- app/Http/Controllers/TicketController.php
+- resources/js/Pages/Tickets/Show.vue
 
