@@ -1,6 +1,6 @@
 # Story 2.3: Backend - Asignacion y campos operativos
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -19,16 +19,16 @@ so that el trabajo quede ordenado.
 
 ## Tasks / Subtasks
 
-- [ ] Definir endpoint/accion para actualizar campos operativos (AC: #1-#6)
-  - [ ] Validar visibilidad del ticket por rol antes de cambios
-  - [ ] Validar que catalogos (prioridad/tipo/sistema) existan y esten activos
-- [ ] Implementar asignacion/reasignacion (AC: #1, #2)
-  - [ ] Actualizar tickets.responsable_actual_id
-  - [ ] Insertar en asignaciones_ticket y cerrar asignacion previa si aplica
-- [ ] Implementar cambios de prioridad y fecha_compromiso (AC: #3)
-- [ ] Implementar cambios de tipo_solicitud, fecha_entrega y resolucion (AC: #4)
-- [ ] Implementar cambio de sistema_id (AC: #5)
-- [ ] Pruebas de feature por rol para cambios permitidos y bloqueados (AC: #1-#6)
+- [x] Definir endpoint/accion para actualizar campos operativos (AC: #1-#6)
+  - [x] Validar visibilidad del ticket por rol antes de cambios
+  - [x] Validar que catalogos (prioridad/tipo/sistema) existan y esten activos
+- [x] Implementar asignacion/reasignacion (AC: #1, #2)
+  - [x] Actualizar tickets.responsable_actual_id
+  - [x] Insertar en asignaciones_ticket y cerrar asignacion previa si aplica
+- [x] Implementar cambios de prioridad y fecha_compromiso (AC: #3)
+- [x] Implementar cambios de tipo_solicitud, fecha_entrega y resolucion (AC: #4)
+- [x] Implementar cambio de sistema_id (AC: #5)
+- [x] Pruebas de feature por rol para cambios permitidos y bloqueados (AC: #1-#6)
 
 ## Dev Notes
 
@@ -51,11 +51,24 @@ so that el trabajo quede ordenado.
 
 ### Agent Model Used
 
-TBD
+Codex (GPT-5)
 
 ### Debug Log References
 
+- `php artisan test --filter TicketOperativoTest`
+
 ### Completion Notes List
 
+- Endpoint de operacion de tickets con control por rol y validaciones de catalogos activos.
+- Asignaciones registran historico con `asignado_at`/`desasignado_at`.
+
 ### File List
+
+- app/Http/Controllers/Api/TicketOperativoController.php
+- app/Http/Requests/Api/UpdateTicketOperativoRequest.php
+- app/Http/Resources/TicketResource.php
+- app/Models/Ticket.php
+- app/Services/TicketOperativoService.php
+- routes/api.php
+- tests/Feature/Api/TicketOperativoTest.php
 

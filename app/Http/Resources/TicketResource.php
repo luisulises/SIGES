@@ -21,6 +21,13 @@ class TicketResource extends JsonResource
             'solicitante_id' => $this->solicitante_id,
             'responsable_actual_id' => $this->responsable_actual_id,
             'interno' => $this->interno,
+            'prioridad_id' => $this->prioridad_id,
+            'tipo_solicitud_id' => $this->tipo_solicitud_id,
+            'fecha_compromiso' => optional($this->fecha_compromiso)->toISOString(),
+            'fecha_entrega' => optional($this->fecha_entrega)->toISOString(),
+            'resolucion' => $this->resolucion,
+            'cerrado_at' => optional($this->cerrado_at)->toISOString(),
+            'cancelado_at' => optional($this->cancelado_at)->toISOString(),
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),
         ];

@@ -182,16 +182,16 @@ Aplicar esta plantilla a cada story antes de marcarla como completada.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 2-3 Backend - Asignacion y campos operativos
-- [ ] Preparacion: revisar docs/implementation-artifacts/2-3-backend-asignacion-y-campos-operativos.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (responsable, prioridad, fechas, tipo y sistema).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
+- [x] Preparacion: revisar docs/implementation-artifacts/2-3-backend-asignacion-y-campos-operativos.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (responsable, prioridad, fechas, tipo y sistema).
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 2-4 Frontend - UI de gestion operativa
