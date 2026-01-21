@@ -80,6 +80,12 @@ class TicketController extends Controller
             || ($user->isSoporte() && $ticket->responsable_actual_id === $user->id)
         );
 
+        $canCloseOrCancel = $user && (
+            $user->isAdmin()
+            || ($user->isCoordinador() && $isCoordinadorSistema)
+            || ($ticket->solicitante_id === $user->id)
+        );
+
         $transiciones = collect();
 
         if ($user) {
@@ -152,6 +158,7 @@ class TicketController extends Controller
             'permissions' => [
                 'role' => $user?->roleName(),
                 'can_operate' => $canOperate,
+                'can_close_cancel' => $canCloseOrCancel,
                 'is_coordinador_sistema' => $isCoordinadorSistema,
             ],
             'pollInterval' => 60000,

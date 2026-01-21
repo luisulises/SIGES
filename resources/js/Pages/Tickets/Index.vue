@@ -89,7 +89,7 @@ onBeforeUnmount(() => {
                     <section class="bg-white shadow sm:rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-900">Nuevo ticket</h3>
                         <p class="text-sm text-gray-500 mt-1">
-                            Completa la solicitud con asunto, sistema y descripcion.
+                            Completa la solicitud con asunto, aplicacion y descripcion.
                         </p>
 
                         <form class="mt-6 space-y-4" @submit.prevent="submit">
@@ -106,14 +106,14 @@ onBeforeUnmount(() => {
                             </div>
 
                             <div>
-                                <InputLabel for="sistema" value="Sistema" />
+                                <InputLabel for="sistema" value="Aplicacion" />
                                 <select
                                     id="sistema"
                                     v-model="form.sistema_id"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
                                     required
                                 >
-                                    <option value="" disabled>Selecciona un sistema</option>
+                                    <option value="" disabled>Selecciona una aplicacion</option>
                                     <option v-for="sistema in sistemas" :key="sistema.id" :value="sistema.id">
                                         {{ sistema.nombre }}
                                     </option>
@@ -160,7 +160,7 @@ onBeforeUnmount(() => {
                                             {{ ticket.asunto }}
                                         </Link>
                                         <div class="text-sm text-gray-500 mt-1">
-                                            Sistema: {{ ticket.sistema || 'Sin sistema' }}
+                                            Aplicacion: {{ ticket.sistema || 'Sin aplicacion' }}
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -180,4 +180,3 @@ onBeforeUnmount(() => {
         </div>
     </AuthenticatedLayout>
 </template>
-

@@ -78,6 +78,7 @@ const estadoForm = reactive({
 
 const estadoError = ref('');
 const actionError = ref('');
+const actionSuccess = ref('');
 const operativoErrors = ref({});
 const processing = reactive({
     estado: false,
@@ -94,12 +95,28 @@ const isAdmin = computed(() => roleName.value === 'admin');
 const isResponsable = computed(() => authUser.value && ticketState.responsable_actual_id === authUser.value.id);
 
 const canOperate = computed(() => props.permissions?.can_operate ?? false);
+const canCloseCancel = computed(() => props.permissions?.can_close_cancel ?? false);
 const canAssign = computed(() => isAdmin.value || (isCoordinador.value && props.permissions?.is_coordinador_sistema));
 const canCoordinatorFields = computed(() => isAdmin.value || (isCoordinador.value && props.permissions?.is_coordinador_sistema));
 const canSoporteFields = computed(() => isAdmin.value || (isSoporte.value && isResponsable.value));
 const canEditOperativo = computed(() => canAssign.value || canCoordinatorFields.value || canSoporteFields.value);
 
 const catalogs = computed(() => props.catalogs);
+
+let successTimeoutId;
+
+const setSuccess = (message) => {
+    actionSuccess.value = message;
+
+    if (successTimeoutId) {
+        window.clearTimeout(successTimeoutId);
+    }
+
+    successTimeoutId = window.setTimeout(() => {
+        actionSuccess.value = '';
+        successTimeoutId = undefined;
+    }, 4000);
+};
 
 const resolveNombre = (items, id, fallback) => {
     if (!id) {
@@ -110,7 +127,7 @@ const resolveNombre = (items, id, fallback) => {
 };
 
 const estadoLabel = computed(() => resolveNombre(catalogs.value.estados, ticketState.estado_id, ticketState.estado || 'Sin estado'));
-const sistemaLabel = computed(() => resolveNombre(catalogs.value.sistemas, ticketState.sistema_id, ticketState.sistema || 'Sin sistema'));
+const sistemaLabel = computed(() => resolveNombre(catalogs.value.sistemas, ticketState.sistema_id, ticketState.sistema || 'Sin aplicacion'));
 const responsableLabel = computed(() => resolveNombre(catalogs.value.responsables, ticketState.responsable_actual_id, ticketState.responsable || 'Sin responsable'));
 const prioridadLabel = computed(() => resolveNombre(catalogs.value.prioridades, ticketState.prioridad_id, 'Sin prioridad'));
 const tipoLabel = computed(() => resolveNombre(catalogs.value.tipos_solicitud, ticketState.tipo_solicitud_id, 'Sin tipo'));
@@ -231,6 +248,7 @@ const buildOperativoPayload = () => {
 const updateOperativo = async () => {
     operativoErrors.value = {};
     actionError.value = '';
+    actionSuccess.value = '';
 
     const payload = buildOperativoPayload();
 
@@ -245,6 +263,7 @@ const updateOperativo = async () => {
         const response = await window.axios.patch(`/api/tickets/${ticketState.id}/operativo`, payload);
         applyTicketUpdate(extractTicket(response));
         refreshTransitions();
+        setSuccess('Cambios guardados.');
     } catch (error) {
         const data = error.response?.data;
         operativoErrors.value = data?.errors ?? { operacion: data?.message || 'No se pudo guardar.' };
@@ -256,6 +275,7 @@ const updateOperativo = async () => {
 const updateEstado = async () => {
     estadoError.value = '';
     actionError.value = '';
+    actionSuccess.value = '';
 
     if (!estadoForm.estado) {
         estadoError.value = 'Selecciona un estado.';
@@ -276,6 +296,7 @@ const updateEstado = async () => {
         applyTicketUpdate(extractTicket(response));
         estadoForm.estado = '';
         refreshTransitions();
+        setSuccess('Estado actualizado.');
     } catch (error) {
         const data = error.response?.data;
         estadoError.value = fieldError(data?.errors, 'estado') || data?.message || 'No se pudo actualizar el estado.';
@@ -286,6 +307,7 @@ const updateEstado = async () => {
 
 const closeTicket = async () => {
     actionError.value = '';
+    actionSuccess.value = '';
 
     if (!ticketState.resolucion) {
         actionError.value = 'Agrega una resolucion antes de cerrar el ticket.';
@@ -298,6 +320,8 @@ const closeTicket = async () => {
         const response = await window.axios.post(`/api/tickets/${ticketState.id}/cerrar`);
         applyTicketUpdate(extractTicket(response));
         refreshTransitions();
+        setSuccess('Ticket cerrado.');
+        router.visit(route('tickets.index'));
     } catch (error) {
         const data = error.response?.data;
         actionError.value = data?.message || fieldError(data?.errors, 'estado') || 'No se pudo cerrar el ticket.';
@@ -308,6 +332,7 @@ const closeTicket = async () => {
 
 const cancelTicket = async () => {
     actionError.value = '';
+    actionSuccess.value = '';
 
     if (!window.confirm('Seguro que deseas cancelar este ticket?')) {
         return;
@@ -319,6 +344,8 @@ const cancelTicket = async () => {
         const response = await window.axios.post(`/api/tickets/${ticketState.id}/cancelar`);
         applyTicketUpdate(extractTicket(response));
         refreshTransitions();
+        setSuccess('Ticket cancelado.');
+        router.visit(route('tickets.index'));
     } catch (error) {
         const data = error.response?.data;
         actionError.value = data?.message || fieldError(data?.errors, 'estado') || 'No se pudo cancelar el ticket.';
@@ -352,6 +379,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
     if (intervalId) {
         window.clearInterval(intervalId);
+    }
+
+    if (successTimeoutId) {
+        window.clearTimeout(successTimeoutId);
     }
 });
 
@@ -413,7 +444,7 @@ watch(
                             <div class="text-base text-gray-900">{{ estadoLabel }}</div>
                         </div>
                         <div>
-                            <div class="text-sm text-gray-500">Sistema</div>
+                            <div class="text-sm text-gray-500">Aplicacion</div>
                             <div class="text-base text-gray-900">{{ sistemaLabel }}</div>
                         </div>
                     </div>
@@ -466,18 +497,25 @@ watch(
                     </div>
 
                     <div v-if="isCliente" class="mt-6 space-y-4">
-                        <p class="text-sm text-gray-500">
-                            Puedes cerrar o cancelar tu ticket cuando aplique.
-                        </p>
-                        <div class="flex flex-wrap gap-3">
-                            <SecondaryButton :disabled="!closeAllowed || processing.cerrar" @click="closeTicket">
-                                Cerrar ticket
-                            </SecondaryButton>
-                            <DangerButton :disabled="!cancelAllowed || processing.cancelar" @click="cancelTicket">
-                                Cancelar ticket
-                            </DangerButton>
+                        <div v-if="canCloseCancel" class="space-y-4">
+                            <p class="text-sm text-gray-500">
+                                Puedes cerrar o cancelar este ticket cuando aplique.
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <SecondaryButton :disabled="!closeAllowed || processing.cerrar" @click="closeTicket">
+                                    Cerrar ticket
+                                </SecondaryButton>
+                                <DangerButton :disabled="!cancelAllowed || processing.cancelar" @click="cancelTicket">
+                                    Cancelar ticket
+                                </DangerButton>
+                            </div>
+                            <p v-if="actionSuccess" class="text-sm text-emerald-600">{{ actionSuccess }}</p>
+                            <InputError :message="actionError" />
                         </div>
-                        <InputError :message="actionError" />
+
+                        <p v-else class="text-sm text-gray-500">
+                            No tienes permisos para cerrar o cancelar este ticket.
+                        </p>
                     </div>
 
                     <div v-else class="mt-6 space-y-6">
@@ -551,13 +589,12 @@ watch(
                                 </div>
 
                                 <div v-if="canCoordinatorFields">
-                                    <InputLabel for="sistema" value="Sistema" />
+                                    <InputLabel for="sistema" value="Aplicacion" />
                                     <select
                                         id="sistema"
                                         v-model="operativoForm.sistema_id"
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
                                     >
-                                        <option value="">Sin sistema</option>
                                         <option v-for="sistema in catalogs.sistemas" :key="sistema.id" :value="sistema.id">
                                             {{ sistema.nombre }}
                                         </option>
@@ -622,13 +659,14 @@ watch(
                             </div>
                         </form>
 
-                        <div class="flex flex-wrap gap-3 border-t border-gray-200 pt-6">
+                        <div v-if="canCloseCancel" class="flex flex-wrap gap-3 border-t border-gray-200 pt-6">
                             <SecondaryButton :disabled="!closeAllowed || processing.cerrar" @click="closeTicket">
                                 Cerrar ticket
                             </SecondaryButton>
                             <DangerButton :disabled="!cancelAllowed || processing.cancelar" @click="cancelTicket">
                                 Cancelar ticket
                             </DangerButton>
+                            <p v-if="actionSuccess" class="text-sm text-emerald-600 w-full">{{ actionSuccess }}</p>
                             <InputError :message="actionError" />
                         </div>
                     </div>

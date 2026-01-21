@@ -32,7 +32,12 @@ class TicketOperativoService
 
             if (array_key_exists('responsable_id', $data)) {
                 $this->assertUserCanAssign($user, $ticket);
-                $this->applyResponsable($ticket, (int) $data['responsable_id'], $user->id, $now);
+
+                if ($data['responsable_id'] === null) {
+                    $this->clearResponsable($ticket, $now);
+                } else {
+                    $this->applyResponsable($ticket, (int) $data['responsable_id'], $user->id, $now);
+                }
             }
 
             if ($this->hasCoordinatorFields($data)) {
@@ -120,6 +125,23 @@ class TicketOperativoService
         }
 
         throw new AuthorizationException('No autorizado.');
+    }
+
+    private function clearResponsable(Ticket $ticket, $now): void
+    {
+        if ($ticket->responsable_actual_id === null) {
+            return;
+        }
+
+        DB::table('asignaciones_ticket')
+            ->where('ticket_id', $ticket->id)
+            ->whereNull('desasignado_at')
+            ->update([
+                'desasignado_at' => $now,
+                'updated_at' => $now,
+            ]);
+
+        $ticket->responsable_actual_id = null;
     }
 
     private function applyResponsable(Ticket $ticket, int $responsableId, int $asignadoPorId, $now): void

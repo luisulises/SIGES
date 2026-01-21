@@ -98,6 +98,50 @@ class TicketOperativoTest extends TestCase
         $this->assertNull($nuevo->desasignado_at);
     }
 
+    public function test_coordinador_puede_quitar_responsable(): void
+    {
+        $coordinador = $this->makeUser(Role::COORDINADOR);
+        $sistema = Sistema::create(['nombre' => 'Quitar responsable', 'activo' => true]);
+        DB::table('sistemas_coordinadores')->insert([
+            'sistema_id' => $sistema->id,
+            'usuario_id' => $coordinador->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $responsable = $this->makeUser(Role::SOPORTE);
+
+        $ticket = $this->makeTicket($sistema->id, [
+            'responsable_actual_id' => $responsable->id,
+        ]);
+
+        DB::table('asignaciones_ticket')->insert([
+            'ticket_id' => $ticket->id,
+            'responsable_id' => $responsable->id,
+            'asignado_por_id' => $coordinador->id,
+            'asignado_at' => now()->subHour(),
+            'desasignado_at' => null,
+            'created_at' => now()->subHour(),
+            'updated_at' => now()->subHour(),
+        ]);
+
+        Sanctum::actingAs($coordinador);
+
+        $this->patchJson("/api/tickets/{$ticket->id}/operativo", [
+            'responsable_id' => null,
+        ])->assertOk();
+
+        $ticket->refresh();
+        $this->assertNull($ticket->responsable_actual_id);
+
+        $asignacion = DB::table('asignaciones_ticket')
+            ->where('ticket_id', $ticket->id)
+            ->where('responsable_id', $responsable->id)
+            ->first();
+
+        $this->assertNotNull($asignacion->desasignado_at);
+    }
+
     public function test_soporte_asignado_puede_actualizar_campos_operativos(): void
     {
         $soporte = $this->makeUser(Role::SOPORTE);
