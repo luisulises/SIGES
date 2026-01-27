@@ -1,6 +1,6 @@
 # Story 3.1: BD - Esquema de comentarios, adjuntos e involucrados
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,16 +17,16 @@ so that la colaboracion quede registrada.
 
 ## Tasks / Subtasks
 
-- [ ] Crear migracion para comentarios_ticket (AC: #1, #2, #3)
-  - [ ] columnas: ticket_id, autor_id, cuerpo, visibilidad, created_at, updated_at
-  - [ ] indices por ticket_id y autor_id
-- [ ] Crear migracion para adjuntos (AC: #1, #2, #3)
-  - [ ] columnas: ticket_id, comentario_id (nullable), cargado_por_id, nombre_archivo, clave_almacenamiento, visibilidad, created_at, updated_at
-  - [ ] indices por ticket_id y comentario_id
-- [ ] Crear migracion para involucrados_ticket (AC: #1, #2, #4)
-  - [ ] columnas: ticket_id, usuario_id, agregado_por_id, created_at, updated_at
-  - [ ] indice unico (ticket_id, usuario_id) e indices por ticket_id
-- [ ] Agregar FKs e indices necesarios (AC: #2, #4)
+- [x] Crear migracion para comentarios_ticket (AC: #1, #2, #3)
+  - [x] columnas: ticket_id, autor_id, cuerpo, visibilidad, created_at, updated_at
+  - [x] indices por ticket_id y autor_id
+- [x] Crear migracion para adjuntos (AC: #1, #2, #3)
+  - [x] columnas: ticket_id, comentario_id (nullable), cargado_por_id, nombre_archivo, clave_almacenamiento, visibilidad, created_at, updated_at
+  - [x] indices por ticket_id y comentario_id
+- [x] Crear migracion para involucrados_ticket (AC: #1, #2, #4)
+  - [x] columnas: ticket_id, usuario_id, agregado_por_id, created_at, updated_at
+  - [x] indice unico (ticket_id, usuario_id) e indices por ticket_id
+- [x] Agregar FKs e indices necesarios (AC: #2, #4)
 
 ## Dev Notes
 
@@ -49,11 +49,21 @@ so that la colaboracion quede registrada.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2
 
 ### Debug Log References
 
+- `php artisan test` (Postgres)
+
 ### Completion Notes List
 
+- Tablas nuevas: `comentarios_ticket`, `adjuntos` (visibilidad `publico|interno`).
+- `involucrados_ticket` ya existia desde Epic 1; se extendio con soft delete y un indice unico solo para registros activos.
+
 ### File List
+
+- database/migrations/2026_01_21_000001_create_comentarios_ticket_table.php
+- database/migrations/2026_01_21_000002_create_adjuntos_table.php
+- database/migrations/2026_01_21_000003_add_soft_deletes_to_involucrados_ticket_table.php
+- database/migrations/2026_01_11_000005_create_involucrados_ticket_table.php
 

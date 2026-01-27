@@ -122,6 +122,14 @@ class TicketController extends Controller
             ->orderBy('nombre')
             ->get(['id', 'nombre']);
 
+        $usuarios = collect();
+        if ($user && ($user->isAdmin() || ($user->isCoordinador() && $isCoordinadorSistema))) {
+            $usuarios = User::query()
+                ->where('activo', true)
+                ->orderBy('nombre')
+                ->get(['id', 'nombre', 'email']);
+        }
+
         $estados = EstadoTicket::query()
             ->orderBy('nombre')
             ->get(['id', 'nombre']);
@@ -131,6 +139,7 @@ class TicketController extends Controller
                 'id' => $ticket->id,
                 'asunto' => $ticket->asunto,
                 'descripcion' => $ticket->descripcion,
+                'solicitante_id' => $ticket->solicitante_id,
                 'estado_id' => $ticket->estado_id,
                 'estado' => $ticket->estado?->nombre,
                 'sistema_id' => $ticket->sistema_id,
@@ -153,6 +162,7 @@ class TicketController extends Controller
                 'tipos_solicitud' => $tiposSolicitud,
                 'sistemas' => $sistemas,
                 'responsables' => $responsables,
+                'usuarios' => $usuarios,
             ],
             'transiciones' => $transiciones,
             'permissions' => [

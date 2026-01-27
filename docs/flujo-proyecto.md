@@ -209,68 +209,68 @@ Aplicar esta plantilla a cada story antes de marcarla como completada.
 
 ### Epic 3 - Colaboracion y evidencias
 #### 3-1 BD - Esquema de comentarios, adjuntos e involucrados
-- [ ] Preparacion: revisar docs/implementation-artifacts/3-1-bd-esquema-de-comentarios-adjuntos-e-involucrados.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (tablas y claves).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
+- [x] Preparacion: revisar docs/implementation-artifacts/3-1-bd-esquema-de-comentarios-adjuntos-e-involucrados.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (tablas y claves).
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 3-2 Backend - Comentarios publicos e internos
-- [ ] Preparacion: revisar docs/implementation-artifacts/3-2-backend-comentarios-publicos-e-internos.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (visibilidad por rol).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
+- [x] Preparacion: revisar docs/implementation-artifacts/3-2-backend-comentarios-publicos-e-internos.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (visibilidad por rol).
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 3-3 Backend - Adjuntos en comentarios
-- [ ] Preparacion: revisar docs/implementation-artifacts/3-3-backend-adjuntos-en-comentarios.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (adjuntos y no eliminables).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
+- [x] Preparacion: revisar docs/implementation-artifacts/3-3-backend-adjuntos-en-comentarios.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (adjuntos y no eliminables).
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 3-4 Backend - Gestion de involucrados
-- [ ] Preparacion: revisar docs/implementation-artifacts/3-4-backend-gestion-de-involucrados.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (agregar/remover y visibilidad).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
+- [x] Preparacion: revisar docs/implementation-artifacts/3-4-backend-gestion-de-involucrados.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (agregar/remover y visibilidad).
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 #### 3-5 Frontend - UI de comentarios, adjuntos e involucrados
-- [ ] Preparacion: revisar docs/implementation-artifacts/3-5-frontend-ui-de-comentarios-adjuntos-e-involucrados.md.
-- [ ] Implementacion: completar Tasks/Subtasks de la story.
-- [ ] Pruebas: validar AC (comentarios, adjuntos e involucrados).
-- [ ] Cierre: registrar notas y actualizar checklist.
-- [ ] DoD: criterios de aceptacion entendidos y riesgos anotados.
-- [ ] DoD: Tasks/Subtasks completadas segun la story.
-- [ ] DoD: naming, formatos y estructura respetan arquitectura.
-- [ ] DoD: validaciones locales cubren todos los AC.
-- [ ] DoD: datos de prueba y seeders actualizados si aplica.
-- [ ] DoD: notas de implementacion y archivos tocados registrados.
+- [x] Preparacion: revisar docs/implementation-artifacts/3-5-frontend-ui-de-comentarios-adjuntos-e-involucrados.md.
+- [x] Implementacion: completar Tasks/Subtasks de la story.
+- [x] Pruebas: validar AC (comentarios, adjuntos e involucrados).
+- [x] Cierre: registrar notas y actualizar checklist.
+- [x] DoD: criterios de aceptacion entendidos y riesgos anotados.
+- [x] DoD: Tasks/Subtasks completadas segun la story.
+- [x] DoD: naming, formatos y estructura respetan arquitectura.
+- [x] DoD: validaciones locales cubren todos los AC.
+- [x] DoD: datos de prueba y seeders actualizados si aplica.
+- [x] DoD: notas de implementacion y archivos tocados registrados.
 - [ ] DoD: checklist actualizado y commit realizado en la rama de la story.
 
 ### Epic 4 - Trazabilidad, historial y relaciones
@@ -459,4 +459,3 @@ Aplicar esta plantilla a cada story antes de marcarla como completada.
 - [ ] Epic 4: registrar aprendizajes y actualizar epic-4-retrospective en docs/implementation-artifacts/sprint-status.yaml.
 - [ ] Epic 5: registrar aprendizajes y actualizar epic-5-retrospective en docs/implementation-artifacts/sprint-status.yaml.
 - [ ] Epic 6: registrar aprendizajes y actualizar epic-6-retrospective en docs/implementation-artifacts/sprint-status.yaml.
-

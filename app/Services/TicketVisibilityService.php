@@ -56,6 +56,10 @@ class TicketVisibilityService
                         ->from('involucrados_ticket')
                         ->whereColumn('involucrados_ticket.ticket_id', 'tickets.id')
                         ->where('involucrados_ticket.usuario_id', $user->id);
+
+                    if ($this->supportsInvolucradosSoftDeletes()) {
+                        $exists->whereNull('involucrados_ticket.deleted_at');
+                    }
                 });
             }
         });
@@ -73,5 +77,10 @@ class TicketVisibilityService
     private function supportsInvolucrados(): bool
     {
         return Schema::hasTable('involucrados_ticket');
+    }
+
+    private function supportsInvolucradosSoftDeletes(): bool
+    {
+        return Schema::hasColumn('involucrados_ticket', 'deleted_at');
     }
 }

@@ -1,6 +1,6 @@
 # Story 3.2: Backend - Comentarios publicos e internos
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,12 +18,12 @@ so that pueda comunicar avances con el nivel correcto de visibilidad.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar endpoint para crear comentario (AC: #1-#5)
-  - [ ] Validar visibilidad permitida segun rol
-  - [ ] Validar acceso al ticket antes de crear
-- [ ] Implementar endpoint para listar comentarios por ticket (AC: #3, #4)
-  - [ ] Filtrar comentarios internos segun rol
-- [ ] Pruebas de feature por rol (AC: #1-#5)
+- [x] Implementar endpoint para crear comentario (AC: #1-#5)
+  - [x] Validar visibilidad permitida segun rol
+  - [x] Validar acceso al ticket antes de crear
+- [x] Implementar endpoint para listar comentarios por ticket (AC: #3, #4)
+  - [x] Filtrar comentarios internos segun rol
+- [x] Pruebas de feature por rol (AC: #1-#5)
 
 ## Dev Notes
 
@@ -46,11 +46,25 @@ so that pueda comunicar avances con el nivel correcto de visibilidad.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2
 
 ### Debug Log References
 
+- `php artisan test` (Postgres)
+
 ### Completion Notes List
 
+- Cliente interno: solo puede comentar en sus tickets y solo con visibilidad `publico`.
+- Roles internos (soporte/coordinador/admin): pueden crear comentarios `publico` e `interno` en tickets que pueden operar.
+- Listado filtra `interno` para clientes; internos pueden ver todo.
+
 ### File List
+
+- app/Http/Controllers/Api/TicketComentarioController.php
+- app/Http/Requests/Api/StoreComentarioTicketRequest.php
+- app/Http/Resources/ComentarioTicketResource.php
+- app/Models/ComentarioTicket.php
+- app/Services/TicketComentarioService.php
+- routes/api.php
+- tests/Feature/Api/TicketComentarioTest.php
 

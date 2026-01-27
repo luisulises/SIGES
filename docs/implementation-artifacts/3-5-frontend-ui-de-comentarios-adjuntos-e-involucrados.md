@@ -1,6 +1,6 @@
 # Story 3.5: Frontend - UI de comentarios, adjuntos e involucrados
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -12,17 +12,17 @@ so that tenga contexto completo.
 
 1. En el detalle del ticket se muestran comentarios publicos visibles para el usuario.
 2. Soporte/coordinador/admin pueden alternar vista de comentarios internos.
-3. Los adjuntos se muestran junto al comentario o en una lista de adjuntos, respetando visibilidad.
+3. Los adjuntos se muestran junto al comentario, respetando visibilidad.
 4. Se listan involucrados actuales del ticket; coordinador/admin puede agregarlos o removerlos.
 5. Al agregar comentario o adjunto, la UI refleja el nuevo elemento sin recargar toda la pagina.
 
 ## Tasks / Subtasks
 
-- [ ] Renderizar seccion de comentarios con filtro por visibilidad (AC: #1, #2)
-- [ ] Agregar formulario para nuevo comentario (publico/interno segun rol) (AC: #1, #2)
-- [ ] Agregar carga de adjuntos asociada a comentario o al ticket (AC: #3)
-- [ ] Mostrar lista de involucrados y controles de alta/baja (AC: #4)
-- [ ] Manejar errores de validacion del backend y refrescar la vista (AC: #5)
+- [x] Renderizar seccion de comentarios con filtro por visibilidad (AC: #1, #2)
+- [x] Agregar formulario para nuevo comentario (publico/interno segun rol) (AC: #1, #2)
+- [x] Agregar carga de adjuntos asociada a comentario (AC: #3)
+- [x] Mostrar lista de involucrados y controles de alta/baja (AC: #4)
+- [x] Manejar errores de validacion del backend y refrescar la vista (AC: #5)
 
 ## Dev Notes
 
@@ -45,11 +45,21 @@ so that tenga contexto completo.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2
 
 ### Debug Log References
 
+- `php artisan test` (Postgres)
+
 ### Completion Notes List
 
+- UI agregada en el detalle del ticket: seccion "Seguimiento del ticket" con comentarios (y adjuntos en comentarios) y lista de involucrados.
+- Roles internos pueden alternar "Mostrar internos"; clientes solo ven publico.
+- Adjuntos se listan (no hay enlace/descarga) y se suben junto con comentario.
+- Alta/baja de involucrados disponible para coordinador/admin (segun sistema).
+
 ### File List
+
+- resources/js/Pages/Tickets/Show.vue
+- app/Http/Controllers/TicketController.php
 

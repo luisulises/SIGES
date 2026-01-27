@@ -48,12 +48,12 @@ development_status:
   2-4-frontend-ui-de-gestion-operativa: done
   epic-2-retrospective: optional
 
-  epic-3: backlog
-  3-1-bd-esquema-de-comentarios-adjuntos-e-involucrados: ready-for-dev
-  3-2-backend-comentarios-publicos-e-internos: ready-for-dev
-  3-3-backend-adjuntos-en-comentarios: ready-for-dev
-  3-4-backend-gestion-de-involucrados: ready-for-dev
-  3-5-frontend-ui-de-comentarios-adjuntos-e-involucrados: ready-for-dev
+  epic-3: done
+  3-1-bd-esquema-de-comentarios-adjuntos-e-involucrados: done
+  3-2-backend-comentarios-publicos-e-internos: done
+  3-3-backend-adjuntos-en-comentarios: done
+  3-4-backend-gestion-de-involucrados: done
+  3-5-frontend-ui-de-comentarios-adjuntos-e-involucrados: done
   epic-3-retrospective: optional
 
   epic-4: backlog
@@ -77,7 +77,6 @@ development_status:
   6-4-backend-busqueda-y-metricas-basicas: ready-for-dev
   6-5-frontend-ui-de-administracion-busqueda-y-metricas: ready-for-dev
   epic-6-retrospective: optional
-
 
 
 

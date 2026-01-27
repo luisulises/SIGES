@@ -24,3 +24,5 @@ condex.cmd
 /storage/framework/sessions/*
 /storage/framework/views/*
 /storage/framework/cache/*
+/storage/framework/cache/data/
+/storage/app/adjuntos/

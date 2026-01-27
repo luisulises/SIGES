@@ -1,6 +1,6 @@
 # Story 3.4: Backend - Gestion de involucrados
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,11 +17,11 @@ so that las personas relevantes sigan el ticket.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar endpoints para agregar y remover involucrados (AC: #1-#3)
-  - [ ] Validar visibilidad y rol antes de modificar
-  - [ ] Evitar duplicados (manejo de unique constraint)
-- [ ] Implementar endpoint para listar involucrados por ticket (AC: #4)
-- [ ] Pruebas de feature para agregar/remover/listar (AC: #1-#4)
+- [x] Implementar endpoints para agregar y remover involucrados (AC: #1-#3)
+  - [x] Validar visibilidad y rol antes de modificar
+  - [x] Evitar duplicados (manejo de unique constraint)
+- [x] Implementar endpoint para listar involucrados por ticket (AC: #4)
+- [x] Pruebas de feature para agregar/remover/listar (AC: #1-#4)
 
 ## Dev Notes
 
@@ -45,11 +45,27 @@ so that las personas relevantes sigan el ticket.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2
 
 ### Debug Log References
 
+- `php artisan test` (Postgres)
+
 ### Completion Notes List
 
+- Se implemento soft delete para `involucrados_ticket` y un indice unico parcial para registros activos.
+- `TicketVisibilityService` ignora involucrados con `deleted_at` (no dan visibilidad).
+- Re-agregar un involucrado restaurara el registro soft-deleted.
+
 ### File List
+
+- app/Http/Controllers/Api/TicketInvolucradoController.php
+- app/Http/Requests/Api/StoreInvolucradoRequest.php
+- app/Http/Resources/InvolucradoTicketResource.php
+- app/Models/InvolucradoTicket.php
+- app/Services/TicketInvolucradoService.php
+- app/Services/TicketVisibilityService.php
+- database/migrations/2026_01_21_000003_add_soft_deletes_to_involucrados_ticket_table.php
+- routes/api.php
+- tests/Feature/Api/TicketInvolucradoTest.php
 

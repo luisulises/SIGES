@@ -220,15 +220,14 @@ Como cliente interno:
 
 ## 8) Qué sigue (siguiente épica recomendada)
 
-La siguiente en el backlog es **Epic 3 (Colaboración y evidencias)**:
-- **3.1 BD**: comentarios, adjuntos, involucrados (y relaciones)
-- **3.2 Backend**: comentarios públicos/internos
-- **3.3 Backend**: adjuntos en comentarios
-- **3.4 Backend**: gestión de involucrados
-- **3.5 Frontend**: UI de comentarios/adjuntos/involucrados en ticket
+Epic 3 (Colaboración y evidencias) ya está implementada:
+- Comentarios públicos/internos
+- Adjuntos en comentarios (solo listar + subir; sin descarga)
+- Involucrados (soft delete)
 
-Sugerencia para continuar:
-1) Implementar 3.1 (migrations + seeders mínimos).
-2) Implementar 3.2/3.3 con tests de feature.
-3) Implementar 3.5 en Inertia/Vue (en Ticket Show: sección comentarios + adjuntos).
-
+La siguiente en el backlog es **Epic 4 (Trazabilidad, historial y relaciones)**:
+- 4.1 BD: auditoría, relaciones y tiempo
+- 4.2 Backend: auditoría e historial
+- 4.3 Backend: relaciones/duplicados y referencia
+- 4.4 Backend: registro de tiempo
+- 4.5 Frontend: UI de historial/relaciones/tiempo

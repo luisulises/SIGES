@@ -22,6 +22,7 @@ const props = defineProps({
             tipos_solicitud: [],
             sistemas: [],
             responsables: [],
+            usuarios: [],
         }),
     },
     transiciones: {
@@ -92,7 +93,9 @@ const isCliente = computed(() => roleName.value === 'cliente_interno');
 const isSoporte = computed(() => roleName.value === 'soporte');
 const isCoordinador = computed(() => roleName.value === 'coordinador');
 const isAdmin = computed(() => roleName.value === 'admin');
+const isRolInterno = computed(() => isSoporte.value || isCoordinador.value || isAdmin.value);
 const isResponsable = computed(() => authUser.value && ticketState.responsable_actual_id === authUser.value.id);
+const isSolicitante = computed(() => authUser.value && ticketState.solicitante_id === authUser.value.id);
 
 const canOperate = computed(() => props.permissions?.can_operate ?? false);
 const canCloseCancel = computed(() => props.permissions?.can_close_cancel ?? false);
@@ -100,10 +103,14 @@ const canAssign = computed(() => isAdmin.value || (isCoordinador.value && props.
 const canCoordinatorFields = computed(() => isAdmin.value || (isCoordinador.value && props.permissions?.is_coordinador_sistema));
 const canSoporteFields = computed(() => isAdmin.value || (isSoporte.value && isResponsable.value));
 const canEditOperativo = computed(() => canAssign.value || canCoordinatorFields.value || canSoporteFields.value);
+const canCrearComentario = computed(() => (isRolInterno.value ? canOperate.value : isSolicitante.value));
+const canCrearComentarioInterno = computed(() => isRolInterno.value && canOperate.value);
+const canGestionarInvolucrados = computed(() => canAssign.value);
 
 const catalogs = computed(() => props.catalogs);
 
 let successTimeoutId;
+let collaborationSuccessTimeoutId;
 
 const setSuccess = (message) => {
     actionSuccess.value = message;
@@ -115,6 +122,21 @@ const setSuccess = (message) => {
     successTimeoutId = window.setTimeout(() => {
         actionSuccess.value = '';
         successTimeoutId = undefined;
+    }, 4000);
+};
+
+const collaborationSuccess = ref('');
+
+const setCollaborationSuccess = (message) => {
+    collaborationSuccess.value = message;
+
+    if (collaborationSuccessTimeoutId) {
+        window.clearTimeout(collaborationSuccessTimeoutId);
+    }
+
+    collaborationSuccessTimeoutId = window.setTimeout(() => {
+        collaborationSuccess.value = '';
+        collaborationSuccessTimeoutId = undefined;
     }, 4000);
 };
 
@@ -170,6 +192,7 @@ const formatDate = (value) => {
 };
 
 const extractTicket = (response) => response?.data?.data ?? response?.data ?? null;
+const extractCollection = (response) => response?.data?.data ?? [];
 
 const applyTicketUpdate = (payload) => {
     if (!payload) {
@@ -243,6 +266,194 @@ const buildOperativoPayload = () => {
     }
 
     return payload;
+};
+
+const comentarios = ref([]);
+const comentariosLoading = ref(false);
+const comentariosError = ref('');
+const mostrarInternos = ref(false);
+
+const comentarioForm = reactive({
+    cuerpo: '',
+    visibilidad: 'publico',
+    archivos: [],
+});
+const comentarioErrors = ref({});
+const comentarioProcessing = ref(false);
+const comentarioSubmitError = ref('');
+const comentarioAdjuntoError = ref('');
+const comentarioArchivosInput = ref(null);
+
+const involucrados = ref([]);
+const involucradosLoading = ref(false);
+const involucradosError = ref('');
+const involucradoForm = reactive({
+    usuario_id: '',
+});
+const involucradoErrors = ref({});
+const involucradoProcessing = ref(false);
+const involucradoSubmitError = ref('');
+const removingInvolucrado = reactive({});
+
+const visibleComentarios = computed(() => {
+    if (!isRolInterno.value || mostrarInternos.value) {
+        return comentarios.value;
+    }
+
+    return comentarios.value.filter((comentario) => comentario.visibilidad === 'publico');
+});
+
+const fetchComentarios = async () => {
+    comentariosError.value = '';
+    comentariosLoading.value = true;
+
+    try {
+        const response = await window.axios.get(`/api/tickets/${ticketState.id}/comentarios`);
+        comentarios.value = extractCollection(response);
+    } catch (error) {
+        const data = error.response?.data;
+        comentariosError.value = data?.message || 'No se pudieron cargar los comentarios.';
+    } finally {
+        comentariosLoading.value = false;
+    }
+};
+
+const fetchInvolucrados = async () => {
+    involucradosError.value = '';
+    involucradosLoading.value = true;
+
+    try {
+        const response = await window.axios.get(`/api/tickets/${ticketState.id}/involucrados`);
+        involucrados.value = extractCollection(response);
+    } catch (error) {
+        const data = error.response?.data;
+        involucradosError.value = data?.message || 'No se pudieron cargar los involucrados.';
+    } finally {
+        involucradosLoading.value = false;
+    }
+};
+
+const refreshColaboracion = () => {
+    fetchComentarios();
+    fetchInvolucrados();
+};
+
+const onComentarioArchivosChange = (event) => {
+    comentarioAdjuntoError.value = '';
+    const files = event.target?.files ? Array.from(event.target.files) : [];
+    comentarioForm.archivos = files;
+};
+
+const uploadAdjunto = async (file, comentarioId = null) => {
+    const formData = new FormData();
+    formData.append('archivo', file);
+    if (comentarioId) {
+        formData.append('comentario_id', String(comentarioId));
+    }
+
+    const response = await window.axios.post(`/api/tickets/${ticketState.id}/adjuntos`, formData);
+    return response?.data?.data ?? null;
+};
+
+const submitComentario = async () => {
+    comentarioErrors.value = {};
+    comentarioSubmitError.value = '';
+    comentarioAdjuntoError.value = '';
+
+    if (!comentarioForm.cuerpo) {
+        comentarioErrors.value = { cuerpo: ['Escribe un comentario.'] };
+        return;
+    }
+
+    comentarioProcessing.value = true;
+
+    try {
+        const response = await window.axios.post(`/api/tickets/${ticketState.id}/comentarios`, {
+            cuerpo: comentarioForm.cuerpo,
+            visibilidad: comentarioForm.visibilidad,
+        });
+
+        const comentario = response?.data?.data;
+
+        if (comentario && comentarioForm.archivos.length > 0) {
+            for (const file of comentarioForm.archivos) {
+                try {
+                    await uploadAdjunto(file, comentario.id);
+                } catch (error) {
+                    const data = error.response?.data;
+                    comentarioAdjuntoError.value =
+                        fieldError(data?.errors, 'archivo') || data?.message || 'No se pudo subir el adjunto.';
+                    break;
+                }
+            }
+        }
+
+        comentarioForm.cuerpo = '';
+        comentarioForm.visibilidad = 'publico';
+        comentarioForm.archivos = [];
+        if (comentarioArchivosInput.value) {
+            comentarioArchivosInput.value.value = '';
+        }
+
+        await fetchComentarios();
+        setCollaborationSuccess('Comentario agregado.');
+    } catch (error) {
+        const data = error.response?.data;
+        comentarioErrors.value = data?.errors ?? {};
+        comentarioSubmitError.value = data?.message || 'No se pudo agregar el comentario.';
+    } finally {
+        comentarioProcessing.value = false;
+    }
+};
+
+const addInvolucrado = async () => {
+    involucradoErrors.value = {};
+    involucradoSubmitError.value = '';
+
+    if (!involucradoForm.usuario_id) {
+        involucradoErrors.value = { usuario_id: ['Selecciona un usuario.'] };
+        return;
+    }
+
+    involucradoProcessing.value = true;
+
+    try {
+        await window.axios.post(`/api/tickets/${ticketState.id}/involucrados`, {
+            usuario_id: Number(involucradoForm.usuario_id),
+        });
+
+        involucradoForm.usuario_id = '';
+        await fetchInvolucrados();
+        setCollaborationSuccess('Involucrado agregado.');
+    } catch (error) {
+        const data = error.response?.data;
+        involucradoErrors.value = data?.errors ?? {};
+        involucradoSubmitError.value = data?.message || 'No se pudo agregar el involucrado.';
+    } finally {
+        involucradoProcessing.value = false;
+    }
+};
+
+const removeInvolucrado = async (usuarioId) => {
+    involucradosError.value = '';
+    involucradoSubmitError.value = '';
+
+    if (!window.confirm('Seguro que deseas remover este involucrado?')) {
+        return;
+    }
+
+    removingInvolucrado[usuarioId] = true;
+
+    try {
+        await window.axios.delete(`/api/tickets/${ticketState.id}/involucrados/${usuarioId}`);
+        await fetchInvolucrados();
+        setCollaborationSuccess('Involucrado removido.');
+    } catch (error) {
+        const data = error.response?.data;
+        involucradosError.value = data?.message || 'No se pudo remover el involucrado.';
+    } finally {
+        removingInvolucrado[usuarioId] = false;
+    }
 };
 
 const updateOperativo = async () => {
@@ -357,7 +568,15 @@ const cancelTicket = async () => {
 let intervalId;
 
 const reloadTicket = () => {
-    const isBusy = processing.estado || processing.operativo || processing.cerrar || processing.cancelar;
+    const isBusy =
+        processing.estado ||
+        processing.operativo ||
+        processing.cerrar ||
+        processing.cancelar ||
+        comentarioProcessing.value ||
+        involucradoProcessing.value ||
+        comentariosLoading.value ||
+        involucradosLoading.value;
 
     if (isBusy) {
         return;
@@ -368,9 +587,13 @@ const reloadTicket = () => {
         preserveScroll: true,
         preserveState: true,
     });
+
+    refreshColaboracion();
 };
 
 onMounted(() => {
+    refreshColaboracion();
+
     if (props.pollInterval > 0) {
         intervalId = window.setInterval(reloadTicket, props.pollInterval);
     }
@@ -383,6 +606,10 @@ onBeforeUnmount(() => {
 
     if (successTimeoutId) {
         window.clearTimeout(successTimeoutId);
+    }
+
+    if (collaborationSuccessTimeoutId) {
+        window.clearTimeout(collaborationSuccessTimeoutId);
     }
 });
 
@@ -669,6 +896,202 @@ watch(
                             <p v-if="actionSuccess" class="text-sm text-emerald-600 w-full">{{ actionSuccess }}</p>
                             <InputError :message="actionError" />
                         </div>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow sm:rounded-lg p-6 mt-6 space-y-8">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Seguimiento del ticket</h3>
+                        <p v-if="collaborationSuccess" class="text-sm text-emerald-600">{{ collaborationSuccess }}</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <h4 class="text-base font-semibold text-gray-900">Comentarios</h4>
+
+                            <label v-if="isRolInterno" class="inline-flex items-center gap-2 text-sm text-gray-600">
+                                <input
+                                    v-model="mostrarInternos"
+                                    type="checkbox"
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                />
+                                Mostrar internos
+                            </label>
+                        </div>
+
+                        <form v-if="canCrearComentario" class="space-y-4" @submit.prevent="submitComentario">
+                            <div>
+                                <InputLabel for="comentario" value="Nuevo comentario" />
+                                <textarea
+                                    id="comentario"
+                                    v-model="comentarioForm.cuerpo"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    rows="3"
+                                />
+                                <InputError class="mt-2" :message="fieldError(comentarioErrors, 'cuerpo')" />
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div v-if="canCrearComentarioInterno">
+                                    <InputLabel for="visibilidad" value="Visibilidad" />
+                                    <select
+                                        id="visibilidad"
+                                        v-model="comentarioForm.visibilidad"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    >
+                                        <option value="publico">Publico</option>
+                                        <option value="interno">Interno</option>
+                                    </select>
+                                    <InputError class="mt-2" :message="fieldError(comentarioErrors, 'visibilidad')" />
+                                </div>
+
+                                <div>
+                                    <InputLabel for="comentario_archivos" value="Adjuntar evidencia (opcional)" />
+                                    <input
+                                        id="comentario_archivos"
+                                        ref="comentarioArchivosInput"
+                                        type="file"
+                                        multiple
+                                        accept=".pdf,.png,.jpg,.jpeg,.docx,.xlsx,.txt"
+                                        class="mt-1 block w-full text-sm text-gray-900 file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-gray-700 hover:file:bg-gray-200"
+                                        @change="onComentarioArchivosChange"
+                                    />
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Maximo 10 MB. Tipos: pdf, png, jpg, jpeg, docx, xlsx, txt.
+                                    </p>
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Por ahora solo se lista el archivo; descarga no disponible.
+                                    </p>
+                                    <p v-if="comentarioForm.archivos.length" class="mt-1 text-xs text-gray-500">
+                                        {{ comentarioForm.archivos.length }} archivo(s) seleccionado(s).
+                                    </p>
+                                    <InputError class="mt-2" :message="comentarioAdjuntoError" />
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <PrimaryButton :disabled="comentarioProcessing">
+                                    Agregar comentario
+                                </PrimaryButton>
+                                <InputError :message="comentarioSubmitError" />
+                            </div>
+                        </form>
+
+                        <div v-else class="text-sm text-gray-500">
+                            No tienes permisos para agregar comentarios en este ticket.
+                        </div>
+
+                        <div v-if="comentariosLoading" class="text-sm text-gray-500">
+                            Cargando comentarios...
+                        </div>
+                        <InputError v-else-if="comentariosError" :message="comentariosError" />
+
+                        <div v-else-if="visibleComentarios.length === 0" class="text-sm text-gray-500">
+                            No hay comentarios aun.
+                        </div>
+
+                        <ul v-else class="space-y-4">
+                            <li
+                                v-for="comentario in visibleComentarios"
+                                :key="comentario.id"
+                                class="rounded-lg border border-gray-200 p-4 space-y-3"
+                            >
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ comentario.autor?.nombre || 'Usuario' }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ formatDate(comentario.created_at) }}
+                                        </div>
+                                    </div>
+                                    <span
+                                        v-if="comentario.visibilidad === 'interno'"
+                                        class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700"
+                                    >
+                                        Interno
+                                    </span>
+                                </div>
+
+                                <div class="whitespace-pre-line text-sm text-gray-900">
+                                    {{ comentario.cuerpo }}
+                                </div>
+
+                                <div v-if="comentario.adjuntos?.length" class="space-y-2">
+                                    <div class="text-xs font-semibold text-gray-500">Adjuntos</div>
+                                    <ul class="space-y-1">
+                                        <li
+                                            v-for="adjunto in comentario.adjuntos"
+                                            :key="adjunto.id"
+                                            class="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-700"
+                                        >
+                                            <span class="truncate">{{ adjunto.nombre_archivo }}</span>
+                                            <span class="text-xs text-gray-500">
+                                                {{ adjunto.cargado_por?.nombre || 'Usuario' }} · {{ formatDate(adjunto.created_at) }}
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6 space-y-4">
+                        <h4 class="text-base font-semibold text-gray-900">Involucrados</h4>
+
+                        <form
+                            v-if="canGestionarInvolucrados"
+                            class="grid gap-3 sm:grid-cols-[1fr,auto] items-end"
+                            @submit.prevent="addInvolucrado"
+                        >
+                            <div>
+                                <InputLabel for="involucrado" value="Agregar usuario" />
+                                <select
+                                    id="involucrado"
+                                    v-model="involucradoForm.usuario_id"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                >
+                                    <option value="" disabled>Selecciona un usuario</option>
+                                    <option v-for="usuario in catalogs.usuarios || []" :key="usuario.id" :value="usuario.id">
+                                        {{ usuario.nombre }} ({{ usuario.email }})
+                                    </option>
+                                </select>
+                                <InputError class="mt-2" :message="fieldError(involucradoErrors, 'usuario_id')" />
+                                <InputError class="mt-2" :message="involucradoSubmitError" />
+                            </div>
+                            <PrimaryButton :disabled="involucradoProcessing">
+                                Agregar
+                            </PrimaryButton>
+                        </form>
+
+                        <div v-if="involucradosLoading" class="text-sm text-gray-500">
+                            Cargando involucrados...
+                        </div>
+                        <InputError v-else-if="involucradosError" :message="involucradosError" />
+
+                        <div v-else-if="involucrados.length === 0" class="text-sm text-gray-500">
+                            No hay involucrados.
+                        </div>
+
+                        <ul v-else class="space-y-2">
+                            <li
+                                v-for="item in involucrados"
+                                :key="item.id"
+                                class="flex flex-wrap items-center justify-between gap-3 rounded-md border border-gray-200 px-3 py-2"
+                            >
+                                <div class="text-sm">
+                                    <div class="font-medium text-gray-900">{{ item.usuario?.nombre || 'Usuario' }}</div>
+                                    <div class="text-xs text-gray-500">{{ item.usuario?.email }}</div>
+                                </div>
+                                <DangerButton
+                                    v-if="canGestionarInvolucrados"
+                                    :disabled="removingInvolucrado[item.usuario?.id] || false"
+                                    @click="removeInvolucrado(item.usuario?.id)"
+                                >
+                                    Remover
+                                </DangerButton>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
