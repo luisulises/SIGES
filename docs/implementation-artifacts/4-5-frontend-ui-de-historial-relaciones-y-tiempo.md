@@ -1,6 +1,6 @@
 # Story 4.5: Frontend - UI de historial, relaciones y tiempo
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,10 +17,10 @@ so that tenga trazabilidad completa.
 
 ## Tasks / Subtasks
 
-- [ ] Renderizar seccion de historial con eventos (AC: #1)
-- [ ] Renderizar seccion de relaciones y formulario para crear relacion (AC: #2, #4)
-- [ ] Renderizar seccion de tiempo y formulario para registrar tiempo (AC: #3, #4)
-- [ ] Manejar errores de validacion y refrescar datos sin recarga completa
+- [x] Renderizar seccion de historial con eventos (AC: #1)
+- [x] Renderizar seccion de relaciones y formulario para crear relacion (AC: #2, #4)
+- [x] Renderizar seccion de tiempo y formulario para registrar tiempo (AC: #3, #4)
+- [x] Manejar errores de validacion y refrescar datos sin recarga completa
 
 ## Dev Notes
 
@@ -43,11 +43,15 @@ so that tenga trazabilidad completa.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Verificado (QA) 2026-01-29: `npm.cmd -s run build` OK; UI consume endpoints Epic 4 y refresca datos sin recarga completa.
+
 ### File List
 
+- resources/js/Pages/Tickets/Show.vue
+- app/Http/Controllers/TicketController.php

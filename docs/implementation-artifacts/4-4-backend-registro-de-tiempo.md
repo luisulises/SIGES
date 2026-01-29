@@ -1,6 +1,6 @@
 # Story 4.4: Backend - Registro de tiempo
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,11 +17,11 @@ so that quede evidencia del esfuerzo.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar endpoint para registrar tiempo en ticket (AC: #1, #2)
-  - [ ] Validar acceso al ticket y rol
-  - [ ] Validar minutos > 0
-- [ ] Implementar endpoint para listar registros de tiempo por ticket (AC: #3, #4)
-- [ ] Pruebas de feature para registrar/listar y bloquear edicion (AC: #1-#4)
+- [x] Implementar endpoint para registrar tiempo en ticket (AC: #1, #2)
+  - [x] Validar acceso al ticket y rol
+  - [x] Validar minutos > 0
+- [x] Implementar endpoint para listar registros de tiempo por ticket (AC: #3, #4)
+- [x] Pruebas de feature para registrar/listar y bloquear edicion (AC: #1-#4)
 
 ## Dev Notes
 
@@ -43,11 +43,19 @@ so that quede evidencia del esfuerzo.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Verificado (QA) 2026-01-29: `php artisan test --compact` (incluye `TicketTiempoTest`) y endpoints `GET|POST /api/tickets/{ticket}/tiempo`.
+
 ### File List
 
+- app/Services/TicketTiempoService.php
+- app/Http/Controllers/Api/TicketTiempoController.php
+- app/Http/Requests/Api/StoreRegistroTiempoTicketRequest.php
+- app/Http/Resources/RegistroTiempoTicketResource.php
+- routes/api.php
+- tests/Feature/Api/TicketTiempoTest.php

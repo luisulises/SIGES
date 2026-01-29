@@ -128,6 +128,20 @@ class TicketWorkflowTest extends TestCase
             ->assertStatus(403);
     }
 
+    public function test_soporte_no_puede_cerrar_si_no_es_solicitante(): void
+    {
+        $soporte = $this->makeUser(Role::SOPORTE);
+        $ticket = $this->makeTicket(EstadoTicket::RESUELTO, [
+            'responsable_actual_id' => $soporte->id,
+            'resolucion' => 'Se reinicio el servicio.',
+        ]);
+
+        Sanctum::actingAs($soporte);
+
+        $this->postJson("/api/tickets/{$ticket->id}/cerrar")
+            ->assertStatus(403);
+    }
+
     private function makeUser(string $rolNombre): User
     {
         $rolId = Role::query()->where('nombre', $rolNombre)->value('id');

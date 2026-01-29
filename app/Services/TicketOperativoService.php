@@ -10,8 +10,10 @@ use Illuminate\Validation\ValidationException;
 
 class TicketOperativoService
 {
-    public function __construct(private readonly TicketVisibilityService $visibilityService)
-    {
+    public function __construct(
+        private readonly TicketVisibilityService $visibilityService,
+        private readonly TicketAuditoriaService $auditoriaService
+    ) {
     }
 
     /**
@@ -27,7 +29,17 @@ class TicketOperativoService
             ]);
         }
 
-        return DB::transaction(function () use ($user, $ticket, $data) {
+        $before = [
+            'responsable_actual_id' => $ticket->responsable_actual_id,
+            'prioridad_id' => $ticket->prioridad_id,
+            'fecha_compromiso' => optional($ticket->fecha_compromiso)->toISOString(),
+            'tipo_solicitud_id' => $ticket->tipo_solicitud_id,
+            'fecha_entrega' => optional($ticket->fecha_entrega)->toISOString(),
+            'resolucion' => $ticket->resolucion,
+            'sistema_id' => $ticket->sistema_id,
+        ];
+
+        return DB::transaction(function () use ($user, $ticket, $data, $before) {
             $now = now();
 
             if (array_key_exists('responsable_id', $data)) {
@@ -77,7 +89,89 @@ class TicketOperativoService
 
             $ticket->save();
 
-            return $ticket->refresh();
+            $ticket->refresh();
+
+            $after = [
+                'responsable_actual_id' => $ticket->responsable_actual_id,
+                'prioridad_id' => $ticket->prioridad_id,
+                'fecha_compromiso' => optional($ticket->fecha_compromiso)->toISOString(),
+                'tipo_solicitud_id' => $ticket->tipo_solicitud_id,
+                'fecha_entrega' => optional($ticket->fecha_entrega)->toISOString(),
+                'resolucion' => $ticket->resolucion,
+                'sistema_id' => $ticket->sistema_id,
+            ];
+
+            if (array_key_exists('responsable_id', $data) && $before['responsable_actual_id'] !== $after['responsable_actual_id']) {
+                $this->auditoriaService->record(
+                    $ticket,
+                    $user,
+                    'asignacion_cambiada',
+                    ['responsable_actual_id' => $before['responsable_actual_id']],
+                    ['responsable_actual_id' => $after['responsable_actual_id']]
+                );
+            }
+
+            if (array_key_exists('prioridad_id', $data) && $before['prioridad_id'] !== $after['prioridad_id']) {
+                $this->auditoriaService->record(
+                    $ticket,
+                    $user,
+                    'prioridad_cambiada',
+                    ['prioridad_id' => $before['prioridad_id']],
+                    ['prioridad_id' => $after['prioridad_id']]
+                );
+            }
+
+            if (array_key_exists('fecha_compromiso', $data) && $before['fecha_compromiso'] !== $after['fecha_compromiso']) {
+                $this->auditoriaService->record(
+                    $ticket,
+                    $user,
+                    'fecha_compromiso_cambiada',
+                    ['fecha_compromiso' => $before['fecha_compromiso']],
+                    ['fecha_compromiso' => $after['fecha_compromiso']]
+                );
+            }
+
+            if (array_key_exists('tipo_solicitud_id', $data) && $before['tipo_solicitud_id'] !== $after['tipo_solicitud_id']) {
+                $this->auditoriaService->record(
+                    $ticket,
+                    $user,
+                    'tipo_cambiado',
+                    ['tipo_solicitud_id' => $before['tipo_solicitud_id']],
+                    ['tipo_solicitud_id' => $after['tipo_solicitud_id']]
+                );
+            }
+
+            if (array_key_exists('fecha_entrega', $data) && $before['fecha_entrega'] !== $after['fecha_entrega']) {
+                $this->auditoriaService->record(
+                    $ticket,
+                    $user,
+                    'fecha_entrega_cambiada',
+                    ['fecha_entrega' => $before['fecha_entrega']],
+                    ['fecha_entrega' => $after['fecha_entrega']]
+                );
+            }
+
+            if (array_key_exists('resolucion', $data) && $before['resolucion'] !== $after['resolucion']) {
+                $this->auditoriaService->record(
+                    $ticket,
+                    $user,
+                    'resolucion_registrada',
+                    ['resolucion' => $before['resolucion']],
+                    ['resolucion' => $after['resolucion']]
+                );
+            }
+
+            if (array_key_exists('sistema_id', $data) && $before['sistema_id'] !== $after['sistema_id']) {
+                $this->auditoriaService->record(
+                    $ticket,
+                    $user,
+                    'sistema_cambiado',
+                    ['sistema_id' => $before['sistema_id']],
+                    ['sistema_id' => $after['sistema_id']]
+                );
+            }
+
+            return $ticket;
         });
     }
 

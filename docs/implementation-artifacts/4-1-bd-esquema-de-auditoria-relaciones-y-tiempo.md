@@ -1,6 +1,6 @@
 # Story 4.1: BD - Esquema de auditoria, relaciones y tiempo
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,16 +18,16 @@ so that la trazabilidad sea completa.
 
 ## Tasks / Subtasks
 
-- [ ] Crear migracion para eventos_auditoria_ticket (AC: #1-#3)
-  - [ ] columnas: ticket_id, actor_id, tipo_evento, valor_antes, valor_despues, metadatos, created_at, updated_at
-  - [ ] indices por ticket_id y actor_id
-- [ ] Crear migracion para relaciones_ticket (AC: #1, #2, #4)
-  - [ ] columnas: ticket_id, ticket_relacionado_id, tipo_relacion, creado_por_id, created_at, updated_at
-  - [ ] indice unico y constraint para evitar auto-relacion
-- [ ] Crear migracion para registros_tiempo_ticket (AC: #1, #2, #5)
-  - [ ] columnas: ticket_id, autor_id, minutos, nota (nullable), created_at, updated_at
-  - [ ] indices por ticket_id y autor_id
-- [ ] Agregar FKs e indices necesarios (AC: #2, #4)
+- [x] Crear migracion para eventos_auditoria_ticket (AC: #1-#3)
+  - [x] columnas: ticket_id, actor_id, tipo_evento, valor_antes, valor_despues, metadatos, created_at, updated_at
+  - [x] indices por ticket_id y actor_id
+- [x] Crear migracion para relaciones_ticket (AC: #1, #2, #4)
+  - [x] columnas: ticket_id, ticket_relacionado_id, tipo_relacion, creado_por_id, created_at, updated_at
+  - [x] indice unico y constraint para evitar auto-relacion
+- [x] Crear migracion para registros_tiempo_ticket (AC: #1, #2, #5)
+  - [x] columnas: ticket_id, autor_id, minutos, nota (nullable), created_at, updated_at
+  - [x] indices por ticket_id y autor_id
+- [x] Agregar FKs e indices necesarios (AC: #2, #4)
 
 ## Dev Notes
 
@@ -50,11 +50,19 @@ so that la trazabilidad sea completa.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Verificado (QA) 2026-01-29: `docker compose up -d`, `php artisan migrate:status`, `php artisan test`, `npm.cmd -s run build`.
+
 ### File List
 
+- database/migrations/2026_01_28_000001_create_eventos_auditoria_ticket_table.php
+- database/migrations/2026_01_28_000002_create_relaciones_ticket_table.php
+- database/migrations/2026_01_28_000003_create_registros_tiempo_ticket_table.php
+- app/Models/EventoAuditoriaTicket.php
+- app/Models/RelacionTicket.php
+- app/Models/RegistroTiempoTicket.php

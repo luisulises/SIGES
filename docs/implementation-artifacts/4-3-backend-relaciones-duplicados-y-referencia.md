@@ -1,6 +1,6 @@
 # Story 4.3: Backend - Relaciones, duplicados y referencia
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,14 +17,14 @@ so that exista trazabilidad entre solicitudes.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar endpoint para crear relacion (AC: #1-#3)
-  - [ ] Validar acceso al ticket origen y al relacionado
-  - [ ] Validar permiso de cancelacion para tipo_relacion=duplicado_de
-  - [ ] Evitar auto-relacion y duplicados (unique constraint)
-- [ ] Implementar logica de duplicado (AC: #3)
-  - [ ] Cambiar estado a "Cancelado" y set cancelado_at
-- [ ] Implementar endpoint para listar relaciones por ticket (AC: #4)
-- [ ] Pruebas de feature para crear/listar relaciones y duplicados (AC: #1-#4)
+- [x] Implementar endpoint para crear relacion (AC: #1-#3)
+  - [x] Validar acceso al ticket origen y al relacionado
+  - [x] Validar permiso de cancelacion para tipo_relacion=duplicado_de
+  - [x] Evitar auto-relacion y duplicados (unique constraint)
+- [x] Implementar logica de duplicado (AC: #3)
+  - [x] Cambiar estado a "Cancelado" y set cancelado_at
+- [x] Implementar endpoint para listar relaciones por ticket (AC: #4)
+- [x] Pruebas de feature para crear/listar relaciones y duplicados (AC: #1-#4)
 
 ## Dev Notes
 
@@ -48,11 +48,19 @@ so that exista trazabilidad entre solicitudes.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Verificado (QA) 2026-01-29: `php artisan test --compact` (incluye `TicketRelacionTest`) y endpoints `GET|POST /api/tickets/{ticket}/relaciones`.
+
 ### File List
 
+- app/Services/TicketRelacionService.php
+- app/Http/Controllers/Api/TicketRelacionController.php
+- app/Http/Requests/Api/StoreRelacionTicketRequest.php
+- app/Http/Resources/RelacionTicketResource.php
+- routes/api.php
+- tests/Feature/Api/TicketRelacionTest.php

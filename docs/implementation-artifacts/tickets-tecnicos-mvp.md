@@ -1,4 +1,4 @@
-# Sistema - copia - Tickets tecnicos (MVP)
+﻿# Sistema - copia - Tickets tecnicos (MVP)
 
 ## Referencias
 
@@ -41,7 +41,7 @@
 - P2.6 FE-3.2 UI de adjuntos en tickets/comentarios.
 - P2.7 FE-3.3 UI de gestion de involucrados (solo coordinador).
 
-- P3.1 DB-4.1 Esquema de trazabilidad: evento_auditoria_ticket, relacion_ticket, registro_tiempo_ticket.
+- P3.1 DB-4.1 Esquema de trazabilidad: eventos_auditoria_ticket, relaciones_ticket, registros_tiempo_ticket.
 - P3.2 BE-4.1 Auditoria de cambios y consulta de historial.
 - P3.3 BE-4.2 Relaciones de tickets, duplicados y referencia a tickets cerrados/cancelados.
 - P3.4 BE-4.3 Registro de tiempo acumulativo (append-only) y visibilidad por rol.
@@ -139,8 +139,8 @@
 
 ### Epic 4 - Trazabilidad, historial y relaciones
 
-- DB-4.1 Esquema de trazabilidad: evento_auditoria_ticket, relacion_ticket, registro_tiempo_ticket.
-  - Criterios: registro_tiempo_ticket append-only; relacion_ticket sin auto-relacion.
+- DB-4.1 Esquema de trazabilidad: eventos_auditoria_ticket, relaciones_ticket, registros_tiempo_ticket.
+  - Criterios: registros_tiempo_ticket append-only; relaciones_ticket sin auto-relacion.
 
 ### Epic 5 - Notificaciones de cambios
 

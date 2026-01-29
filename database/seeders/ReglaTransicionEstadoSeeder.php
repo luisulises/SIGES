@@ -33,10 +33,20 @@ class ReglaTransicionEstadoSeeder extends Seeder
 
         $rolesCierre = [
             Role::CLIENTE_INTERNO,
-            Role::SOPORTE,
             Role::COORDINADOR,
             Role::ADMIN,
         ];
+
+        $estadoResueltoId = $this->estadoId(EstadoTicket::RESUELTO);
+        $estadoCerradoId = $this->estadoId(EstadoTicket::CERRADO);
+        $rolSoporteId = Role::query()->where('nombre', Role::SOPORTE)->value('id');
+        if ($rolSoporteId) {
+            DB::table('reglas_transicion_estado')
+                ->where('estado_origen_id', $estadoResueltoId)
+                ->where('estado_destino_id', $estadoCerradoId)
+                ->where('rol_id', $rolSoporteId)
+                ->delete();
+        }
 
         $this->insertRules(EstadoTicket::RESUELTO, EstadoTicket::CERRADO, $rolesCierre, false);
 

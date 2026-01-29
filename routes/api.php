@@ -4,8 +4,11 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketAdjuntoController;
 use App\Http\Controllers\Api\TicketComentarioController;
+use App\Http\Controllers\Api\TicketHistorialController;
 use App\Http\Controllers\Api\TicketInvolucradoController;
 use App\Http\Controllers\Api\TicketOperativoController;
+use App\Http\Controllers\Api\TicketRelacionController;
+use App\Http\Controllers\Api\TicketTiempoController;
 use App\Http\Controllers\Api\TicketWorkflowController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +39,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/tickets/{ticket}/adjuntos', [TicketAdjuntoController::class, 'index']);
     Route::post('/tickets/{ticket}/adjuntos', [TicketAdjuntoController::class, 'store']);
+
+    Route::get('/tickets/{ticket}/historial', [TicketHistorialController::class, 'index']);
+    Route::get('/tickets/{ticket}/relaciones', [TicketRelacionController::class, 'index']);
+    Route::post('/tickets/{ticket}/relaciones', [TicketRelacionController::class, 'store']);
+    Route::get('/tickets/{ticket}/tiempo', [TicketTiempoController::class, 'index']);
+    Route::post('/tickets/{ticket}/tiempo', [TicketTiempoController::class, 'store']);
 
     Route::get('/tickets/{ticket}/involucrados', [TicketInvolucradoController::class, 'index']);
     Route::post('/tickets/{ticket}/involucrados', [TicketInvolucradoController::class, 'store']);

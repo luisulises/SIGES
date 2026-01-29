@@ -338,6 +338,238 @@ const refreshColaboracion = () => {
     fetchInvolucrados();
 };
 
+const canManageTiempo = computed(() => canOperate.value);
+
+const historial = ref([]);
+const historialLoading = ref(false);
+const historialError = ref('');
+
+const fetchHistorial = async () => {
+    historialError.value = '';
+    historialLoading.value = true;
+
+    try {
+        const response = await window.axios.get(`/api/tickets/${ticketState.id}/historial`);
+        historial.value = extractCollection(response);
+    } catch (error) {
+        const data = error.response?.data;
+        historialError.value = data?.message || 'No se pudo cargar el historial.';
+    } finally {
+        historialLoading.value = false;
+    }
+};
+
+const relaciones = ref([]);
+const relacionesLoading = ref(false);
+const relacionesError = ref('');
+
+const relacionForm = reactive({
+    ticket_relacionado_id: '',
+    tipo_relacion: 'relacionado',
+});
+const relacionErrors = ref({});
+const relacionProcessing = ref(false);
+const relacionSubmitError = ref('');
+
+const fetchRelaciones = async () => {
+    relacionesError.value = '';
+    relacionesLoading.value = true;
+
+    try {
+        const response = await window.axios.get(`/api/tickets/${ticketState.id}/relaciones`);
+        relaciones.value = extractCollection(response);
+    } catch (error) {
+        const data = error.response?.data;
+        relacionesError.value = data?.message || 'No se pudieron cargar las relaciones.';
+    } finally {
+        relacionesLoading.value = false;
+    }
+};
+
+const submitRelacion = async () => {
+    relacionErrors.value = {};
+    relacionSubmitError.value = '';
+
+    if (!relacionForm.ticket_relacionado_id) {
+        relacionErrors.value = { ticket_relacionado_id: ['Ingresa un ticket id.'] };
+        return;
+    }
+
+    relacionProcessing.value = true;
+
+    try {
+        await window.axios.post(`/api/tickets/${ticketState.id}/relaciones`, {
+            ticket_relacionado_id: Number(relacionForm.ticket_relacionado_id),
+            tipo_relacion: relacionForm.tipo_relacion,
+        });
+
+        relacionForm.ticket_relacionado_id = '';
+        relacionForm.tipo_relacion = 'relacionado';
+
+        router.reload({
+            only: ['ticket', 'transiciones'],
+            preserveScroll: true,
+            preserveState: true,
+        });
+
+        await fetchRelaciones();
+        await fetchHistorial();
+        setSuccess('Relacion creada.');
+    } catch (error) {
+        const data = error.response?.data;
+        relacionErrors.value = data?.errors ?? {};
+        relacionSubmitError.value = data?.message || 'No se pudo crear la relacion.';
+    } finally {
+        relacionProcessing.value = false;
+    }
+};
+
+const tiempoRegistros = ref([]);
+const tiempoLoading = ref(false);
+const tiempoError = ref('');
+
+const tiempoForm = reactive({
+    minutos: '',
+    nota: '',
+});
+const tiempoErrors = ref({});
+const tiempoProcessing = ref(false);
+const tiempoSubmitError = ref('');
+
+const fetchTiempo = async () => {
+    if (!canManageTiempo.value) {
+        return;
+    }
+
+    tiempoError.value = '';
+    tiempoLoading.value = true;
+
+    try {
+        const response = await window.axios.get(`/api/tickets/${ticketState.id}/tiempo`);
+        tiempoRegistros.value = extractCollection(response);
+    } catch (error) {
+        const data = error.response?.data;
+        tiempoError.value = data?.message || 'No se pudo cargar el tiempo.';
+    } finally {
+        tiempoLoading.value = false;
+    }
+};
+
+const submitTiempo = async () => {
+    tiempoErrors.value = {};
+    tiempoSubmitError.value = '';
+
+    if (!tiempoForm.minutos) {
+        tiempoErrors.value = { minutos: ['Ingresa minutos.'] };
+        return;
+    }
+
+    tiempoProcessing.value = true;
+
+    try {
+        await window.axios.post(`/api/tickets/${ticketState.id}/tiempo`, {
+            minutos: Number(tiempoForm.minutos),
+            nota: tiempoForm.nota || null,
+        });
+
+        tiempoForm.minutos = '';
+        tiempoForm.nota = '';
+
+        await fetchTiempo();
+        await fetchHistorial();
+        setSuccess('Tiempo registrado.');
+    } catch (error) {
+        const data = error.response?.data;
+        tiempoErrors.value = data?.errors ?? {};
+        tiempoSubmitError.value = data?.message || 'No se pudo registrar el tiempo.';
+    } finally {
+        tiempoProcessing.value = false;
+    }
+};
+
+const refreshTrazabilidad = () => {
+    fetchHistorial();
+    fetchRelaciones();
+    fetchTiempo();
+};
+
+const labelFromCatalog = (items, id) => {
+    if (!items || id === null || id === undefined) {
+        return id === null || id === undefined ? 'Sin' : String(id);
+    }
+
+    const found = items.find((item) => item.id === id);
+    return found?.nombre || String(id);
+};
+
+const usuarioLabel = (id) => {
+    if (id === null || id === undefined) {
+        return 'Sin';
+    }
+
+    const usuario = (catalogs.value.usuarios || []).find((item) => item.id === id);
+    if (usuario?.nombre) {
+        return usuario.nombre;
+    }
+
+    const responsable = (catalogs.value.responsables || []).find((item) => item.id === id);
+    if (responsable?.nombre) {
+        return responsable.nombre;
+    }
+
+    return String(id);
+};
+
+const relationOtherTicket = (relacion) => {
+    return relacion.ticket_id === ticketState.id ? relacion.ticket_relacionado : relacion.ticket;
+};
+
+const auditSummary = (evento) => {
+    const antes = evento?.valor_antes || {};
+    const despues = evento?.valor_despues || {};
+
+    switch (evento?.tipo_evento) {
+        case 'estado_cambiado':
+            return `Estado: ${labelFromCatalog(catalogs.value.estados, antes.estado_id)} → ${labelFromCatalog(
+                catalogs.value.estados,
+                despues.estado_id
+            )}`;
+        case 'asignacion_cambiada':
+            return `Responsable: ${usuarioLabel(antes.responsable_actual_id)} → ${usuarioLabel(despues.responsable_actual_id)}`;
+        case 'prioridad_cambiada':
+            return `Prioridad: ${labelFromCatalog(catalogs.value.prioridades, antes.prioridad_id)} → ${labelFromCatalog(
+                catalogs.value.prioridades,
+                despues.prioridad_id
+            )}`;
+        case 'tipo_cambiado':
+            return `Tipo: ${labelFromCatalog(catalogs.value.tipos_solicitud, antes.tipo_solicitud_id)} → ${labelFromCatalog(
+                catalogs.value.tipos_solicitud,
+                despues.tipo_solicitud_id
+            )}`;
+        case 'sistema_cambiado':
+            return `Aplicacion: ${labelFromCatalog(catalogs.value.sistemas, antes.sistema_id)} → ${labelFromCatalog(
+                catalogs.value.sistemas,
+                despues.sistema_id
+            )}`;
+        case 'fecha_compromiso_cambiada':
+            return `Compromiso: ${antes.fecha_compromiso || 'Sin'} → ${despues.fecha_compromiso || 'Sin'}`;
+        case 'fecha_entrega_cambiada':
+            return `Entrega: ${antes.fecha_entrega || 'Sin'} → ${despues.fecha_entrega || 'Sin'}`;
+        case 'resolucion_registrada':
+            return 'Resolucion actualizada.';
+        case 'cierre':
+            return 'Ticket cerrado.';
+        case 'cancelacion':
+            return 'Ticket cancelado.';
+        case 'relacion_creada':
+            return `Relacion creada: ${despues.tipo_relacion} (#${despues.ticket_relacionado_id}).`;
+        case 'tiempo_registrado':
+            return `Tiempo registrado: ${despues.minutos} min.`;
+        default:
+            return evento?.tipo_evento || 'Evento';
+    }
+};
+
 const onComentarioArchivosChange = (event) => {
     comentarioAdjuntoError.value = '';
     const files = event.target?.files ? Array.from(event.target.files) : [];
@@ -474,6 +706,7 @@ const updateOperativo = async () => {
         const response = await window.axios.patch(`/api/tickets/${ticketState.id}/operativo`, payload);
         applyTicketUpdate(extractTicket(response));
         refreshTransitions();
+        fetchHistorial();
         setSuccess('Cambios guardados.');
     } catch (error) {
         const data = error.response?.data;
@@ -507,6 +740,7 @@ const updateEstado = async () => {
         applyTicketUpdate(extractTicket(response));
         estadoForm.estado = '';
         refreshTransitions();
+        fetchHistorial();
         setSuccess('Estado actualizado.');
     } catch (error) {
         const data = error.response?.data;
@@ -574,9 +808,14 @@ const reloadTicket = () => {
         processing.cerrar ||
         processing.cancelar ||
         comentarioProcessing.value ||
+        relacionProcessing.value ||
+        tiempoProcessing.value ||
         involucradoProcessing.value ||
         comentariosLoading.value ||
-        involucradosLoading.value;
+        involucradosLoading.value ||
+        historialLoading.value ||
+        relacionesLoading.value ||
+        tiempoLoading.value;
 
     if (isBusy) {
         return;
@@ -589,10 +828,12 @@ const reloadTicket = () => {
     });
 
     refreshColaboracion();
+    refreshTrazabilidad();
 };
 
 onMounted(() => {
     refreshColaboracion();
+    refreshTrazabilidad();
 
     if (props.pollInterval > 0) {
         intervalId = window.setInterval(reloadTicket, props.pollInterval);
@@ -1092,6 +1333,184 @@ watch(
                                 </DangerButton>
                             </li>
                         </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow sm:rounded-lg p-6 mt-6 space-y-8">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Trazabilidad</h3>
+                        <SecondaryButton @click="refreshTrazabilidad">
+                            Refrescar
+                        </SecondaryButton>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="text-base font-semibold text-gray-900">Historial</h4>
+
+                        <div v-if="historialLoading" class="text-sm text-gray-500">
+                            Cargando historial...
+                        </div>
+                        <InputError v-else-if="historialError" :message="historialError" />
+
+                        <div v-else-if="historial.length === 0" class="text-sm text-gray-500">
+                            Sin eventos.
+                        </div>
+
+                        <ul v-else class="space-y-2">
+                            <li
+                                v-for="evento in historial"
+                                :key="evento.id"
+                                class="rounded-md border border-gray-200 px-3 py-2"
+                            >
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ auditSummary(evento) }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        {{ evento.actor?.nombre || 'Usuario' }} · {{ formatDate(evento.created_at) }}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6 space-y-4">
+                        <h4 class="text-base font-semibold text-gray-900">Relaciones</h4>
+
+                        <form class="grid gap-3 sm:grid-cols-[1fr,auto] items-end" @submit.prevent="submitRelacion">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <InputLabel for="ticket_relacionado_id" value="Ticket relacionado (id)" />
+                                    <TextInput
+                                        id="ticket_relacionado_id"
+                                        v-model="relacionForm.ticket_relacionado_id"
+                                        type="number"
+                                        class="mt-1 block w-full"
+                                        min="1"
+                                    />
+                                    <InputError class="mt-2" :message="fieldError(relacionErrors, 'ticket_relacionado_id')" />
+                                </div>
+
+                                <div>
+                                    <InputLabel for="tipo_relacion" value="Tipo relación" />
+                                    <select
+                                        id="tipo_relacion"
+                                        v-model="relacionForm.tipo_relacion"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
+                                    >
+                                        <option value="relacionado">Relacionado</option>
+                                        <option value="reabre">Reabre</option>
+                                        <option v-if="canCloseCancel" value="duplicado_de">Duplicado de</option>
+                                    </select>
+                                    <InputError class="mt-2" :message="fieldError(relacionErrors, 'tipo_relacion')" />
+                                </div>
+                            </div>
+
+                            <PrimaryButton :disabled="relacionProcessing">
+                                Crear
+                            </PrimaryButton>
+                        </form>
+
+                        <InputError v-if="relacionSubmitError" :message="relacionSubmitError" />
+
+                        <div v-if="relacionesLoading" class="text-sm text-gray-500">
+                            Cargando relaciones...
+                        </div>
+                        <InputError v-else-if="relacionesError" :message="relacionesError" />
+
+                        <div v-else-if="relaciones.length === 0" class="text-sm text-gray-500">
+                            No hay relaciones.
+                        </div>
+
+                        <ul v-else class="space-y-2">
+                            <li
+                                v-for="relacion in relaciones"
+                                :key="relacion.id"
+                                class="flex flex-wrap items-center justify-between gap-3 rounded-md border border-gray-200 px-3 py-2"
+                            >
+                                <div class="text-sm">
+                                    <div class="font-medium text-gray-900">
+                                        Ticket #{{ relationOtherTicket(relacion)?.id }} · {{ relationOtherTicket(relacion)?.asunto || 'Sin asunto' }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        {{ relacion.tipo_relacion }} · {{ relacion.creado_por?.nombre || 'Usuario' }} ·
+                                        {{ formatDate(relacion.created_at) }}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6 space-y-4">
+                        <h4 class="text-base font-semibold text-gray-900">Tiempo</h4>
+
+                        <div v-if="!canManageTiempo" class="text-sm text-gray-500">
+                            Solo roles internos autorizados pueden ver y registrar tiempo.
+                        </div>
+
+                        <template v-else>
+                            <form class="grid gap-3 sm:grid-cols-[1fr,auto] items-end" @submit.prevent="submitTiempo">
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <InputLabel for="minutos" value="Minutos" />
+                                        <TextInput
+                                            id="minutos"
+                                            v-model="tiempoForm.minutos"
+                                            type="number"
+                                            class="mt-1 block w-full"
+                                            min="1"
+                                        />
+                                        <InputError class="mt-2" :message="fieldError(tiempoErrors, 'minutos')" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel for="nota_tiempo" value="Nota (opcional)" />
+                                        <TextInput
+                                            id="nota_tiempo"
+                                            v-model="tiempoForm.nota"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                        />
+                                        <InputError class="mt-2" :message="fieldError(tiempoErrors, 'nota')" />
+                                    </div>
+                                </div>
+
+                                <PrimaryButton :disabled="tiempoProcessing">
+                                    Registrar
+                                </PrimaryButton>
+                            </form>
+
+                            <InputError v-if="tiempoSubmitError" :message="tiempoSubmitError" />
+
+                            <div v-if="tiempoLoading" class="text-sm text-gray-500">
+                                Cargando tiempo...
+                            </div>
+                            <InputError v-else-if="tiempoError" :message="tiempoError" />
+
+                            <div v-else-if="tiempoRegistros.length === 0" class="text-sm text-gray-500">
+                                Sin registros de tiempo.
+                            </div>
+
+                            <ul v-else class="space-y-2">
+                                <li
+                                    v-for="registro in tiempoRegistros"
+                                    :key="registro.id"
+                                    class="rounded-md border border-gray-200 px-3 py-2"
+                                >
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ registro.minutos }} min
+                                            <span v-if="registro.nota" class="text-gray-600 font-normal">
+                                                · {{ registro.nota }}
+                                            </span>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ registro.autor?.nombre || 'Usuario' }} · {{ formatDate(registro.created_at) }}
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </template>
                     </div>
                 </div>
             </div>

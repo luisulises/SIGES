@@ -54,15 +54,15 @@ development_status:
   3-3-backend-adjuntos-en-comentarios: done
   3-4-backend-gestion-de-involucrados: done
   3-5-frontend-ui-de-comentarios-adjuntos-e-involucrados: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: done
 
-  epic-4: backlog
-  4-1-bd-esquema-de-auditoria-relaciones-y-tiempo: ready-for-dev
-  4-2-backend-auditoria-e-historial: ready-for-dev
-  4-3-backend-relaciones-duplicados-y-referencia: ready-for-dev
-  4-4-backend-registro-de-tiempo: ready-for-dev
-  4-5-frontend-ui-de-historial-relaciones-y-tiempo: ready-for-dev
-  epic-4-retrospective: optional
+  epic-4: done
+  4-1-bd-esquema-de-auditoria-relaciones-y-tiempo: done
+  4-2-backend-auditoria-e-historial: done
+  4-3-backend-relaciones-duplicados-y-referencia: done
+  4-4-backend-registro-de-tiempo: done
+  4-5-frontend-ui-de-historial-relaciones-y-tiempo: done
+  epic-4-retrospective: done
 
   epic-5: backlog
   5-1-bd-esquema-de-notificaciones: ready-for-dev
@@ -77,8 +77,5 @@ development_status:
   6-4-backend-busqueda-y-metricas-basicas: ready-for-dev
   6-5-frontend-ui-de-administracion-busqueda-y-metricas: ready-for-dev
   epic-6-retrospective: optional
-
-
-
 
 

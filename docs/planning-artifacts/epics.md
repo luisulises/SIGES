@@ -1,4 +1,4 @@
----
+﻿---
 stepsCompleted: [1, 2, 3, 4]
 inputDocuments: ["_bmad-output/planning-artifacts/prd.md", "_bmad-output/planning-artifacts/architecture.md", "_bmad-output/planning-artifacts/product-brief-Sistema - copia-2026-01-01.md"]
 ---
@@ -437,8 +437,8 @@ So that la trazabilidad sea completa.
 
 **Given** migraciones ejecutadas
 **When** se aplican
-**Then** existen tablas evento_auditoria_ticket, relacion_ticket y registro_tiempo_ticket con claves foraneas
-**And** registro_tiempo_ticket es append-only
+**Then** existen tablas eventos_auditoria_ticket, relaciones_ticket y registros_tiempo_ticket con claves foraneas
+**And** registros_tiempo_ticket es append-only
 
 ### Story 4.2: Backend - Auditoria e historial
 
@@ -654,4 +654,3 @@ So that pueda operar y gobernar el sistema.
 **Given** coordinador/admin
 **When** abre metricas
 **Then** ve indicadores basicos por estado y prioridad
-

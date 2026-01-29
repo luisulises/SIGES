@@ -1,4 +1,4 @@
-# Resumen del proyecto SIGES (handoff)
+﻿# Resumen del proyecto SIGES (handoff)
 
 Este documento resume el estado actual del proyecto **SIGES** para que otra sesión de Codex pueda continuar con contexto completo.
 
@@ -87,8 +87,17 @@ Workflow:
 - `POST /api/tickets/{ticket}/cerrar`
 - `POST /api/tickets/{ticket}/cancelar`
 
+Permisos (cierre/cancelación):
+- Permitido para solicitante, coordinador (del sistema) o admin.
+- Soporte no cierra/cancela (salvo que también sea solicitante).
+
 Operativo:
 - `PATCH /api/tickets/{ticket}/operativo` (body parcial; valida rol + catálogo activo)
+
+Trazabilidad (Epic 4):
+- `GET /api/tickets/{ticket}/historial` (filtrado por rol)
+- `GET|POST /api/tickets/{ticket}/relaciones`
+- `GET|POST /api/tickets/{ticket}/tiempo` (solo roles internos autorizados)
 
 ## 5) Cómo iniciar el proyecto (Windows)
 
@@ -100,12 +109,13 @@ Requisitos:
 Desde `c:\dev\SIGES`:
 
 ```powershell
-# BD
+# BD (Postgres 15 en Docker; expuesto en localhost:5433)
 docker compose up -d
+docker compose ps
 
 # Dependencias (si aplica)
 composer install
-npm install
+npm.cmd install
 
 # Migraciones + seeders base
 php artisan migrate --seed
@@ -113,16 +123,30 @@ php artisan migrate --seed
 # Backend
 php artisan serve --host=127.0.0.1 --port=8000
 
-# Frontend (otra terminal)
-npm run dev
+# Frontend (otra terminal, PowerShell)
+npm.cmd run dev
 ```
 
 Abrir:
-- `http://127.0.0.1:8000`
+- App (Laravel): `http://127.0.0.1:8000`
+- Vite (assets/dev): `http://localhost:5173`
 
 Notas frecuentes:
-- Si falla conexión a DB: abrir Docker Desktop y verificar que el container `siges-postgres` esté en `Running`.
+- Si falla conexión a DB (`DB_HOST=127.0.0.1`, `DB_PORT=5433`): abrir Docker Desktop y verificar que el container `siges-postgres` esté en `Running/healthy`.
+- Si `npm run ...` falla en PowerShell por ExecutionPolicy (npm.ps1): usar `npm.cmd ...`.
+- Si Vite no responde en `http://127.0.0.1:5173`, usar `http://localhost:5173` (puede ligar a `::1`).
 - Si aparece error de `storage/framework/sessions` o `storage/logs`: crear carpetas faltantes y/o asegurar permisos de escritura en `storage/` y `bootstrap/cache/`.
+
+## 5.1) Pre-flight técnico (antes de iniciar una épica)
+
+```powershell
+docker compose up -d
+docker compose ps
+php artisan migrate:status
+php artisan test
+php artisan route:list --path=api
+npm.cmd -s run build
+```
 
 ## 6) Usuarios demo por rol (para probar el checklist 2.4)
 
@@ -225,9 +249,17 @@ Epic 3 (Colaboración y evidencias) ya está implementada:
 - Adjuntos en comentarios (solo listar + subir; sin descarga)
 - Involucrados (soft delete)
 
-La siguiente en el backlog es **Epic 4 (Trazabilidad, historial y relaciones)**:
-- 4.1 BD: auditoría, relaciones y tiempo
-- 4.2 Backend: auditoría e historial
-- 4.3 Backend: relaciones/duplicados y referencia
-- 4.4 Backend: registro de tiempo
-- 4.5 Frontend: UI de historial/relaciones/tiempo
+Epic 4 (Trazabilidad, historial y relaciones) ya está implementada:
+- Auditoría e historial por ticket (filtrado por rol).
+- Relaciones y duplicados (duplicado cancela el ticket).
+- Registro de tiempo (append-only; solo roles internos autorizados).
+- UI en el detalle del ticket (historial/relaciones/tiempo).
+
+La siguiente en el backlog es **Epic 5 (Notificaciones)**.
+
+### Convenciones (Epic 4)
+
+Decisión de naming para tablas nuevas (snake_case + plural, consistente con el resto del proyecto):
+- `eventos_auditoria_ticket`
+- `relaciones_ticket`
+- `registros_tiempo_ticket`

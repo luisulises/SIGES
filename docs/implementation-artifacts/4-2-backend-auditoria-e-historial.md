@@ -1,6 +1,6 @@
 # Story 4.2: Backend - Auditoria e historial
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,12 +17,12 @@ so that pueda explicar decisiones y avances.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar servicio de auditoria para registrar eventos (AC: #1)
-  - [ ] Integrar en cambios de estado/asignacion/campos operativos
-- [ ] Implementar endpoint para listar historial por ticket (AC: #2, #3, #4)
-  - [ ] Aplicar filtro de visibilidad por rol
-  - [ ] Ordenar por created_at asc
-- [ ] Pruebas de feature para historial por rol (AC: #2-#4)
+- [x] Implementar servicio de auditoria para registrar eventos (AC: #1)
+  - [x] Integrar en cambios de estado/asignacion/campos operativos
+- [x] Implementar endpoint para listar historial por ticket (AC: #2, #3, #4)
+  - [x] Aplicar filtro de visibilidad por rol
+  - [x] Ordenar por created_at asc
+- [x] Pruebas de feature para historial por rol (AC: #2-#4)
 
 ## Dev Notes
 
@@ -45,11 +45,21 @@ so that pueda explicar decisiones y avances.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Verificado (QA) 2026-01-29: `php artisan test --compact` (69 passed) y endpoint `GET /api/tickets/{ticket}/historial` presente en `php artisan route:list --path=api`.
+
 ### File List
 
+- app/Services/TicketAuditoriaService.php
+- app/Services/TicketHistorialService.php
+- app/Services/TicketWorkflowService.php
+- app/Services/TicketOperativoService.php
+- app/Http/Controllers/Api/TicketHistorialController.php
+- app/Http/Resources/EventoAuditoriaTicketResource.php
+- routes/api.php
+- tests/Feature/Api/TicketHistorialTest.php

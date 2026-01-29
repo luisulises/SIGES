@@ -11,8 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class TicketWorkflowService
 {
-    public function __construct(private readonly TicketVisibilityService $visibilityService)
-    {
+    public function __construct(
+        private readonly TicketVisibilityService $visibilityService,
+        private readonly TicketAuditoriaService $auditoriaService
+    ) {
     }
 
     public function transition(User $user, Ticket $ticket, string $estadoDestinoNombre): Ticket
@@ -29,10 +31,21 @@ class TicketWorkflowService
             ]);
         }
 
-        $ticket->estado_id = $estadoDestinoId;
-        $ticket->save();
+        return DB::transaction(function () use ($user, $ticket, $estadoDestinoId) {
+            $estadoAntesId = $ticket->estado_id;
+            $ticket->estado_id = $estadoDestinoId;
+            $ticket->save();
 
-        return $ticket;
+            $this->auditoriaService->record(
+                $ticket,
+                $user,
+                'estado_cambiado',
+                ['estado_id' => $estadoAntesId],
+                ['estado_id' => $estadoDestinoId]
+            );
+
+            return $ticket;
+        });
     }
 
     public function close(User $user, Ticket $ticket): Ticket
@@ -57,11 +70,25 @@ class TicketWorkflowService
         $estadoCerradoId = $this->estadoIdByName(EstadoTicket::CERRADO);
         $this->findReglaOrFail($user, $ticket->estado_id, $estadoCerradoId);
 
-        $ticket->estado_id = $estadoCerradoId;
-        $ticket->cerrado_at = now();
-        $ticket->save();
+        return DB::transaction(function () use ($user, $ticket, $estadoCerradoId) {
+            $estadoAntesId = $ticket->estado_id;
+            $ticket->estado_id = $estadoCerradoId;
+            $ticket->cerrado_at = now();
+            $ticket->save();
 
-        return $ticket;
+            $this->auditoriaService->record(
+                $ticket,
+                $user,
+                'cierre',
+                ['estado_id' => $estadoAntesId],
+                [
+                    'estado_id' => $estadoCerradoId,
+                    'cerrado_at' => optional($ticket->cerrado_at)->toISOString(),
+                ]
+            );
+
+            return $ticket;
+        });
     }
 
     public function cancel(User $user, Ticket $ticket): Ticket
@@ -72,11 +99,25 @@ class TicketWorkflowService
         $estadoCanceladoId = $this->estadoIdByName(EstadoTicket::CANCELADO);
         $this->findReglaOrFail($user, $ticket->estado_id, $estadoCanceladoId);
 
-        $ticket->estado_id = $estadoCanceladoId;
-        $ticket->cancelado_at = now();
-        $ticket->save();
+        return DB::transaction(function () use ($user, $ticket, $estadoCanceladoId) {
+            $estadoAntesId = $ticket->estado_id;
+            $ticket->estado_id = $estadoCanceladoId;
+            $ticket->cancelado_at = now();
+            $ticket->save();
 
-        return $ticket;
+            $this->auditoriaService->record(
+                $ticket,
+                $user,
+                'cancelacion',
+                ['estado_id' => $estadoAntesId],
+                [
+                    'estado_id' => $estadoCanceladoId,
+                    'cancelado_at' => optional($ticket->cancelado_at)->toISOString(),
+                ]
+            );
+
+            return $ticket;
+        });
     }
 
     private function assertUserCanView(User $user, Ticket $ticket): void
