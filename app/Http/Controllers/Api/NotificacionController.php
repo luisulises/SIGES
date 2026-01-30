@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\NotificacionResource;
+use App\Models\Notificacion;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Validation\ValidationException;
+
+class NotificacionController extends Controller
+{
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $user = $request->user();
+
+        $unreadCount = Notificacion::query()
+            ->where('usuario_id', $user->id)
+            ->whereNull('leido_at')
+            ->count();
+
+        $notifications = Notificacion::query()
+            ->where('usuario_id', $user->id)
+            ->where('canal', 'in_app')
+            ->with('ticket:id,asunto')
+            ->orderByDesc('created_at')
+            ->paginate(20);
+
+        return NotificacionResource::collection($notifications)->additional([
+            'meta' => [
+                'unread_count' => $unreadCount,
+            ],
+        ]);
+    }
+
+    public function markAsRead(Request $request, Notificacion $notificacion): NotificacionResource
+    {
+        $user = $request->user();
+
+        if ((int) $notificacion->usuario_id !== (int) $user->id) {
+            throw ValidationException::withMessages([
+                'notificacion' => 'No autorizado.',
+            ]);
+        }
+
+        if (! $notificacion->leido_at) {
+            $notificacion->leido_at = now();
+            $notificacion->save();
+        }
+
+        return new NotificacionResource($notificacion->load('ticket:id,asunto'));
+    }
+}
+

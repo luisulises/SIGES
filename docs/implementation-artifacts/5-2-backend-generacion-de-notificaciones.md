@@ -1,6 +1,6 @@
 # Story 5.2: Backend - Generacion de notificaciones
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,15 +18,15 @@ so that este informado sin perseguir a nadie.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar servicio de notificaciones para eventos clave (AC: #1-#4)
-  - [ ] Definir destinatarios segun rol (solicitante, responsable, involucrados, coordinador)
-  - [ ] Excluir usuarios desactivados de los destinatarios
-- [ ] Integrar servicio en eventos de tickets (AC: #1-#3)
-  - [ ] Creacion, asignacion, cambio de estado, comentario publico, cierre/cancelacion
-- [ ] Implementar endpoint para listar notificaciones in_app por usuario (AC: #4)
-  - [ ] Filtro por leido_at null y paginacion
-- [ ] Implementar endpoint para marcar notificaciones como leidas (AC: #5)
-- [ ] Pruebas de feature para generacion y lectura (AC: #1-#5)
+- [x] Implementar servicio de notificaciones para eventos clave (AC: #1-#4)
+  - [x] Definir destinatarios segun rol (solicitante, responsable, involucrados, coordinador)
+  - [x] Excluir usuarios desactivados de los destinatarios
+- [x] Integrar servicio en eventos de tickets (AC: #1-#3)
+  - [x] Creacion, asignacion, cambio de estado, comentario publico, cierre/cancelacion
+- [x] Implementar endpoint para listar notificaciones in_app por usuario (AC: #4)
+  - [x] Filtro por leido_at null y paginacion
+- [x] Implementar endpoint para marcar notificaciones como leidas (AC: #5)
+- [x] Pruebas de feature para generacion y lectura (AC: #1-#5)
 
 ## Dev Notes
 
@@ -50,11 +50,22 @@ so that este informado sin perseguir a nadie.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Verificado (QA) 2026-01-29: `php artisan test --compact` (71 passed) + rutas `GET /api/notificaciones` y `POST /api/notificaciones/{notificacion}/leer`.
+
 ### File List
 
+- app/Services/TicketNotificacionService.php
+- app/Services/TicketService.php
+- app/Services/TicketOperativoService.php
+- app/Services/TicketWorkflowService.php
+- app/Services/TicketComentarioService.php
+- app/Http/Controllers/Api/NotificacionController.php
+- app/Http/Resources/NotificacionResource.php
+- routes/api.php
+- tests/Feature/Api/NotificacionTest.php

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\NotificacionController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketAdjuntoController;
 use App\Http\Controllers\Api\TicketComentarioController;
@@ -53,4 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tickets/{ticket}/estado', [TicketWorkflowController::class, 'changeState']);
     Route::post('/tickets/{ticket}/cerrar', [TicketWorkflowController::class, 'close']);
     Route::post('/tickets/{ticket}/cancelar', [TicketWorkflowController::class, 'cancel']);
+
+    Route::get('/notificaciones', [NotificacionController::class, 'index']);
+    Route::post('/notificaciones/{notificacion}/leer', [NotificacionController::class, 'markAsRead']);
 });

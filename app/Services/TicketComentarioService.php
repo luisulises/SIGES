@@ -7,12 +7,15 @@ use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class TicketComentarioService
 {
-    public function __construct(private readonly TicketVisibilityService $visibilityService)
+    public function __construct(
+        private readonly TicketVisibilityService $visibilityService,
+        private readonly TicketNotificacionService $notificacionService
+    )
     {
     }
 
@@ -66,6 +69,10 @@ class TicketComentarioService
             'cuerpo' => $data['cuerpo'],
             'visibilidad' => $data['visibilidad'],
         ]);
+
+        if ($data['visibilidad'] === 'publico') {
+            $this->notificacionService->comentarioPublico($ticket);
+        }
 
         return $comentario->load(['autor:id,nombre', 'adjuntos']);
     }

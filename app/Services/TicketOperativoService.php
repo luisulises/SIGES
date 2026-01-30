@@ -12,7 +12,8 @@ class TicketOperativoService
 {
     public function __construct(
         private readonly TicketVisibilityService $visibilityService,
-        private readonly TicketAuditoriaService $auditoriaService
+        private readonly TicketAuditoriaService $auditoriaService,
+        private readonly TicketNotificacionService $notificacionService
     ) {
     }
 
@@ -108,6 +109,12 @@ class TicketOperativoService
                     'asignacion_cambiada',
                     ['responsable_actual_id' => $before['responsable_actual_id']],
                     ['responsable_actual_id' => $after['responsable_actual_id']]
+                );
+
+                $this->notificacionService->asignacionCambiada(
+                    $ticket,
+                    $before['responsable_actual_id'] ? (int) $before['responsable_actual_id'] : null,
+                    $after['responsable_actual_id'] ? (int) $after['responsable_actual_id'] : null
                 );
             }
 

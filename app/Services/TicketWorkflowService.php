@@ -13,7 +13,8 @@ class TicketWorkflowService
 {
     public function __construct(
         private readonly TicketVisibilityService $visibilityService,
-        private readonly TicketAuditoriaService $auditoriaService
+        private readonly TicketAuditoriaService $auditoriaService,
+        private readonly TicketNotificacionService $notificacionService
     ) {
     }
 
@@ -43,6 +44,8 @@ class TicketWorkflowService
                 ['estado_id' => $estadoAntesId],
                 ['estado_id' => $estadoDestinoId]
             );
+
+            $this->notificacionService->estadoCambiado($ticket);
 
             return $ticket;
         });
@@ -87,6 +90,8 @@ class TicketWorkflowService
                 ]
             );
 
+            $this->notificacionService->cierre($ticket);
+
             return $ticket;
         });
     }
@@ -115,6 +120,8 @@ class TicketWorkflowService
                     'cancelado_at' => optional($ticket->cancelado_at)->toISOString(),
                 ]
             );
+
+            $this->notificacionService->cancelacion($ticket);
 
             return $ticket;
         });

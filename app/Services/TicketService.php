@@ -8,13 +8,17 @@ use App\Models\User;
 
 class TicketService
 {
+    public function __construct(private readonly TicketNotificacionService $notificacionService)
+    {
+    }
+
     public function createTicket(User $user, array $data): Ticket
     {
         $estadoNuevo = EstadoTicket::query()
             ->where('nombre', EstadoTicket::NUEVO)
             ->firstOrFail();
 
-        return Ticket::create([
+        $ticket = Ticket::create([
             'asunto' => $data['asunto'],
             'descripcion' => $data['descripcion'],
             'solicitante_id' => $user->id,
@@ -23,5 +27,9 @@ class TicketService
             'responsable_actual_id' => null,
             'interno' => false,
         ]);
+
+        $this->notificacionService->ticketCreado($ticket);
+
+        return $ticket;
     }
 }

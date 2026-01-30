@@ -64,11 +64,11 @@ development_status:
   4-5-frontend-ui-de-historial-relaciones-y-tiempo: done
   epic-4-retrospective: done
 
-  epic-5: backlog
-  5-1-bd-esquema-de-notificaciones: ready-for-dev
-  5-2-backend-generacion-de-notificaciones: ready-for-dev
-  5-3-frontend-campanita-de-notificaciones: ready-for-dev
-  epic-5-retrospective: optional
+  epic-5: done
+  5-1-bd-esquema-de-notificaciones: done
+  5-2-backend-generacion-de-notificaciones: done
+  5-3-frontend-campanita-de-notificaciones: done
+  epic-5-retrospective: done
 
   epic-6: backlog
   6-1-bd-catalogos-y-campos-administrativos: ready-for-dev
@@ -77,5 +77,3 @@ development_status:
   6-4-backend-busqueda-y-metricas-basicas: ready-for-dev
   6-5-frontend-ui-de-administracion-busqueda-y-metricas: ready-for-dev
   epic-6-retrospective: optional
-
-

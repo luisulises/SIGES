@@ -1,6 +1,6 @@
 # Story 5.3: Frontend - Campanita de notificaciones
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,10 +17,10 @@ so that vea eventos recientes del ticket.
 
 ## Tasks / Subtasks
 
-- [ ] Agregar componente de campanita en layout principal (AC: #1-#4)
-- [ ] Consumir endpoint de notificaciones y renderizar lista (AC: #2)
-- [ ] Implementar accion de marcar como leida (AC: #3)
-- [ ] Actualizar conteo con polling <= 60 s (AC: #4)
+- [x] Agregar componente de campanita en layout principal (AC: #1-#4)
+- [x] Consumir endpoint de notificaciones y renderizar lista (AC: #2)
+- [x] Implementar accion de marcar como leida (AC: #3)
+- [x] Actualizar conteo con polling <= 60 s (AC: #4)
 
 ## Dev Notes
 
@@ -42,11 +42,15 @@ so that vea eventos recientes del ticket.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Verificado (QA) 2026-01-29: `npm.cmd -s run build` OK; campanita hace polling cada 60s a `/api/notificaciones`.
+
 ### File List
 
+- resources/js/Components/NotificationsBell.vue
+- resources/js/Layouts/AuthenticatedLayout.vue
