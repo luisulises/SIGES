@@ -12,7 +12,7 @@ Participantes: (pendiente)
 - Baseline de calidad en verde: tests y build pasan.
 
 ## Lo que salio mal
-- No hay paginacion aun para historial/relaciones/tiempo (riesgo si crecen mucho).
+- (Post-epic) Se agrego paginacion a historial y tiempo (API + UI) + indices compuestos para consultas por `ticket_id` + `created_at`.
 
 ## Bloqueos o riesgos detectados
 - Crecimiento de tablas append-only (historial/tiempo): requiere estrategia de paginacion/indices si el volumen aumenta.
@@ -26,9 +26,8 @@ Participantes: (pendiente)
 - Naming de tablas (plural): `eventos_auditoria_ticket`, `relaciones_ticket`, `registros_tiempo_ticket`.
 
 ## Acciones para el siguiente epic
-- [ ] Agregar paginacion a historial y tiempo (API + UI) si el volumen lo requiere.
-- [ ] Definir indices adicionales segun consultas reales (ej. por ticket_id + created_at).
+- [x] Agregar paginacion a historial y tiempo (API + UI) si el volumen lo requiere.
+- [x] Definir indices adicionales segun consultas reales (ej. por ticket_id + created_at).
 
 ## Estado en sprint-status.yaml
 - epic-4-retrospective: done
-

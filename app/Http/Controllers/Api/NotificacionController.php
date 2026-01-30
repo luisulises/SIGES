@@ -17,6 +17,7 @@ class NotificacionController extends Controller
 
         $unreadCount = Notificacion::query()
             ->where('usuario_id', $user->id)
+            ->where('canal', 'in_app')
             ->whereNull('leido_at')
             ->count();
 
@@ -52,4 +53,3 @@ class NotificacionController extends Controller
         return new NotificacionResource($notificacion->load('ticket:id,asunto'));
     }
 }
-

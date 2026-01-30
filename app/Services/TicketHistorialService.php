@@ -6,7 +6,7 @@ use App\Models\EventoAuditoriaTicket;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class TicketHistorialService
 {
@@ -14,7 +14,7 @@ class TicketHistorialService
     {
     }
 
-    public function list(User $user, Ticket $ticket): Collection
+    public function list(User $user, Ticket $ticket, int $perPage = 50): LengthAwarePaginator
     {
         $this->assertUserCanView($user, $ticket);
 
@@ -27,7 +27,7 @@ class TicketHistorialService
             $query->whereIn('tipo_evento', ['estado_cambiado', 'cierre', 'cancelacion']);
         }
 
-        return $query->get();
+        return $query->paginate($perPage);
     }
 
     private function assertUserCanView(User $user, Ticket $ticket): void
@@ -37,4 +37,3 @@ class TicketHistorialService
         }
     }
 }
-

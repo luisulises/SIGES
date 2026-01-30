@@ -6,7 +6,7 @@ use App\Models\RegistroTiempoTicket;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class TicketTiempoService
@@ -17,7 +17,7 @@ class TicketTiempoService
     ) {
     }
 
-    public function list(User $user, Ticket $ticket): Collection
+    public function list(User $user, Ticket $ticket, int $perPage = 50): LengthAwarePaginator
     {
         $this->assertUserCanManageTiempo($user, $ticket);
 
@@ -25,7 +25,7 @@ class TicketTiempoService
             ->where('ticket_id', $ticket->id)
             ->with('autor:id,nombre')
             ->orderBy('created_at')
-            ->get();
+            ->paginate($perPage);
     }
 
     /**
@@ -85,4 +85,3 @@ class TicketTiempoService
             ->exists();
     }
 }
-

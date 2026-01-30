@@ -12,9 +12,9 @@ Participantes: (pendiente)
 - QA en verde (revalidado): migraciones aplicadas, `php artisan test --compact` pasa y build de Vite pasa.
 
 ## Lo que salio mal
-- El componente de campanita contiene texto con encoding incorrecto (mojibake) en strings como “leÃ­da”/“Â·”.
-- Cobertura de tests enfocada en “creacion + leer” (falta asegurar por pruebas eventos restantes y exclusion de usuarios inactivos).
-- El conteo `unread_count` no filtra por canal (hoy no afecta porque solo se emite `in_app`, pero es una deuda para cuando se active `email`).
+- Se detecto texto con encoding incorrecto (mojibake) en campanita; se corrigio.
+- Cobertura de tests estaba enfocada en “creacion + leer”; se amplio a eventos restantes y exclusion de usuarios inactivos.
+- El conteo `unread_count` no filtraba por canal; se ajusto a `canal = in_app` para consistencia cuando se habilite `email`.
 
 ## Bloqueos o riesgos detectados
 - Riesgo de “notification storm” (muchos inserts por evento) si se agregan mas destinatarios/eventos sin control.
@@ -27,11 +27,10 @@ Participantes: (pendiente)
 - Polling UI: 60s (alineado con el resto del sistema).
 
 ## Acciones para el siguiente epic
-- [ ] Agregar tests para eventos restantes (asignacion, estado, comentario publico, cierre/cancelacion) + exclusion de usuarios inactivos.
-- [ ] Normalizar/asegurar encoding UTF-8 en `resources/js/Components/NotificationsBell.vue`.
-- [ ] Decidir politica de retencion/paginacion visible en la UI si el volumen crece.
-- [ ] Revisar si `unread_count` debe filtrar por `canal = in_app` cuando se habilite email.
+- [x] Agregar tests para eventos restantes (asignacion, estado, comentario publico, cierre/cancelacion) + exclusion de usuarios inactivos.
+- [x] Normalizar/asegurar encoding UTF-8 en `resources/js/Components/NotificationsBell.vue`.
+- [x] Definir politica de retencion/paginacion visible en la UI si el volumen crece.
+- [x] Revisar si `unread_count` debe filtrar por `canal = in_app` cuando se habilite email.
 
 ## Estado en sprint-status.yaml
 - epic-5-retrospective: done
-

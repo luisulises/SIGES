@@ -343,20 +343,44 @@ const canManageTiempo = computed(() => canOperate.value);
 const historial = ref([]);
 const historialLoading = ref(false);
 const historialError = ref('');
+const historialPerPage = 50;
+const historialMeta = ref(null);
+const historialPage = ref(1);
+const historialHasMore = computed(() => {
+    const meta = historialMeta.value;
+    return meta && meta.current_page < meta.last_page;
+});
 
-const fetchHistorial = async () => {
+const fetchHistorial = async ({ page = 1, append = false } = {}) => {
     historialError.value = '';
     historialLoading.value = true;
 
     try {
-        const response = await window.axios.get(`/api/tickets/${ticketState.id}/historial`);
-        historial.value = extractCollection(response);
+        const response = await window.axios.get(`/api/tickets/${ticketState.id}/historial`, {
+            params: {
+                page,
+                per_page: historialPerPage,
+            },
+        });
+
+        const items = extractCollection(response);
+        historial.value = append ? [...historial.value, ...items] : items;
+        historialMeta.value = response?.data?.meta ?? null;
+        historialPage.value = page;
     } catch (error) {
         const data = error.response?.data;
         historialError.value = data?.message || 'No se pudo cargar el historial.';
     } finally {
         historialLoading.value = false;
     }
+};
+
+const loadMoreHistorial = async () => {
+    if (historialLoading.value || !historialHasMore.value) {
+        return;
+    }
+
+    await fetchHistorial({ page: historialPage.value + 1, append: true });
 };
 
 const relaciones = ref([]);
@@ -427,6 +451,13 @@ const submitRelacion = async () => {
 const tiempoRegistros = ref([]);
 const tiempoLoading = ref(false);
 const tiempoError = ref('');
+const tiempoPerPage = 50;
+const tiempoMeta = ref(null);
+const tiempoPage = ref(1);
+const tiempoHasMore = computed(() => {
+    const meta = tiempoMeta.value;
+    return meta && meta.current_page < meta.last_page;
+});
 
 const tiempoForm = reactive({
     minutos: '',
@@ -436,7 +467,7 @@ const tiempoErrors = ref({});
 const tiempoProcessing = ref(false);
 const tiempoSubmitError = ref('');
 
-const fetchTiempo = async () => {
+const fetchTiempo = async ({ page = 1, append = false } = {}) => {
     if (!canManageTiempo.value) {
         return;
     }
@@ -445,14 +476,31 @@ const fetchTiempo = async () => {
     tiempoLoading.value = true;
 
     try {
-        const response = await window.axios.get(`/api/tickets/${ticketState.id}/tiempo`);
-        tiempoRegistros.value = extractCollection(response);
+        const response = await window.axios.get(`/api/tickets/${ticketState.id}/tiempo`, {
+            params: {
+                page,
+                per_page: tiempoPerPage,
+            },
+        });
+
+        const items = extractCollection(response);
+        tiempoRegistros.value = append ? [...tiempoRegistros.value, ...items] : items;
+        tiempoMeta.value = response?.data?.meta ?? null;
+        tiempoPage.value = page;
     } catch (error) {
         const data = error.response?.data;
         tiempoError.value = data?.message || 'No se pudo cargar el tiempo.';
     } finally {
         tiempoLoading.value = false;
     }
+};
+
+const loadMoreTiempo = async () => {
+    if (tiempoLoading.value || !tiempoHasMore.value) {
+        return;
+    }
+
+    await fetchTiempo({ page: tiempoPage.value + 1, append: true });
 };
 
 const submitTiempo = async () => {
@@ -1372,6 +1420,12 @@ watch(
                                 </div>
                             </li>
                         </ul>
+
+                        <div v-if="historialHasMore" class="pt-2">
+                            <SecondaryButton :disabled="historialLoading" @click="loadMoreHistorial">
+                                Cargar más
+                            </SecondaryButton>
+                        </div>
                     </div>
 
                     <div class="border-t border-gray-200 pt-6 space-y-4">
@@ -1510,6 +1564,12 @@ watch(
                                     </div>
                                 </li>
                             </ul>
+
+                            <div v-if="tiempoHasMore" class="pt-2">
+                                <SecondaryButton :disabled="tiempoLoading" @click="loadMoreTiempo">
+                                    Cargar más
+                                </SecondaryButton>
+                            </div>
                         </template>
                     </div>
                 </div>

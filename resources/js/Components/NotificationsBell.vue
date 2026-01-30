@@ -9,24 +9,46 @@ const notifications = ref([]);
 const unreadCount = ref(0);
 const loading = ref(false);
 const error = ref('');
+const page = ref(1);
+const meta = ref(null);
 let timerId;
 
 const extractCollection = (response) => response?.data?.data ?? [];
+const hasMore = computed(() => {
+    const currentMeta = meta.value;
+    return currentMeta && currentMeta.current_page < currentMeta.last_page;
+});
 
-const fetchNotifications = async () => {
+const fetchNotifications = async ({ page: requestedPage = 1, append = false } = {}) => {
     loading.value = true;
     error.value = '';
 
     try {
-        const response = await window.axios.get('/api/notificaciones');
-        notifications.value = extractCollection(response);
+        const response = await window.axios.get('/api/notificaciones', {
+            params: {
+                page: requestedPage,
+            },
+        });
+
+        const items = extractCollection(response);
+        notifications.value = append ? [...notifications.value, ...items] : items;
         unreadCount.value = response?.data?.meta?.unread_count ?? 0;
+        meta.value = response?.data?.meta ?? null;
+        page.value = meta.value?.current_page ?? requestedPage;
     } catch (e) {
         const data = e?.response?.data;
         error.value = data?.message || 'No se pudieron cargar las notificaciones.';
     } finally {
         loading.value = false;
     }
+};
+
+const loadMore = async () => {
+    if (loading.value || !hasMore.value) {
+        return;
+    }
+
+    await fetchNotifications({ page: page.value + 1, append: true });
 };
 
 const markAsRead = async (id) => {
@@ -144,6 +166,17 @@ onBeforeUnmount(() => {
                             </div>
                         </li>
                     </ul>
+
+                    <div v-if="hasMore" class="px-4 py-3 border-t border-gray-100">
+                        <button
+                            type="button"
+                            class="text-xs text-indigo-600 hover:text-indigo-700"
+                            :disabled="loading"
+                            @click="loadMore"
+                        >
+                            Cargar más
+                        </button>
+                    </div>
                 </div>
             </template>
         </Dropdown>

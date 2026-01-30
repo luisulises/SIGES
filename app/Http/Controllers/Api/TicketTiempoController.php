@@ -18,7 +18,8 @@ class TicketTiempoController extends Controller
 
     public function index(Request $request, Ticket $ticket): AnonymousResourceCollection
     {
-        $registros = $this->tiempoService->list($request->user(), $ticket);
+        $perPage = min(max($request->integer('per_page', 50), 1), 200);
+        $registros = $this->tiempoService->list($request->user(), $ticket, $perPage);
 
         return RegistroTiempoTicketResource::collection($registros);
     }
@@ -30,4 +31,3 @@ class TicketTiempoController extends Controller
         return new RegistroTiempoTicketResource($registro);
     }
 }
-

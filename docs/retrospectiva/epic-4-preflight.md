@@ -26,11 +26,12 @@ Participantes: (pendiente)
 - Antes de iniciar 4.1 (DB), alinear el naming definitivo de tablas de Épica 4 en docs y migraciones.
 
 ## Acciones para el siguiente epic
-- [ ] Definir estándar único de nombres para: auditoría, relaciones y tiempo (docs + migraciones + modelos).
-- [ ] Definir contrato de endpoints de Épica 4 (historial, relaciones, tiempo) y su matriz de permisos por rol.
-- [ ] Decidir estrategia de paginación/índices para historial y tiempo (evitar cargas completas).
-- [ ] Documentar checklist de entorno “pre-épica” (docker up + migrate:status + test + build) en `docs/resumen.md`.
+- [x] Definir estándar único de nombres para: auditoría, relaciones y tiempo (docs + migraciones + modelos).
+- [x] Definir contrato de endpoints de Épica 4 (historial, relaciones, tiempo) y su matriz de permisos por rol.
+- [x] Decidir estrategia de paginación/índices para historial y tiempo (evitar cargas completas).
+- [x] Documentar checklist de entorno “pre-épica” (docker up + migrate:status + test + build) en `docs/resumen.md`.
+
+Ver también: `docs/retrospectiva/epic-4-preflight-fixes-2026-01-28.md`.
 
 ## Estado en sprint-status.yaml
 - epic-4-retrospective: optional (pre-flight documentado; retrospectiva final al cierre de Épica 4)
-

@@ -17,9 +17,9 @@ class TicketHistorialController extends Controller
 
     public function index(Request $request, Ticket $ticket): AnonymousResourceCollection
     {
-        $eventos = $this->historialService->list($request->user(), $ticket);
+        $perPage = min(max($request->integer('per_page', 50), 1), 200);
+        $eventos = $this->historialService->list($request->user(), $ticket, $perPage);
 
         return EventoAuditoriaTicketResource::collection($eventos);
     }
 }
-
