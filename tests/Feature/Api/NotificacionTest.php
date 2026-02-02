@@ -284,6 +284,48 @@ class NotificacionTest extends TestCase
         $this->assertSame(0, $after->json('meta.unread_count'));
     }
 
+    public function test_no_exponer_notificaciones_de_ticket_interno_a_cliente(): void
+    {
+        $cliente = $this->makeUser(Role::CLIENTE_INTERNO);
+        $coordinador = $this->makeUser(Role::COORDINADOR);
+        $admin = $this->makeUser(Role::ADMIN);
+
+        $sistema = Sistema::create(['nombre' => 'Internos notificaciones', 'activo' => true]);
+        DB::table('sistemas_coordinadores')->insert([
+            'sistema_id' => $sistema->id,
+            'usuario_id' => $coordinador->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        Sanctum::actingAs($cliente);
+        $ticketResponse = $this->postJson('/api/tickets', [
+            'asunto' => 'Ticket que luego sera interno',
+            'sistema_id' => $sistema->id,
+            'descripcion' => 'Detalle',
+        ])->assertCreated();
+
+        $ticketId = $ticketResponse->json('data.id');
+
+        $before = $this->getJson('/api/notificaciones')->assertOk();
+        $this->assertSame(1, $before->json('meta.unread_count'));
+        $this->assertNotEmpty($before->json('data'));
+        $notificacionId = $before->json('data.0.id');
+
+        Sanctum::actingAs($admin);
+        $this->patchJson("/api/tickets/{$ticketId}/operativo", [
+            'interno' => true,
+        ])->assertOk();
+
+        Sanctum::actingAs($cliente);
+        $after = $this->getJson('/api/notificaciones')->assertOk();
+        $this->assertSame(0, $after->json('meta.unread_count'));
+        $this->assertEmpty($after->json('data'));
+
+        $mark = $this->postJson("/api/notificaciones/{$notificacionId}/leer")->assertOk();
+        $this->assertNull($mark->json('data.ticket'));
+    }
+
     private function makeUser(string $rolNombre): User
     {
         $rolId = Role::query()->where('nombre', $rolNombre)->value('id');

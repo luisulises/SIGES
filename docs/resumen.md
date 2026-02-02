@@ -1,14 +1,21 @@
-﻿# Resumen del proyecto SIGES (handoff)
+# Resumen del proyecto SIGES (handoff)
 
-Este documento resume el estado actual del proyecto **SIGES** para que otra sesión de Codex pueda continuar con contexto completo.
+Este documento resume el estado actual del proyecto **SIGES** con foco en “handoff” (qué hay, cómo corre y qué falta).  
+**Nota:** se omite el resumen del SQL (`docs/inserciones-base.sql`).
 
 ## 1) ¿Qué es SIGES?
 
-SIGES es un sistema interno (greenfield) para centralizar y dar trazabilidad a solicitudes del área de sistemas (soporte, cambios y proyectos). Reemplaza / convive con Notion/Excel/legacy, buscando ser el registro confiable. Roles: **cliente interno**, **soporte**, **coordinador**, **admin**.
+SIGES es un sistema interno (greenfield) para centralizar y dar trazabilidad a solicitudes del área de sistemas (soporte, cambios y proyectos). Busca reemplazar / convivir con Notion/Excel/legacy como “registro confiable”.
 
-Stack actual:
-- Laravel 10 + Breeze + Inertia (Vue)
-- Postgres 15 (en Docker)
+Roles:
+- **cliente interno** (solicitante)
+- **soporte**
+- **coordinador**
+- **admin**
+
+Stack:
+- Laravel 10 + Breeze + Inertia (Vue 3) + Tailwind
+- PostgreSQL 15 (Docker)
 - Auth: Breeze (web) + Sanctum (API)
 
 ## 2) Estado actual (épicas / stories)
@@ -18,88 +25,132 @@ Fuente de tracking:
 - `docs/implementation-artifacts/*`
 - `docs/flujo-proyecto.md`
 
+Estado general: **todas las épicas 1–6 están completadas (“done”)**.
+
 ### Epic 1 (Done): Base funcional de tickets
-- **1.1 BD (Done)**: roles, usuarios, sistemas, estados_ticket, sistemas_coordinadores, tickets (+ involucrados_ticket). Seed: estados base.
-- **1.2 Backend (Done)**:
-  - Auth API (Sanctum token)
-  - Tickets CRUD básico (API)
-  - Visibilidad por rol (`TicketVisibilityService`, `TicketPolicy`)
-  - `TicketResource` + tests `TicketApiTest`
-- **1.3 Frontend (Done)**:
-  - Inertia pages para Tickets `Index` y `Show`
-  - Form “Nuevo ticket”, listado, detalle readonly con polling (60s)
-  - Ajustes UI: inputs legibles, flecha grande de regreso en detalle
-  - Se validó manualmente: crear usuario, crear 3 tickets, ver listado/detalle
+- BD: roles, usuarios, sistemas, estados_ticket, tickets, involucrados_ticket.
+- Backend: auth (Sanctum), CRUD mínimo de tickets + visibilidad por rol (Policies/Services) + tests.
+- Frontend: listado/detalle/crear ticket (Inertia), polling <= 60s.
 
 ### Epic 2 (Done): Workflow y gestión operativa
-- **2.1 BD (Done)**:
-  - Tablas: `prioridades`, `tipos_solicitud`, `reglas_transicion_estado`, `asignaciones_ticket`
-  - Campos operativos en `tickets`: prioridad/tipo/fechas/resolucion/cerrado_at/cancelado_at
-  - Seed: estados workflow (Nuevo, En analisis, Asignado, En progreso, Resuelto, Cerrado, Cancelado)
-- **2.2 Backend (Done)**:
-  - `TicketWorkflowService` (transición/cerrar/cancelar con validaciones)
-  - Endpoints:
-    - `POST /api/tickets/{ticket}/estado`
-    - `POST /api/tickets/{ticket}/cerrar`
-    - `POST /api/tickets/{ticket}/cancelar`
-  - Seeder reglas transición: `ReglaTransicionEstadoSeeder`
-  - Tests: `TicketWorkflowTest`
-- **2.3 Backend (Done)**:
-  - Endpoint operativo: `PATCH /api/tickets/{ticket}/operativo`
-  - `TicketOperativoService`: validación por rol y catálogo activo, trazabilidad en `asignaciones_ticket`
-  - Tests: `TicketOperativoTest`
-- **2.4 Frontend (Done)**:
-  - En detalle del ticket se agregó sección **“Gestión operativa”**
-  - Controles por rol:
-    - Coordinador/Admin: responsable, prioridad, sistema, fecha compromiso
-    - Soporte asignado/Admin: tipo solicitud, fecha entrega, resolución
-    - Cliente interno: cerrar/cancelar (si aplica por reglas)
-  - UI consume endpoints de Epic 2 y refleja cambios sin recargar toda la página
-  - Backend web (`TicketController@show`) expone `catalogs`, `transiciones`, `permissions` para la UI
+- BD: workflow (prioridades, tipos_solicitud, reglas_transicion_estado), asignaciones_ticket, campos operativos en tickets.
+- Backend: transiciones, cierre/cancelación, asignación y actualización operativa por rol + auditoría/notificaciones integrables + tests.
+- Frontend: “Gestión operativa” en detalle del ticket (controles por rol) sin recargar la página.
+
+### Epic 3 (Done): Seguimiento del ticket (comentarios/adjuntos/involucrados)
+- Comentarios públicos e internos (visibilidad por rol; cliente interno solo “público”).
+- Adjuntos: se suben **solo dentro de un comentario**; heredan visibilidad; **no hay descarga** (solo listar).
+- Involucrados: gestión por coordinador/admin (soft delete y restauración).
+- UI: sección “Seguimiento del ticket” (comentarios + adjuntos + involucrados) con refresco sin recarga completa.
+
+### Epic 4 (Done): Trazabilidad (auditoría/historial, relaciones/duplicados, tiempo)
+- Auditoría append-only de cambios relevantes (estado, asignación, prioridad/fechas/tipo/sistema, resolución, cierre/cancelación).
+- Historial filtrado por rol (cliente interno solo eventos de estado/cierre/cancelación).
+- Relaciones de tickets (relacionado/reabre) + duplicados (cancela ticket duplicado y referencia al válido).
+- Registro de tiempo append-only (visible solo para roles internos autorizados).
+- UI: secciones de historial, relaciones y tiempo en el detalle del ticket (con paginación/cargar más si aplica).
+
+### Epic 5 (Done): Notificaciones in-app
+- BD `notificaciones` + servicio de generación en eventos clave (creación, asignación, cambio de estado, comentario público, cierre/cancelación).
+- Exclusión de usuarios inactivos.
+- API para listar y marcar como leídas.
+- UI: campanita con polling (60s) y “marcar leída”.
+
+### Epic 6 (Done): Administración, búsqueda y métricas
+- Admin: gestión de usuarios/roles (desactivación), catálogos (sistemas/prioridades/tipos_solicitud).
+- Tickets internos: flag `tickets.interno` (oculta para cliente interno incluso si está involucrado).
+- Coordinador/Admin: búsqueda por asunto/estado/sistema + métricas básicas (conteos por estado/prioridad).
+- UI: pantallas Inertia para administración, búsqueda y métricas.
 
 ## 3) Modelo de datos (tablas clave)
 
-- `roles` (cliente_interno|soporte|coordinador|admin)
-- `usuarios` (custom table name para User)
-- `sistemas`
-- `sistemas_coordinadores` (pivot sistema<->coordinador)
-- `estados_ticket`
-- `tickets` (incluye campos operativos + responsable_actual_id)
-- `asignaciones_ticket` (histórico de asignaciones)
-- `reglas_transicion_estado` (origen/destino/rol + requiere_responsable)
-- `prioridades`, `tipos_solicitud` (catálogos)
-- `involucrados_ticket` (visibilidad extra por involucrados)
+Identidad y gobierno:
+- `roles`, `usuarios` (incluye `activo`, `desactivado_at`)
+- `sistemas`, `sistemas_coordinadores`
+
+Tickets y operación:
+- `tickets` (incluye `interno`, `solicitante_id`, `responsable_actual_id`, prioridad/tipo/fechas, `cerrado_at`, `cancelado_at`)
+- `estados_ticket`, `reglas_transicion_estado`, `asignaciones_ticket`
+- Catálogos: `prioridades`, `tipos_solicitud`
+
+Colaboración y evidencias:
+- `comentarios_ticket` (visibilidad `publico|interno`)
+- `adjuntos` (hereda visibilidad del comentario)
+- `involucrados_ticket` (soft delete)
+
+Trazabilidad:
+- `eventos_auditoria_ticket` (append-only)
+- `relaciones_ticket`
+- `registros_tiempo_ticket` (append-only)
+
+Notificaciones:
+- `notificaciones` (canal `in_app|email`, `leido_at`)
 
 ## 4) Endpoints importantes (API)
 
+Formato (convención de MVP):
+- Success: `{ data, meta }`
+- Error: `{ error: { code, message, details } }`
+
 Auth:
 - `POST /api/login`
-- `POST /api/logout` (auth:sanctum)
+- `POST /api/logout`
 
 Tickets:
 - `GET /api/tickets`
 - `POST /api/tickets`
 - `GET /api/tickets/{ticket}`
-- `PATCH /api/tickets/{ticket}` (placeholder “Sin cambios”)
+- `PATCH /api/tickets/{ticket}`
+- `PATCH /api/tickets/{ticket}/operativo`
 
 Workflow:
-- `POST /api/tickets/{ticket}/estado` (body: `{ estado: "En analisis" }`, etc.)
+- `POST /api/tickets/{ticket}/estado`
 - `POST /api/tickets/{ticket}/cerrar`
 - `POST /api/tickets/{ticket}/cancelar`
 
-Permisos (cierre/cancelación):
-- Permitido para solicitante, coordinador (del sistema) o admin.
-- Soporte no cierra/cancela (salvo que también sea solicitante).
+Colaboración:
+- `GET|POST /api/tickets/{ticket}/comentarios`
+- `GET|POST /api/tickets/{ticket}/adjuntos`
+- `GET|POST /api/tickets/{ticket}/involucrados`
+- `DELETE /api/tickets/{ticket}/involucrados/{usuario}`
 
-Operativo:
-- `PATCH /api/tickets/{ticket}/operativo` (body parcial; valida rol + catálogo activo)
-
-Trazabilidad (Epic 4):
-- `GET /api/tickets/{ticket}/historial` (filtrado por rol)
+Trazabilidad:
+- `GET /api/tickets/{ticket}/historial`
 - `GET|POST /api/tickets/{ticket}/relaciones`
-- `GET|POST /api/tickets/{ticket}/tiempo` (solo roles internos autorizados)
+- `GET|POST /api/tickets/{ticket}/tiempo`
 
-## 5) Cómo iniciar el proyecto (Windows)
+Notificaciones:
+- `GET /api/notificaciones`
+- `POST /api/notificaciones/{notificacion}/leer`
+
+Admin (solo admin):
+- `GET /api/admin/roles`
+- `GET|POST /api/admin/usuarios`
+- `PATCH /api/admin/usuarios/{usuario}`
+- `GET|POST /api/admin/catalogos/sistemas`
+- `PATCH /api/admin/catalogos/sistemas/{sistema}`
+- `GET|POST /api/admin/catalogos/prioridades`
+- `PATCH /api/admin/catalogos/prioridades/{prioridad}`
+- `GET|POST /api/admin/catalogos/tipos-solicitud`
+- `PATCH /api/admin/catalogos/tipos-solicitud/{tipoSolicitud}`
+
+Búsqueda/Métricas (solo admin/coordinador):
+- `GET /api/tickets/busqueda`
+- `GET /api/tickets/metricas`
+
+## 5) UI (rutas web)
+
+- Tickets:
+  - `GET /tickets` (listado)
+  - `GET /tickets/{ticket}` (detalle: gestión operativa + seguimiento + historial/relaciones/tiempo + toggle “interno” si admin)
+- Admin (solo admin):
+  - `GET /admin/usuarios`
+  - `GET /admin/catalogos`
+- Coordinador/Admin:
+  - `GET /busqueda`
+  - `GET /metricas`
+
+## 6) Cómo iniciar el proyecto (Windows)
 
 Requisitos:
 - Docker Desktop (para Postgres)
@@ -109,52 +160,39 @@ Requisitos:
 Desde `c:\dev\SIGES`:
 
 ```powershell
-# BD (Postgres 15 en Docker; expuesto en localhost:5433)
+# BD (Postgres expuesto en 127.0.0.1:5433 segun docker-compose.yml/.env)
 docker compose up -d
-docker compose ps
 
-# Dependencias (si aplica)
+# Dependencias
 composer install
-npm.cmd install
+npm install
 
-# Migraciones + seeders base
+# Migraciones + seeders
 php artisan migrate --seed
 
 # Backend
 php artisan serve --host=127.0.0.1 --port=8000
 
-# Frontend (otra terminal, PowerShell)
+# Frontend (otra terminal)
 npm.cmd run dev
 ```
 
 Abrir:
-- App (Laravel): `http://127.0.0.1:8000`
-- Vite (assets/dev): `http://localhost:5173`
+- App: `http://127.0.0.1:8000`
+- Vite (si aplica): usar `http://localhost:5173` (puede ligar a IPv6 y fallar en `127.0.0.1:5173`).
 
 Notas frecuentes:
-- Si falla conexión a DB (`DB_HOST=127.0.0.1`, `DB_PORT=5433`): abrir Docker Desktop y verificar que el container `siges-postgres` esté en `Running/healthy`.
-- Si `npm run ...` falla en PowerShell por ExecutionPolicy (npm.ps1): usar `npm.cmd ...`.
-- Si Vite no responde en `http://127.0.0.1:5173`, usar `http://localhost:5173` (puede ligar a `::1`).
-- Si aparece error de `storage/framework/sessions` o `storage/logs`: crear carpetas faltantes y/o asegurar permisos de escritura en `storage/` y `bootstrap/cache/`.
+- Si falla conexión a DB: verificar Docker Desktop y el container `siges-postgres`.
+- Si falla Vite en PowerShell por ExecutionPolicy: usar `npm.cmd` (no `npm`).
+- Si aparece error de permisos en `storage/` o `bootstrap/cache/`: asegurar carpetas existentes y permisos de escritura.
 
-## 5.1) Pre-flight técnico (antes de iniciar una épica)
+## 7) Usuarios demo por rol
 
-```powershell
-docker compose up -d
-docker compose ps
-php artisan migrate:status
-php artisan test
-php artisan route:list --path=api
-npm.cmd -s run build
-```
+### Opción A (rápida)
+1) Registrarse desde la UI (crea **cliente_interno** por defecto).
+2) Crear el resto de roles con admin o tinker.
 
-## 6) Usuarios demo por rol (para probar el checklist 2.4)
-
-### Opción A (rápida): UI para cliente + cambios manuales
-1) Registrar un usuario desde la pantalla de registro (esto crea **cliente_interno** por defecto).
-2) Crear usuarios de soporte/coordinador/admin directamente en BD (o usando tinker).
-
-### Opción B (recomendado): Tinker (crea/actualiza todo)
+### Opción B (recomendado): tinker (crea/actualiza demo + catálogos mínimos)
 
 ```powershell
 php artisan tinker
@@ -228,38 +266,25 @@ Credenciales (password: `password`):
 - `coordinador@siges.test`
 - `admin@siges.test`
 
-## 7) Checklist manual mínimo para validar 2.4 (UI)
+## 8) Smoke checklist (rápido)
 
-Como coordinador:
-- Abrir ticket del sistema coordinado y verificar “Gestión operativa”.
-- Asignar responsable, cambiar prioridad/sistema/fecha compromiso y guardar (refleja sin recargar).
-- Cambiar estado usando transiciones permitidas.
+Comandos:
+```powershell
+docker compose up -d
+php artisan migrate --seed
+php artisan test --compact
+npm.cmd -s run build
+```
 
-Como soporte asignado:
-- Abrir ticket asignado a ti.
-- Cambiar tipo solicitud/fecha entrega/resolución y guardar.
+Manual (por rol, en `GET /tickets/{ticket}`):
+- Cliente interno: crear ticket, comentar público, cerrar/cancelar cuando aplique, ver notificaciones.
+- Soporte: comentar público/interno, adjuntar en comentario, registrar tiempo, mover estados según reglas, registrar resolución.
+- Coordinador: asignar/reasignar responsable, cambiar prioridad/sistema/fecha compromiso, gestionar involucrados, ver métricas/búsqueda.
+- Admin: administrar usuarios/roles (incluye desactivar), administrar catálogos, marcar ticket interno y validar visibilidad.
 
-Como cliente interno:
-- Abrir tu ticket y probar cerrar/cancelar cuando aplique por reglas.
+## 9) Limitaciones / post‑MVP (pendiente)
 
-## 8) Qué sigue (siguiente épica recomendada)
-
-Epic 3 (Colaboración y evidencias) ya está implementada:
-- Comentarios públicos/internos
-- Adjuntos en comentarios (solo listar + subir; sin descarga)
-- Involucrados (soft delete)
-
-Epic 4 (Trazabilidad, historial y relaciones) ya está implementada:
-- Auditoría e historial por ticket (filtrado por rol).
-- Relaciones y duplicados (duplicado cancela el ticket).
-- Registro de tiempo (append-only; solo roles internos autorizados).
-- UI en el detalle del ticket (historial/relaciones/tiempo).
-
-La siguiente en el backlog es **Epic 5 (Notificaciones)**.
-
-### Convenciones (Epic 4)
-
-Decisión de naming para tablas nuevas (snake_case + plural, consistente con el resto del proyecto):
-- `eventos_auditoria_ticket`
-- `relaciones_ticket`
-- `registros_tiempo_ticket`
+- Adjuntos: **no hay descarga/vista previa** (solo listar/subir) y falta definir permisos de descarga (público vs interno).
+- Notificaciones: canal `email` está en esquema pero MVP usa `in_app` (campanita).
+- Gobierno/operación: definir retención y/o paginación visible en UI si crece el volumen (historial/tiempo/notificaciones).
+- Roadmap típico: SLA/alertas, dashboards, integraciones, automatizaciones.

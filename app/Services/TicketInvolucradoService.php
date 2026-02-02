@@ -45,6 +45,8 @@ class TicketInvolucradoService
             $existing->agregado_por_id = $user->id;
             $existing->save();
 
+            $ticket->touch();
+
             return $existing->load('usuario:id,nombre,email');
         }
 
@@ -53,6 +55,8 @@ class TicketInvolucradoService
             'usuario_id' => $usuarioId,
             'agregado_por_id' => $user->id,
         ]);
+
+        $ticket->touch();
 
         return $created->load('usuario:id,nombre,email');
     }
@@ -73,6 +77,7 @@ class TicketInvolucradoService
         }
 
         $involucrado->delete();
+        $ticket->touch();
     }
 
     private function assertUserCanView(User $user, Ticket $ticket): void

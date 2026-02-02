@@ -1,6 +1,6 @@
 # Story 6.1: BD - Catalogos y campos administrativos
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,9 +17,9 @@ so that pueda gobernar el sistema.
 
 ## Tasks / Subtasks
 
-- [ ] Verificar migraciones previas de usuarios y tickets; agregar campos faltantes (AC: #2, #3)
-- [ ] Asegurar que sistemas, prioridades y tipos_solicitud tengan campo activo (AC: #1, #4)
-- [ ] Agregar indices por activo en catalogos (AC: #4)
+- [x] Verificar migraciones previas de usuarios y tickets; agregar campos faltantes (AC: #2, #3)
+- [x] Asegurar que sistemas, prioridades y tipos_solicitud tengan campo activo (AC: #1, #4)
+- [x] Agregar indices por activo en catalogos (AC: #4)
 
 ## Dev Notes
 
@@ -41,11 +41,15 @@ so that pueda gobernar el sistema.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- AC verificados: catalogos y campos administrativos ya existian por migraciones previas; se agregaron indices por `activo`.
+
 ### File List
+
+- database/migrations/2026_01_30_000002_add_activo_indexes_to_catalogos.php
 

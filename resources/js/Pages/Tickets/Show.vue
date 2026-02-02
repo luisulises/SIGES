@@ -61,6 +61,7 @@ const syncOperativoForm = () => {
     operativoForm.fecha_compromiso = toDateInput(ticketState.fecha_compromiso);
     operativoForm.fecha_entrega = toDateInput(ticketState.fecha_entrega);
     operativoForm.resolucion = ticketState.resolucion ?? '';
+    operativoForm.interno = Boolean(ticketState.interno);
 };
 
 const operativoForm = reactive({
@@ -71,6 +72,7 @@ const operativoForm = reactive({
     fecha_compromiso: toDateInput(ticketState.fecha_compromiso),
     fecha_entrega: toDateInput(ticketState.fecha_entrega),
     resolucion: ticketState.resolucion ?? '',
+    interno: Boolean(ticketState.interno),
 });
 
 const estadoForm = reactive({
@@ -262,6 +264,13 @@ const buildOperativoPayload = () => {
         const resolucion = operativoForm.resolucion || null;
         if (resolucion !== (ticketState.resolucion || null)) {
             payload.resolucion = resolucion;
+        }
+    }
+
+    if (isAdmin.value) {
+        const interno = Boolean(operativoForm.interno);
+        if (interno !== Boolean(ticketState.interno)) {
+            payload.interno = interno;
         }
     }
 
@@ -609,6 +618,10 @@ const auditSummary = (evento) => {
             return 'Ticket cerrado.';
         case 'cancelacion':
             return 'Ticket cancelado.';
+        case 'comentario_creado':
+            return 'Comentario agregado.';
+        case 'adjunto_creado':
+            return 'Adjunto agregado.';
         case 'relacion_creada':
             return `Relacion creada: ${despues.tipo_relacion} (#${despues.ticket_relacionado_id}).`;
         case 'tiempo_registrado':
@@ -1073,6 +1086,26 @@ watch(
                                 <span class="text-xs text-gray-500">Segun tu rol</span>
                             </div>
 
+                            <div v-if="isAdmin" class="rounded-md border border-gray-200 bg-gray-50 p-4">
+                                <div class="flex items-start gap-3">
+                                    <input
+                                        id="ticket_interno"
+                                        v-model="operativoForm.interno"
+                                        type="checkbox"
+                                        class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    />
+                                    <div class="flex-1">
+                                        <label for="ticket_interno" class="text-sm font-medium text-gray-900">
+                                            Ticket interno
+                                        </label>
+                                        <p class="mt-1 text-xs text-gray-600">
+                                            Si esta marcado, queda oculto para cliente interno (aunque sea involucrado).
+                                        </p>
+                                        <InputError class="mt-2" :message="fieldError(operativoErrors, 'interno')" />
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div v-if="canAssign">
                                     <InputLabel for="responsable" value="Responsable" />
@@ -1454,7 +1487,7 @@ watch(
                                     >
                                         <option value="relacionado">Relacionado</option>
                                         <option value="reabre">Reabre</option>
-                                        <option v-if="canCloseCancel" value="duplicado_de">Duplicado de</option>
+                                        <option v-if="canAssign" value="duplicado_de">Duplicado de</option>
                                     </select>
                                     <InputError class="mt-2" :message="fieldError(relacionErrors, 'tipo_relacion')" />
                                 </div>

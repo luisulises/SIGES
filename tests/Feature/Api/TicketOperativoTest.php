@@ -51,6 +51,47 @@ class TicketOperativoTest extends TestCase
         $this->assertSame($coordinador->id, $asignacion->asignado_por_id);
     }
 
+    public function test_no_permite_asignar_responsable_que_no_es_soporte(): void
+    {
+        $coordinador = $this->makeUser(Role::COORDINADOR);
+        $sistema = Sistema::create(['nombre' => 'Validacion responsable', 'activo' => true]);
+        DB::table('sistemas_coordinadores')->insert([
+            'sistema_id' => $sistema->id,
+            'usuario_id' => $coordinador->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $ticket = $this->makeTicket($sistema->id);
+        $noSoporte = $this->makeUser(Role::CLIENTE_INTERNO);
+
+        Sanctum::actingAs($coordinador);
+
+        $this->patchJson("/api/tickets/{$ticket->id}/operativo", [
+            'responsable_id' => $noSoporte->id,
+        ])->assertStatus(422)->assertJsonValidationErrors(['responsable_id']);
+    }
+
+    public function test_no_permite_asignar_responsable_inactivo(): void
+    {
+        $coordinador = $this->makeUser(Role::COORDINADOR);
+        $sistema = Sistema::create(['nombre' => 'Validacion responsable inactivo', 'activo' => true]);
+        DB::table('sistemas_coordinadores')->insert([
+            'sistema_id' => $sistema->id,
+            'usuario_id' => $coordinador->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $ticket = $this->makeTicket($sistema->id);
+        $soporteInactivo = $this->makeUser(Role::SOPORTE);
+        $soporteInactivo->update(['activo' => false]);
+
+        Sanctum::actingAs($coordinador);
+
+        $this->patchJson("/api/tickets/{$ticket->id}/operativo", [
+            'responsable_id' => $soporteInactivo->id,
+        ])->assertStatus(422)->assertJsonValidationErrors(['responsable_id']);
+    }
+
     public function test_reasignar_cierra_asignacion_previa(): void
     {
         $coordinador = $this->makeUser(Role::COORDINADOR);
@@ -248,6 +289,42 @@ class TicketOperativoTest extends TestCase
         $this->patchJson("/api/tickets/{$ticket->id}/operativo", [
             'prioridad_id' => $prioridadId,
         ])->assertStatus(422);
+    }
+
+    public function test_admin_puede_marcar_ticket_como_interno(): void
+    {
+        $admin = $this->makeUser(Role::ADMIN);
+        $sistema = Sistema::create(['nombre' => 'Internos', 'activo' => true]);
+        $ticket = $this->makeTicket($sistema->id, ['interno' => false]);
+
+        Sanctum::actingAs($admin);
+
+        $this->patchJson("/api/tickets/{$ticket->id}/operativo", [
+            'interno' => true,
+        ])->assertOk();
+
+        $ticket->refresh();
+        $this->assertTrue($ticket->interno);
+    }
+
+    public function test_no_admin_no_puede_marcar_ticket_como_interno(): void
+    {
+        $coordinador = $this->makeUser(Role::COORDINADOR);
+        $sistema = Sistema::create(['nombre' => 'Internos 2', 'activo' => true]);
+        DB::table('sistemas_coordinadores')->insert([
+            'sistema_id' => $sistema->id,
+            'usuario_id' => $coordinador->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $ticket = $this->makeTicket($sistema->id, ['interno' => false]);
+
+        Sanctum::actingAs($coordinador);
+
+        $this->patchJson("/api/tickets/{$ticket->id}/operativo", [
+            'interno' => true,
+        ])->assertStatus(403);
     }
 
     private function makeUser(string $rolNombre): User

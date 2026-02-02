@@ -1,6 +1,6 @@
 # Story 6.2: Backend - Gestion de usuarios y roles
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -19,14 +19,14 @@ so that el acceso quede controlado.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar endpoints CRUD basicos de usuarios (AC: #1, #6)
-  - [ ] Crear/editar datos base (nombre, email)
-  - [ ] Desactivar usuario (activo=false, desactivado_at)
-- [ ] Implementar asignacion de rol a usuario (AC: #2)
-- [ ] Bloquear acceso a usuarios desactivados (AC: #3)
-- [ ] Al desactivar responsable, limpiar responsable_actual_id y cerrar asignacion activa (AC: #4)
-- [ ] Al desactivar involucrado, excluirlo de notificaciones (AC: #5)
-- [ ] Pruebas de feature para admin (AC: #1-#6)
+- [x] Implementar endpoints CRUD basicos de usuarios (AC: #1, #6)
+  - [x] Crear/editar datos base (nombre, email)
+  - [x] Desactivar usuario (activo=false, desactivado_at)
+- [x] Implementar asignacion de rol a usuario (AC: #2)
+- [x] Bloquear acceso a usuarios desactivados (AC: #3)
+- [x] Al desactivar responsable, limpiar responsable_actual_id y cerrar asignacion activa (AC: #4)
+- [x] Al desactivar involucrado, excluirlo de notificaciones (AC: #5)
+- [x] Pruebas de feature para admin (AC: #1-#6)
 
 ## Dev Notes
 
@@ -49,11 +49,27 @@ so that el acceso quede controlado.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Endpoints admin (roles/usuarios) + bloqueo de usuario inactivo (web + api) + limpieza de asignaciones al desactivar.
+
 ### File List
+
+- app/Http/Middleware/EnsureUserIsActive.php
+- app/Http/Middleware/EnsureUserHasRole.php
+- app/Http/Kernel.php
+- app/Http/Requests/Auth/LoginRequest.php
+- routes/web.php
+- routes/api.php
+- app/Services/AdminUsuarioService.php
+- app/Http/Controllers/Api/AdminUsuarioController.php
+- app/Http/Controllers/Api/AdminRoleController.php
+- app/Http/Requests/Api/Admin/StoreUsuarioRequest.php
+- app/Http/Requests/Api/Admin/UpdateUsuarioRequest.php
+- app/Http/Resources/UsuarioResource.php
+- tests/Feature/Api/AdminUsuarioTest.php
 

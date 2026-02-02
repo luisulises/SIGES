@@ -85,6 +85,38 @@ class TicketRelacionService
 
         $tipoRelacion = $data['tipo_relacion'];
 
+        if ($tipoRelacion === 'reabre') {
+            $estadoCerradoId = EstadoTicket::query()
+                ->where('nombre', EstadoTicket::CERRADO)
+                ->value('id');
+            $estadoCanceladoId = EstadoTicket::query()
+                ->where('nombre', EstadoTicket::CANCELADO)
+                ->value('id');
+
+            $allowedEstadoIds = array_values(array_filter([
+                $estadoCerradoId ? (int) $estadoCerradoId : null,
+                $estadoCanceladoId ? (int) $estadoCanceladoId : null,
+            ]));
+
+            if ($allowedEstadoIds !== [] && ! in_array((int) $ticketRelacionado->estado_id, $allowedEstadoIds, true)) {
+                throw ValidationException::withMessages([
+                    'ticket_relacionado_id' => 'El ticket referenciado debe estar en estado Cerrado o Cancelado.',
+                ]);
+            }
+        }
+
+        if ($tipoRelacion === 'duplicado_de') {
+            $estadoCanceladoId = EstadoTicket::query()
+                ->where('nombre', EstadoTicket::CANCELADO)
+                ->value('id');
+
+            if ($estadoCanceladoId && (int) $ticketRelacionado->estado_id === (int) $estadoCanceladoId) {
+                throw ValidationException::withMessages([
+                    'ticket_relacionado_id' => 'El ticket valido no puede estar Cancelado.',
+                ]);
+            }
+        }
+
         if ($this->relationExists($ticket->id, $ticketRelacionado->id, $tipoRelacion)) {
             throw ValidationException::withMessages([
                 'relacion' => 'La relacion ya existe.',
@@ -110,6 +142,9 @@ class TicketRelacionService
                 'tipo_relacion' => $tipoRelacion,
                 'creado_por_id' => $user->id,
             ]);
+
+            $ticket->touch();
+            $ticketRelacionado->touch();
 
             $this->auditoriaService->record(
                 $ticket,
@@ -174,10 +209,6 @@ class TicketRelacionService
             return;
         }
 
-        if ($ticket->solicitante_id === $user->id) {
-            return;
-        }
-
         throw new AuthorizationException('No autorizado.');
     }
 
@@ -189,4 +220,3 @@ class TicketRelacionService
             ->exists();
     }
 }
-

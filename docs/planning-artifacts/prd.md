@@ -250,7 +250,7 @@ Mitigacion: recortar primero notificaciones, mantener core de tickets, estados e
 
 ### Comentarios, Resolucion e Involucrados
 - FR23: Usuarios pueden agregar comentarios publicos.
-- FR24: Soporte puede agregar comentarios internos.
+- FR24: Roles internos (soporte/coordinador/admin) pueden agregar comentarios internos en tickets que gestionan.
 - FR25: Coordinador puede ver comentarios internos de sus proyectos.
 - FR26: Soporte puede registrar resolucion del ticket.
 - FR27: Coordinador puede agregar o remover involucrados en un ticket.
@@ -258,16 +258,17 @@ Mitigacion: recortar primero notificaciones, mantener core de tickets, estados e
 - FR29: Involucrados reciben notificaciones por cambios de estado.
 
 ### Adjuntos
-- FR30: Usuarios pueden adjuntar archivos en tickets o comentarios.
+- FR30: Usuarios pueden adjuntar archivos en comentarios (no adjuntos directos al ticket en MVP).
 - FR31: Adjuntos heredan visibilidad del comentario si aplica.
 - FR32: Adjuntos no se pueden eliminar.
+- Nota MVP: Se pueden subir y listar adjuntos; descarga/vista previa es post-MVP.
 
 ### Relaciones y Duplicados
 - FR33: Usuarios pueden relacionar un ticket con uno o mas tickets.
 - FR34: Coordinador/administrador pueden marcar ticket duplicado, cancelarlo y referenciar el valido.
 
 ### Registro de Tiempo
-- FR35: Soporte puede registrar tiempo invertido de forma acumulativa y no editable.
+- FR35: Roles internos autorizados pueden registrar tiempo invertido de forma acumulativa y no editable (soporte asignado; coordinador/admin para sus tickets).
 - FR36: El tiempo registrado es visible en el ticket para roles autorizados.
 
 ### Historial y Auditoria

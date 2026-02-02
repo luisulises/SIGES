@@ -1,6 +1,6 @@
 # Story 6.3: Backend - Catalogos, tickets internos y campos operativos
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,11 +17,11 @@ so that la operacion sea consistente.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar endpoints CRUD para catalogos (AC: #1)
-  - [ ] Validar unicidad de nombre y uso de activo
-- [ ] Implementar flag de ticket interno y su validacion (AC: #2, #4)
-- [ ] Implementar endpoints de actualizacion de campos operativos para admin (AC: #3)
-- [ ] Pruebas de feature para catalogos y tickets internos (AC: #1-#4)
+- [x] Implementar endpoints CRUD para catalogos (AC: #1)
+  - [x] Validar unicidad de nombre y uso de activo
+- [x] Implementar flag de ticket interno y su validacion (AC: #2, #4)
+- [x] Implementar endpoints de actualizacion de campos operativos para admin (AC: #3)
+- [x] Pruebas de feature para catalogos y tickets internos (AC: #1-#4)
 
 ## Dev Notes
 
@@ -45,11 +45,28 @@ so that la operacion sea consistente.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Catalogos admin CRUD (sin delete) + flag `tickets.interno` editable solo por admin via endpoint operativo.
+
 ### File List
 
+- app/Models/Prioridad.php
+- app/Models/TipoSolicitud.php
+- app/Http/Controllers/Api/AdminSistemaCatalogoController.php
+- app/Http/Controllers/Api/AdminPrioridadCatalogoController.php
+- app/Http/Controllers/Api/AdminTipoSolicitudCatalogoController.php
+- app/Http/Requests/Api/Admin/StoreSistemaCatalogoRequest.php
+- app/Http/Requests/Api/Admin/UpdateSistemaCatalogoRequest.php
+- app/Http/Requests/Api/Admin/StorePrioridadCatalogoRequest.php
+- app/Http/Requests/Api/Admin/UpdatePrioridadCatalogoRequest.php
+- app/Http/Requests/Api/Admin/StoreTipoSolicitudCatalogoRequest.php
+- app/Http/Requests/Api/Admin/UpdateTipoSolicitudCatalogoRequest.php
+- app/Http/Requests/Api/UpdateTicketOperativoRequest.php
+- app/Services/TicketOperativoService.php
+- tests/Feature/Api/AdminCatalogoTest.php
+- tests/Feature/Api/TicketOperativoTest.php

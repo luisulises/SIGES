@@ -8,7 +8,9 @@ use App\Models\Sistema;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -108,6 +110,42 @@ class TicketHistorialTest extends TestCase
         $this->assertTrue(
             collect($events)->pluck('tipo_evento')->contains('cierre')
         );
+    }
+
+    public function test_admin_ve_eventos_de_comentario_y_adjunto(): void
+    {
+        Storage::fake();
+
+        $admin = $this->makeUser(Role::ADMIN);
+        $cliente = $this->makeUser(Role::CLIENTE_INTERNO);
+
+        $sistema = Sistema::create(['nombre' => 'Historial comentarios', 'activo' => true]);
+        $ticket = $this->makeTicket($sistema->id, [
+            'solicitante_id' => $cliente->id,
+        ]);
+
+        Sanctum::actingAs($cliente);
+        $comentarioResponse = $this->postJson("/api/tickets/{$ticket->id}/comentarios", [
+            'cuerpo' => 'Comentario publico',
+            'visibilidad' => 'publico',
+        ])->assertCreated();
+
+        $comentarioId = $comentarioResponse->json('data.id');
+
+        $file = UploadedFile::fake()->create('evidencia.txt', 10, 'text/plain');
+        $this->postJson("/api/tickets/{$ticket->id}/adjuntos", [
+            'archivo' => $file,
+            'comentario_id' => $comentarioId,
+        ])->assertCreated();
+
+        Sanctum::actingAs($admin);
+        $response = $this->getJson("/api/tickets/{$ticket->id}/historial");
+        $response->assertOk();
+
+        $tipos = collect($response->json('data'))->pluck('tipo_evento')->unique()->values();
+
+        $this->assertTrue($tipos->contains('comentario_creado'));
+        $this->assertTrue($tipos->contains('adjunto_creado'));
     }
 
     public function test_cliente_solo_ve_eventos_de_estado_y_cierre_cancelacion(): void
@@ -220,4 +258,3 @@ class TicketHistorialTest extends TestCase
         ], $overrides));
     }
 }
-

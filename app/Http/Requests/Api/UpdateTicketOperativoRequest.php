@@ -21,6 +21,7 @@ class UpdateTicketOperativoRequest extends FormRequest
             'fecha_entrega' => ['sometimes', 'nullable', 'date'],
             'resolucion' => ['sometimes', 'nullable', 'string'],
             'sistema_id' => ['sometimes', 'integer', 'exists:sistemas,id'],
+            'interno' => ['sometimes', 'boolean'],
         ];
     }
 

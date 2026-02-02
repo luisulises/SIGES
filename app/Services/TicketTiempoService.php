@@ -42,6 +42,8 @@ class TicketTiempoService
             'nota' => $data['nota'] ?? null,
         ]);
 
+        $ticket->touch();
+
         $this->auditoriaService->record(
             $ticket,
             $user,

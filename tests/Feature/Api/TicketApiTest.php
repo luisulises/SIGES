@@ -70,6 +70,24 @@ class TicketApiTest extends TestCase
             ->assertJsonPath('data.interno', false);
     }
 
+    public function test_no_permite_crear_ticket_con_sistema_inactivo(): void
+    {
+        $user = User::factory()->create([
+            'rol_id' => $this->roleId(Role::CLIENTE_INTERNO),
+        ]);
+        $sistemaInactivo = Sistema::create(['nombre' => 'Inactivo', 'activo' => false]);
+
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/tickets', [
+            'asunto' => 'Ticket con sistema inactivo',
+            'descripcion' => 'No deberia permitir.',
+            'sistema_id' => $sistemaInactivo->id,
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['sistema_id']);
+    }
+
     public function test_update_rechaza_cambio_de_asunto_o_descripcion(): void
     {
         $user = User::factory()->create([

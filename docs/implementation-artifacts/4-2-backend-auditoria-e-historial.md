@@ -10,7 +10,7 @@ so that pueda explicar decisiones y avances.
 
 ## Acceptance Criteria
 
-1. Los cambios operativos (estado, asignacion, prioridad, fechas, tipo, sistema, resolucion, cierre/cancelacion) generan eventos en eventos_auditoria_ticket.
+1. Los cambios operativos (estado, asignacion, prioridad, fechas, tipo, sistema, resolucion, cierre/cancelacion) y eventos de colaboracion (comentarios y adjuntos) generan eventos en eventos_auditoria_ticket.
 2. Coordinador puede consultar el historial de tickets de sus sistemas; admin puede consultar cualquier historial.
 3. Los eventos se devuelven en orden cronologico ascendente con actor, tipo_evento y valores antes/despues.
 4. Cliente interno solo ve eventos de estado y cierre/cancelacion (no cambios internos).
@@ -27,7 +27,7 @@ so that pueda explicar decisiones y avances.
 ## Dev Notes
 
 - Mantener eventos append-only; no editar ni borrar registros.
-- tipo_evento recomendado: estado_cambiado, asignacion_cambiada, prioridad_cambiada, fecha_compromiso_cambiada, fecha_entrega_cambiada, sistema_cambiado, tipo_cambiado, resolucion_registrada, cierre, cancelacion.
+- tipo_evento recomendado: estado_cambiado, asignacion_cambiada, prioridad_cambiada, fecha_compromiso_cambiada, fecha_entrega_cambiada, sistema_cambiado, tipo_cambiado, resolucion_registrada, cierre, cancelacion, comentario_creado, adjunto_creado.
 - valores_antes/despues pueden guardarse como JSON string.
 
 ### Project Structure Notes

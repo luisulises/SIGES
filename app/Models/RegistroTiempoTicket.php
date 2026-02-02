@@ -33,4 +33,3 @@ class RegistroTiempoTicket extends Model
         return $this->belongsTo(User::class, 'autor_id');
     }
 }
-

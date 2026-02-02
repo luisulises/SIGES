@@ -10,7 +10,7 @@ so that exista trazabilidad entre solicitudes.
 
 ## Acceptance Criteria
 
-1. Usuario con acceso al ticket puede crear relacion entre tickets con tipo_relacion (relacionado|reabre); marcar duplicado requiere rol con permiso de cancelacion.
+1. Usuario con acceso al ticket puede crear relacion entre tickets con tipo_relacion (relacionado|reabre); marcar duplicado requiere rol coordinador/admin autorizado (coordinador del sistema o admin).
 2. No se permite relacionar un ticket consigo mismo ni duplicar una relacion existente.
 3. Marcar duplicado actualiza el ticket duplicado a estado "Cancelado" y crea la relacion duplicado_de hacia el ticket valido.
 4. Se puede listar relaciones de un ticket, respetando visibilidad por rol.

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\InvolucradoTicket;
 use App\Models\Notificacion;
+use App\Models\Role;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\DB;
 
@@ -74,6 +75,22 @@ class TicketNotificacionService
             ->all();
         $ids = array_merge($ids, $coordinadores);
 
+        if ($ticket->interno) {
+            $rolClienteId = DB::table('roles')
+                ->where('nombre', Role::CLIENTE_INTERNO)
+                ->value('id');
+
+            if ($rolClienteId) {
+                $clienteIds = DB::table('usuarios')
+                    ->whereIn('id', $ids)
+                    ->where('rol_id', $rolClienteId)
+                    ->pluck('id')
+                    ->all();
+
+                $ids = array_values(array_diff($ids, $clienteIds));
+            }
+        }
+
         return $ids;
     }
 
@@ -116,4 +133,3 @@ class TicketNotificacionService
         $this->recordInApp($this->destinatariosTicket($ticket), $ticket, 'cancelacion');
     }
 }
-

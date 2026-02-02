@@ -36,18 +36,18 @@ This document provides the complete epic and story breakdown for Sistema - copia
 - FR21: Coordinador puede cambiar proyecto/sistema.
 - FR22: Administrador puede modificar campos operativos del ticket.
 - FR23: Usuarios pueden agregar comentarios publicos.
-- FR24: Soporte puede agregar comentarios internos.
+- FR24: Roles internos (soporte/coordinador/admin) pueden agregar comentarios internos en tickets que gestionan.
 - FR25: Coordinador puede ver comentarios internos de sus proyectos.
 - FR26: Soporte puede registrar resolucion del ticket.
 - FR27: Coordinador puede agregar o remover involucrados en un ticket.
 - FR28: Usuarios pueden visualizar involucrados del ticket.
 - FR29: Involucrados reciben notificaciones por cambios de estado.
-- FR30: Usuarios pueden adjuntar archivos en tickets o comentarios.
+- FR30: Usuarios pueden adjuntar archivos en comentarios (no adjuntos directos al ticket en MVP).
 - FR31: Adjuntos heredan visibilidad del comentario si aplica.
 - FR32: Adjuntos no se pueden eliminar.
 - FR33: Usuarios pueden relacionar un ticket con uno o mas tickets.
 - FR34: Coordinador/administrador pueden marcar ticket duplicado, cancelarlo y referenciar el valido.
-- FR35: Soporte puede registrar tiempo invertido de forma acumulativa y no editable.
+- FR35: Roles internos autorizados pueden registrar tiempo invertido de forma acumulativa y no editable (soporte asignado; coordinador/admin para sus tickets).
 - FR36: El tiempo registrado es visible en el ticket para roles autorizados.
 - FR37: El sistema registra cambios de estado, responsable, prioridad, fechas, tipo, proyecto/sistema, cierre/cancelacion, comentarios y adjuntos.
 - FR38: Usuarios autorizados pueden consultar el historial del ticket.
@@ -131,7 +131,7 @@ FR26: Epic 2 - Registro de resolucion
 FR27: Epic 3 - Gestion de involucrados
 FR28: Epic 3 - Visualizar involucrados
 FR29: Epic 5 - Notificar involucrados
-FR30: Epic 3 - Adjuntos en tickets/comentarios
+FR30: Epic 3 - Adjuntos en comentarios
 FR31: Epic 3 - Visibilidad de adjuntos
 FR32: Epic 3 - Adjuntos no eliminables
 FR33: Epic 4 - Relacion de tickets
@@ -370,18 +370,18 @@ So that pueda comunicar avances con el nivel correcto de visibilidad.
 **Then** puede ver el comentario interno
 **And** el cliente interno no lo ve
 
-### Story 3.3: Backend - Adjuntos en tickets y comentarios
+### Story 3.3: Backend - Adjuntos en comentarios
 
 As a usuario,
-I want adjuntar archivos en tickets o comentarios,
+I want adjuntar archivos en comentarios,
 So that pueda aportar evidencia.
 
 **Acceptance Criteria:**
 
-**Given** ticket o comentario existente
+**Given** comentario existente
 **When** adjunta un archivo
-**Then** el adjunto se guarda y queda asociado al ticket
-**And** hereda la visibilidad del comentario si aplica
+**Then** el adjunto se guarda y queda asociado al ticket via comentario
+**And** hereda la visibilidad del comentario
 
 **Given** un adjunto existente
 **When** intenta eliminarlo
@@ -416,7 +416,7 @@ So that tenga contexto completo.
 **Then** ve comentarios publicos y, si tiene permiso, los internos
 
 **Given** ticket abierto
-**When** agrega un comentario o adjunto (al ticket o comentario)
+**When** agrega un comentario o adjunto (en un comentario)
 **Then** la lista se actualiza y muestra el nuevo contenido
 
 **Given** coordinador

@@ -36,4 +36,3 @@ class Adjunto extends Model
         return $this->belongsTo(User::class, 'cargado_por_id');
     }
 }
-

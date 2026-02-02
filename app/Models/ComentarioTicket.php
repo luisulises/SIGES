@@ -35,4 +35,3 @@ class ComentarioTicket extends Model
         return $this->hasMany(Adjunto::class, 'comentario_id');
     }
 }
-

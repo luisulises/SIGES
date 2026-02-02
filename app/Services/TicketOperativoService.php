@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Role;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -38,6 +39,7 @@ class TicketOperativoService
             'fecha_entrega' => optional($ticket->fecha_entrega)->toISOString(),
             'resolucion' => $ticket->resolucion,
             'sistema_id' => $ticket->sistema_id,
+            'interno' => (bool) $ticket->interno,
         ];
 
         return DB::transaction(function () use ($user, $ticket, $data, $before) {
@@ -49,7 +51,9 @@ class TicketOperativoService
                 if ($data['responsable_id'] === null) {
                     $this->clearResponsable($ticket, $now);
                 } else {
-                    $this->applyResponsable($ticket, (int) $data['responsable_id'], $user->id, $now);
+                    $responsableId = (int) $data['responsable_id'];
+                    $this->ensureResponsableValido($responsableId);
+                    $this->applyResponsable($ticket, $responsableId, $user->id, $now);
                 }
             }
 
@@ -88,6 +92,11 @@ class TicketOperativoService
                 $ticket->sistema_id = $data['sistema_id'];
             }
 
+            if (array_key_exists('interno', $data)) {
+                $this->assertUserIsAdmin($user);
+                $ticket->interno = (bool) $data['interno'];
+            }
+
             $ticket->save();
 
             $ticket->refresh();
@@ -100,6 +109,7 @@ class TicketOperativoService
                 'fecha_entrega' => optional($ticket->fecha_entrega)->toISOString(),
                 'resolucion' => $ticket->resolucion,
                 'sistema_id' => $ticket->sistema_id,
+                'interno' => (bool) $ticket->interno,
             ];
 
             if (array_key_exists('responsable_id', $data) && $before['responsable_actual_id'] !== $after['responsable_actual_id']) {
@@ -178,6 +188,16 @@ class TicketOperativoService
                 );
             }
 
+            if (array_key_exists('interno', $data) && $before['interno'] !== $after['interno']) {
+                $this->auditoriaService->record(
+                    $ticket,
+                    $user,
+                    'interno_cambiado',
+                    ['interno' => $before['interno']],
+                    ['interno' => $after['interno']]
+                );
+            }
+
             return $ticket;
         });
     }
@@ -222,6 +242,15 @@ class TicketOperativoService
         }
 
         if ($user->isSoporte() && $ticket->responsable_actual_id === $user->id) {
+            return;
+        }
+
+        throw new AuthorizationException('No autorizado.');
+    }
+
+    private function assertUserIsAdmin(User $user): void
+    {
+        if ($user->isAdmin()) {
             return;
         }
 
@@ -308,6 +337,24 @@ class TicketOperativoService
                 $field => 'El valor seleccionado no esta activo.',
             ]);
         }
+    }
+
+    private function ensureResponsableValido(int $responsableId): void
+    {
+        $isValid = DB::table('usuarios')
+            ->join('roles', 'roles.id', '=', 'usuarios.rol_id')
+            ->where('usuarios.id', $responsableId)
+            ->where('usuarios.activo', true)
+            ->where('roles.nombre', Role::SOPORTE)
+            ->exists();
+
+        if ($isValid) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'responsable_id' => 'El responsable seleccionado no es valido.',
+        ]);
     }
 
     private function isCoordinadorDeSistema(User $user, int $sistemaId): bool

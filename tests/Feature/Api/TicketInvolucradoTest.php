@@ -68,6 +68,33 @@ class TicketInvolucradoTest extends TestCase
         ]);
     }
 
+    public function test_no_permite_agregar_involucrado_inactivo(): void
+    {
+        $coordinador = $this->makeUser(Role::COORDINADOR);
+        $sistema = Sistema::create(['nombre' => 'Involucrados inactivos', 'activo' => true]);
+        DB::table('sistemas_coordinadores')->insert([
+            'sistema_id' => $sistema->id,
+            'usuario_id' => $coordinador->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $ticket = $this->makeTicket(['sistema_id' => $sistema->id]);
+        $usuarioInactivo = $this->makeUser(Role::SOPORTE);
+        $usuarioInactivo->update([
+            'activo' => false,
+            'desactivado_at' => now(),
+        ]);
+
+        Sanctum::actingAs($coordinador);
+
+        $this->postJson("/api/tickets/{$ticket->id}/involucrados", [
+            'usuario_id' => $usuarioInactivo->id,
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['usuario_id']);
+    }
+
     public function test_involucrado_soft_deleted_no_da_visibilidad(): void
     {
         $soporte = $this->makeUser(Role::SOPORTE);

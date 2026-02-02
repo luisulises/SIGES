@@ -1,6 +1,6 @@
 # Story 6.5: Frontend - UI de administracion, busqueda y metricas
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,12 +18,12 @@ so that pueda operar y gobernar el sistema.
 
 ## Tasks / Subtasks
 
-- [ ] Crear vistas de administracion de usuarios y catalogos (solo admin) (AC: #1)
-  - [ ] Incluir selector de rol en formulario de usuario
-- [ ] Crear vista de busqueda con filtros (asunto, estado, sistema) (AC: #2)
-- [ ] Renderizar metricas basicas (AC: #3)
-- [ ] Agregar control de ticket interno en detalle para admin (AC: #4)
-- [ ] Manejar errores de validacion y refresco de datos (AC: #5)
+- [x] Crear vistas de administracion de usuarios y catalogos (solo admin) (AC: #1)
+  - [x] Incluir selector de rol en formulario de usuario
+- [x] Crear vista de busqueda con filtros (asunto, estado, sistema) (AC: #2)
+- [x] Renderizar metricas basicas (AC: #3)
+- [x] Agregar control de ticket interno en detalle para admin (AC: #4)
+- [x] Manejar errores de validacion y refresco de datos (AC: #5)
 
 ## Dev Notes
 
@@ -45,11 +45,26 @@ so that pueda operar y gobernar el sistema.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Nuevas pantallas Inertia (admin usuarios/catalogos, busqueda, metricas) + links de navegacion por rol + toggle de ticket interno en detalle.
+
 ### File List
+
+- app/Http/Middleware/HandleInertiaRequests.php
+- app/Http/Controllers/AdminController.php
+- app/Http/Controllers/BusquedaController.php
+- app/Http/Controllers/MetricasController.php
+- routes/web.php
+- resources/js/Layouts/AuthenticatedLayout.vue
+- resources/js/Pages/Admin/Users.vue
+- resources/js/Pages/Admin/Catalogs.vue
+- resources/js/Pages/Search.vue
+- resources/js/Pages/Metrics.vue
+- app/Http/Controllers/TicketController.php
+- resources/js/Pages/Tickets/Show.vue
 

@@ -146,6 +146,7 @@ class TicketController extends Controller
                 'sistema' => $ticket->sistema?->nombre,
                 'responsable_actual_id' => $ticket->responsable_actual_id,
                 'responsable' => $ticket->responsableActual?->nombre,
+                'interno' => (bool) $ticket->interno,
                 'prioridad_id' => $ticket->prioridad_id,
                 'tipo_solicitud_id' => $ticket->tipo_solicitud_id,
                 'fecha_compromiso' => optional($ticket->fecha_compromiso)->toISOString(),

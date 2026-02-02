@@ -90,6 +90,25 @@ class TicketRelacionTest extends TestCase
         ])->assertStatus(403);
     }
 
+    public function test_cliente_no_puede_marcar_duplicado(): void
+    {
+        $cliente = $this->makeUser(Role::CLIENTE_INTERNO);
+        $sistema = Sistema::create(['nombre' => 'Cliente', 'activo' => true]);
+        $ticketA = $this->makeTicket($sistema->id, [
+            'solicitante_id' => $cliente->id,
+        ]);
+        $ticketB = $this->makeTicket($sistema->id, [
+            'solicitante_id' => $cliente->id,
+        ]);
+
+        Sanctum::actingAs($cliente);
+
+        $this->postJson("/api/tickets/{$ticketA->id}/relaciones", [
+            'ticket_relacionado_id' => $ticketB->id,
+            'tipo_relacion' => 'duplicado_de',
+        ])->assertStatus(403);
+    }
+
     public function test_coordinador_puede_marcar_duplicado_y_cancela_ticket(): void
     {
         $coordinador = $this->makeUser(Role::COORDINADOR);
@@ -125,6 +144,42 @@ class TicketRelacionTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
+    public function test_no_permite_marcar_duplicado_con_ticket_valido_cancelado(): void
+    {
+        $coordinador = $this->makeUser(Role::COORDINADOR);
+        $sistema = Sistema::create(['nombre' => 'Duplicado cancelado', 'activo' => true]);
+        DB::table('sistemas_coordinadores')->insert([
+            'sistema_id' => $sistema->id,
+            'usuario_id' => $coordinador->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $estadoAnalisisId = EstadoTicket::query()->where('nombre', EstadoTicket::EN_ANALISIS)->value('id');
+        $estadoCanceladoId = EstadoTicket::query()->where('nombre', EstadoTicket::CANCELADO)->value('id');
+
+        $duplicado = $this->makeTicket($sistema->id, [
+            'estado_id' => $estadoAnalisisId,
+        ]);
+
+        $validoCancelado = $this->makeTicket($sistema->id, [
+            'estado_id' => $estadoCanceladoId,
+            'cancelado_at' => now(),
+        ]);
+
+        Sanctum::actingAs($coordinador);
+
+        $this->postJson("/api/tickets/{$duplicado->id}/relaciones", [
+            'ticket_relacionado_id' => $validoCancelado->id,
+            'tipo_relacion' => 'duplicado_de',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['ticket_relacionado_id']);
+
+        $duplicado->refresh();
+        $this->assertSame($estadoAnalisisId, $duplicado->estado_id);
+    }
+
     public function test_cliente_no_ve_relacion_a_ticket_no_visible(): void
     {
         $admin = $this->makeUser(Role::ADMIN);
@@ -150,6 +205,42 @@ class TicketRelacionTest extends TestCase
         $this->getJson("/api/tickets/{$ticketVisible->id}/relaciones")
             ->assertOk()
             ->assertJsonCount(0, 'data');
+    }
+
+    public function test_reabre_requiere_ticket_cerrado_o_cancelado(): void
+    {
+        $cliente = $this->makeUser(Role::CLIENTE_INTERNO);
+        $sistema = Sistema::create(['nombre' => 'Reabre', 'activo' => true]);
+
+        $ticketNuevo = $this->makeTicket($sistema->id, [
+            'solicitante_id' => $cliente->id,
+        ]);
+
+        $estadoAnalisisId = EstadoTicket::query()->where('nombre', EstadoTicket::EN_ANALISIS)->value('id');
+        $ticketEnAnalisis = $this->makeTicket($sistema->id, [
+            'solicitante_id' => $cliente->id,
+            'estado_id' => $estadoAnalisisId,
+        ]);
+
+        Sanctum::actingAs($cliente);
+
+        $this->postJson("/api/tickets/{$ticketNuevo->id}/relaciones", [
+            'ticket_relacionado_id' => $ticketEnAnalisis->id,
+            'tipo_relacion' => 'reabre',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['ticket_relacionado_id']);
+
+        $estadoCerradoId = EstadoTicket::query()->where('nombre', EstadoTicket::CERRADO)->value('id');
+        $ticketCerrado = $this->makeTicket($sistema->id, [
+            'solicitante_id' => $cliente->id,
+            'estado_id' => $estadoCerradoId,
+        ]);
+
+        $this->postJson("/api/tickets/{$ticketNuevo->id}/relaciones", [
+            'ticket_relacionado_id' => $ticketCerrado->id,
+            'tipo_relacion' => 'reabre',
+        ])->assertCreated();
     }
 
     private function makeUser(string $rolNombre): User

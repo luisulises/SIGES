@@ -1,6 +1,6 @@
 # Story 6.4: Backend - Busqueda y metricas basicas
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -17,11 +17,11 @@ so that pueda priorizar y explicar avances.
 
 ## Tasks / Subtasks
 
-- [ ] Implementar endpoint de busqueda de tickets (AC: #1, #2)
-  - [ ] Filtros: asunto (parcial), estado_id, sistema_id
-- [ ] Implementar endpoint de metricas basicas (AC: #3, #4)
-  - [ ] Conteo por estado y por prioridad
-- [ ] Pruebas de feature para busqueda y metricas (AC: #1-#4)
+- [x] Implementar endpoint de busqueda de tickets (AC: #1, #2)
+  - [x] Filtros: asunto (parcial), estado_id, sistema_id
+- [x] Implementar endpoint de metricas basicas (AC: #3, #4)
+  - [x] Conteo por estado y por prioridad
+- [x] Pruebas de feature para busqueda y metricas (AC: #1-#4)
 
 ## Dev Notes
 
@@ -43,11 +43,19 @@ so that pueda priorizar y explicar avances.
 
 ### Agent Model Used
 
-TBD
+GPT-5.2 (Codex CLI)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Endpoints `GET /api/tickets/busqueda` y `GET /api/tickets/metricas` con visibilidad por rol (coordinador/admin) + tests.
+
 ### File List
+
+- app/Http/Requests/Api/BuscarTicketsRequest.php
+- app/Http/Controllers/Api/TicketBusquedaController.php
+- app/Http/Resources/TicketResource.php
+- routes/api.php
+- tests/Feature/Api/TicketBusquedaMetricasTest.php
 

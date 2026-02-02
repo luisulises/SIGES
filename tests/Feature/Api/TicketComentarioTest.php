@@ -9,6 +9,7 @@ use App\Models\Sistema;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -74,6 +75,28 @@ class TicketComentarioTest extends TestCase
             'visibilidad' => 'interno',
         ])->assertCreated()
             ->assertJsonPath('data.visibilidad', 'interno');
+    }
+
+    public function test_comentario_actualiza_updated_at_del_ticket(): void
+    {
+        $cliente = $this->makeUser(Role::CLIENTE_INTERNO);
+        $ticket = $this->makeTicket(['solicitante_id' => $cliente->id]);
+
+        DB::table('tickets')
+            ->where('id', $ticket->id)
+            ->update(['updated_at' => now()->subDay()]);
+        $ticket->refresh();
+        $before = $ticket->updated_at->copy();
+
+        Sanctum::actingAs($cliente);
+
+        $this->postJson("/api/tickets/{$ticket->id}/comentarios", [
+            'cuerpo' => 'Actualiza timestamp.',
+            'visibilidad' => 'publico',
+        ])->assertCreated();
+
+        $ticket->refresh();
+        $this->assertTrue($ticket->updated_at->greaterThan($before));
     }
 
     public function test_cliente_interno_lista_solo_comentarios_publicos(): void

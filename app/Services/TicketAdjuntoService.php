@@ -16,7 +16,10 @@ use Illuminate\Validation\ValidationException;
 
 class TicketAdjuntoService
 {
-    public function __construct(private readonly TicketVisibilityService $visibilityService)
+    public function __construct(
+        private readonly TicketVisibilityService $visibilityService,
+        private readonly TicketAuditoriaService $auditoriaService
+    )
     {
     }
 
@@ -73,6 +76,21 @@ class TicketAdjuntoService
             'clave_almacenamiento' => $path,
             'visibilidad' => $visibilidad,
         ]);
+
+        $ticket->touch();
+
+        $this->auditoriaService->record(
+            $ticket,
+            $user,
+            'adjunto_creado',
+            null,
+            [
+                'adjunto_id' => $adjunto->id,
+                'comentario_id' => $comentario->id,
+                'nombre_archivo' => $adjunto->nombre_archivo,
+                'visibilidad' => $adjunto->visibilidad,
+            ]
+        );
 
         return $adjunto->load('cargadoPor:id,nombre');
     }

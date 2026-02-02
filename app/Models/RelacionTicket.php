@@ -34,4 +34,3 @@ class RelacionTicket extends Model
         return $this->belongsTo(User::class, 'creado_por_id');
     }
 }
-

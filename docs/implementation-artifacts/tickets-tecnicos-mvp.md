@@ -35,10 +35,10 @@
 
 - P2.1 DB-3.1 Esquema de colaboracion: comentarios_ticket, adjuntos, involucrados_ticket.
 - P2.2 BE-3.1 Comentarios publicos e internos con visibilidad por rol.
-- P2.3 BE-3.2 Adjuntos en tickets/comentarios, herencia de visibilidad y no eliminables.
+- P2.3 BE-3.2 Adjuntos en comentarios, herencia de visibilidad y no eliminables.
 - P2.4 BE-3.3 Gestion de involucrados (agregar/remover) y consulta.
 - P2.5 FE-3.1 UI de comentarios publicos/internos con visibilidad por rol.
-- P2.6 FE-3.2 UI de adjuntos en tickets/comentarios.
+- P2.6 FE-3.2 UI de adjuntos en comentarios.
 - P2.7 FE-3.3 UI de gestion de involucrados (solo coordinador).
 
 - P3.1 DB-4.1 Esquema de trazabilidad: eventos_auditoria_ticket, relaciones_ticket, registros_tiempo_ticket.
@@ -168,7 +168,7 @@
 ### Epic 3 - Colaboracion y evidencias
 
 - BE-3.1 Comentarios publicos e internos con visibilidad por rol.
-- BE-3.2 Adjuntos en tickets/comentarios, herencia de visibilidad y no eliminables.
+- BE-3.2 Adjuntos en comentarios, herencia de visibilidad y no eliminables.
 - BE-3.3 Gestion de involucrados (agregar/remover) y consulta.
 
 ### Epic 4 - Trazabilidad, historial y relaciones
@@ -206,7 +206,7 @@
 ### Epic 3 - Colaboracion y evidencias
 
 - FE-3.1 UI de comentarios publicos/internos con visibilidad por rol.
-- FE-3.2 UI de adjuntos en tickets/comentarios.
+- FE-3.2 UI de adjuntos en comentarios.
 - FE-3.3 UI de gestion de involucrados (solo coordinador).
 
 ### Epic 4 - Trazabilidad, historial y relaciones

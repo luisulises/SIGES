@@ -14,6 +14,7 @@ class TicketComentarioService
 {
     public function __construct(
         private readonly TicketVisibilityService $visibilityService,
+        private readonly TicketAuditoriaService $auditoriaService,
         private readonly TicketNotificacionService $notificacionService
     )
     {
@@ -69,6 +70,19 @@ class TicketComentarioService
             'cuerpo' => $data['cuerpo'],
             'visibilidad' => $data['visibilidad'],
         ]);
+
+        $ticket->touch();
+
+        $this->auditoriaService->record(
+            $ticket,
+            $user,
+            'comentario_creado',
+            null,
+            [
+                'comentario_id' => $comentario->id,
+                'visibilidad' => $comentario->visibilidad,
+            ]
+        );
 
         if ($data['visibilidad'] === 'publico') {
             $this->notificacionService->comentarioPublico($ticket);

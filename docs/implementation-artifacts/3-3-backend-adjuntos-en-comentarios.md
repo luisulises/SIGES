@@ -17,7 +17,7 @@ so that pueda aportar evidencia.
 
 ## Tasks / Subtasks
 
-- [x] Implementar endpoint para subir adjunto a ticket o comentario (AC: #1-#4)
+- [x] Implementar endpoint para subir adjunto a un comentario del ticket (AC: #1-#4)
   - [x] Validar acceso al ticket y permiso de comentario segun rol
   - [x] Validar que comentario_id pertenece al ticket si se envia
   - [x] Guardar metadata en adjuntos con visibilidad heredada si aplica
@@ -69,4 +69,3 @@ GPT-5.2
 - app/Services/TicketAdjuntoService.php
 - routes/api.php
 - tests/Feature/Api/TicketAdjuntoTest.php
-

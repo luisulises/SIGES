@@ -35,4 +35,3 @@ class InvolucradoTicket extends Model
         return $this->belongsTo(User::class, 'agregado_por_id');
     }
 }
-

@@ -1,14 +1,20 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import NotificationsBell from '@/Components/NotificationsBell.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+
+const page = usePage();
+const roleName = computed(() => page.props.auth?.user?.rol?.nombre ?? '');
+const isAdmin = computed(() => roleName.value === 'admin');
+const isCoordinador = computed(() => roleName.value === 'coordinador');
+const canSearchMetrics = computed(() => isAdmin.value || isCoordinador.value);
 </script>
 
 <template>
@@ -32,6 +38,27 @@ const showingNavigationDropdown = ref(false);
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink :href="route('tickets.index')" :active="route().current('tickets.*')">
                                     Tickets
+                                </NavLink>
+                                <NavLink
+                                    v-if="canSearchMetrics"
+                                    :href="route('search')"
+                                    :active="route().current('search')"
+                                >
+                                    Busqueda
+                                </NavLink>
+                                <NavLink
+                                    v-if="canSearchMetrics"
+                                    :href="route('metrics')"
+                                    :active="route().current('metrics')"
+                                >
+                                    Metricas
+                                </NavLink>
+                                <NavLink
+                                    v-if="isAdmin"
+                                    :href="route('admin.users')"
+                                    :active="route().current('admin.*')"
+                                >
+                                    Administracion
                                 </NavLink>
                             </div>
                         </div>
@@ -117,6 +144,15 @@ const showingNavigationDropdown = ref(false);
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('tickets.index')" :active="route().current('tickets.*')">
                             Tickets
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="canSearchMetrics" :href="route('search')" :active="route().current('search')">
+                            Busqueda
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="canSearchMetrics" :href="route('metrics')" :active="route().current('metrics')">
+                            Metricas
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="isAdmin" :href="route('admin.users')" :active="route().current('admin.*')">
+                            Administracion
                         </ResponsiveNavLink>
                     </div>
 
