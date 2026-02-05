@@ -42,7 +42,6 @@ Route::middleware(['auth:sanctum', 'ensure.active'])->group(function () {
     Route::get('/tickets/metricas', [TicketBusquedaController::class, 'metrics'])->middleware('role:admin,coordinador');
 
     Route::get('/tickets/{ticket}', [TicketController::class, 'show']);
-    Route::patch('/tickets/{ticket}', [TicketController::class, 'update']);
     Route::patch('/tickets/{ticket}/operativo', [TicketOperativoController::class, 'update']);
 
     Route::get('/tickets/{ticket}/comentarios', [TicketComentarioController::class, 'index']);
@@ -50,6 +49,7 @@ Route::middleware(['auth:sanctum', 'ensure.active'])->group(function () {
 
     Route::get('/tickets/{ticket}/adjuntos', [TicketAdjuntoController::class, 'index']);
     Route::post('/tickets/{ticket}/adjuntos', [TicketAdjuntoController::class, 'store']);
+    Route::get('/tickets/{ticket}/adjuntos/{adjunto}/download', [TicketAdjuntoController::class, 'download']);
 
     Route::get('/tickets/{ticket}/historial', [TicketHistorialController::class, 'index']);
     Route::get('/tickets/{ticket}/relaciones', [TicketRelacionController::class, 'index']);

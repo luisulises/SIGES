@@ -226,6 +226,7 @@ Mitigacion: recortar primero notificaciones, mantener core de tickets, estados e
 
 ### Creacion y Gestion de Tickets
 - FR5: Usuarios autorizados pueden crear tickets con asunto, proyecto/sistema y descripcion.
+- Nota MVP: Solo se permite crear tickets con un proyecto/sistema activo.
 - FR6: El asunto y la descripcion del ticket no son editables despues de creado.
 - FR7: Tickets nuevos inician en estado Nuevo y sin responsable asignado.
 - FR8: Usuarios pueden ver el detalle completo de un ticket segun su rol y relacion (involucrados).
@@ -266,6 +267,7 @@ Mitigacion: recortar primero notificaciones, mantener core de tickets, estados e
 ### Relaciones y Duplicados
 - FR33: Usuarios pueden relacionar un ticket con uno o mas tickets.
 - FR34: Coordinador/administrador pueden marcar ticket duplicado, cancelarlo y referenciar el valido.
+- Nota MVP: El ticket valido no puede estar en estado Cancelado.
 
 ### Registro de Tiempo
 - FR35: Roles internos autorizados pueden registrar tiempo invertido de forma acumulativa y no editable (soporte asignado; coordinador/admin para sus tickets).
@@ -279,6 +281,7 @@ Mitigacion: recortar primero notificaciones, mantener core de tickets, estados e
 - FR39: Usuarios pueden listar tickets accesibles segun su rol y relacion (involucrados).
 - FR40: El listado ordena por ultima actualizacion descendente por defecto.
 - FR41: Coordinador y administrador pueden buscar por asunto, estado o proyecto/sistema.
+- Nota MVP: La busqueda por asunto es parcial y no distingue mayusculas/minusculas.
 
 ### Notificaciones
 - FR42: El sistema notifica por creacion, asignacion, cambio de estado, comentarios publicos y cierre.
@@ -298,6 +301,7 @@ Mitigacion: recortar primero notificaciones, mantener core de tickets, estados e
 
 ### Reapertura Indirecta
 - FR52: El sistema permite crear un nuevo ticket referenciando uno cerrado/cancelado (sin reapertura directa).
+- Nota MVP: En la creacion de ticket se puede enviar `referencia_ticket_id` (Cerrado/Cancelado) para crear una relacion tipo `reabre`, sin reabrir el ticket anterior.
 
 ### Metricas Operativas
 - FR53: Administrador puede consultar metricas basicas por estado y prioridad.

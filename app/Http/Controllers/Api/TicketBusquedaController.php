@@ -29,7 +29,10 @@ class TicketBusquedaController extends Controller
 
         $asunto = trim((string) ($request->validated()['asunto'] ?? ''));
         if ($asunto !== '') {
-            $query->where('asunto', 'like', "%{$asunto}%");
+            $driver = DB::connection()->getDriverName();
+            $operator = $driver === 'pgsql' ? 'ilike' : 'like';
+
+            $query->where('asunto', $operator, "%{$asunto}%");
         }
 
         if (array_key_exists('estado_id', $request->validated()) && $request->validated()['estado_id']) {

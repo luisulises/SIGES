@@ -26,12 +26,14 @@ class TicketController extends Controller
 
     public function index(Request $request): Response
     {
+        $perPage = min(max($request->integer('per_page', 50), 1), 200);
+
         $tickets = $this->ticketVisibility
             ->visibleTicketsQuery($request->user())
             ->with(['estado:id,nombre', 'sistema:id,nombre'])
             ->orderByDesc('updated_at')
-            ->get()
-            ->map(fn (Ticket $ticket) => [
+            ->paginate($perPage)
+            ->through(fn (Ticket $ticket) => [
                 'id' => $ticket->id,
                 'asunto' => $ticket->asunto,
                 'estado' => $ticket->estado?->nombre,
@@ -65,26 +67,9 @@ class TicketController extends Controller
         $ticket->load(['estado:id,nombre', 'sistema:id,nombre', 'responsableActual:id,nombre']);
 
         $user = $request->user();
-        $isCoordinadorSistema = false;
-
-        if ($user && $user->isCoordinador()) {
-            $isCoordinadorSistema = DB::table('sistemas_coordinadores')
-                ->where('usuario_id', $user->id)
-                ->where('sistema_id', $ticket->sistema_id)
-                ->exists();
-        }
-
-        $canOperate = $user && (
-            $user->isAdmin()
-            || ($user->isCoordinador() && $isCoordinadorSistema)
-            || ($user->isSoporte() && $ticket->responsable_actual_id === $user->id)
-        );
-
-        $canCloseOrCancel = $user && (
-            $user->isAdmin()
-            || ($user->isCoordinador() && $isCoordinadorSistema)
-            || ($ticket->solicitante_id === $user->id)
-        );
+        $canOperate = $user ? $user->can('operate', $ticket) : false;
+        $canCloseOrCancel = $user ? $user->can('closeOrCancel', $ticket) : false;
+        $canAssign = $user ? $user->can('assign', $ticket) : false;
 
         $transiciones = collect();
 
@@ -123,7 +108,7 @@ class TicketController extends Controller
             ->get(['id', 'nombre']);
 
         $usuarios = collect();
-        if ($user && ($user->isAdmin() || ($user->isCoordinador() && $isCoordinadorSistema))) {
+        if ($user && $canAssign) {
             $usuarios = User::query()
                 ->where('activo', true)
                 ->orderBy('nombre')
@@ -170,7 +155,7 @@ class TicketController extends Controller
                 'role' => $user?->roleName(),
                 'can_operate' => $canOperate,
                 'can_close_cancel' => $canCloseOrCancel,
-                'is_coordinador_sistema' => $isCoordinadorSistema,
+                'can_assign' => $canAssign,
             ],
             'pollInterval' => 60000,
         ]);

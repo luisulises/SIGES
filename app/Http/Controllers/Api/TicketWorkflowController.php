@@ -22,20 +22,26 @@ class TicketWorkflowController extends Controller
             $request->validated()['estado']
         );
 
-        return new TicketResource($ticket->fresh());
+        $ticket = $ticket->fresh(['estado:id,nombre', 'sistema:id,nombre']);
+
+        return new TicketResource($ticket);
     }
 
     public function close(Ticket $ticket): TicketResource
     {
         $ticket = $this->workflowService->close(request()->user(), $ticket);
 
-        return new TicketResource($ticket->fresh());
+        $ticket = $ticket->fresh(['estado:id,nombre', 'sistema:id,nombre']);
+
+        return new TicketResource($ticket);
     }
 
     public function cancel(Ticket $ticket): TicketResource
     {
         $ticket = $this->workflowService->cancel(request()->user(), $ticket);
 
-        return new TicketResource($ticket->fresh());
+        $ticket = $ticket->fresh(['estado:id,nombre', 'sistema:id,nombre']);
+
+        return new TicketResource($ticket);
     }
 }

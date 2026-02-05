@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreAdjuntoRequest;
 use App\Http\Resources\AdjuntoResource;
+use App\Models\Adjunto;
 use App\Models\Ticket;
 use App\Services\TicketAdjuntoService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TicketAdjuntoController extends Controller
 {
@@ -33,5 +35,14 @@ class TicketAdjuntoController extends Controller
         );
 
         return new AdjuntoResource($adjunto);
+    }
+
+    public function download(Request $request, Ticket $ticket, Adjunto $adjunto): StreamedResponse
+    {
+        if ((int) $adjunto->ticket_id !== (int) $ticket->id) {
+            abort(404);
+        }
+
+        return $this->adjuntoService->download($request->user(), $ticket, $adjunto);
     }
 }

@@ -19,11 +19,11 @@
 
 - P0.1 DB-1.1 Esquema base: usuarios, roles, sistemas, estados_ticket, sistemas_coordinadores y tickets (incluye ticket.interno).
 - P0.2 BE-1.1 Autenticacion y sesiones con RBAC.
-- P0.3 BE-1.2 CRUD minimo de tickets: crear con asunto/sistema/descripcion; asunto y descripcion no editables; estado inicial Nuevo.
+- P0.3 BE-1.2 CRUD minimo de tickets: crear con asunto/sistema/descripcion; sistema debe estar activo; opcional `referencia_ticket_id` para relacion `reabre`; asunto y descripcion no editables; estado inicial Nuevo.
 - P0.4 BE-1.3 Listado y detalle por rol con orden por ultima actualizacion.
 - P0.5 FE-1.1 UI de login.
 - P0.6 FE-1.2 UI de listado y detalle de tickets con filtros basicos y orden por ultima actualizacion.
-- P0.7 FE-1.3 UI de creacion de ticket (asunto, sistema, descripcion).
+- P0.7 FE-1.3 UI de creacion de ticket (asunto, sistema, descripcion, referencia_ticket_id opcional).
 
 - P1.1 DB-2.1 Esquema de workflow: prioridades, tipos_solicitud, reglas_transicion_estado, asignaciones_ticket.
 - P1.2 BE-2.1 Reglas de transicion de estado (incluye cierre desde Resuelto con resolucion).
@@ -156,7 +156,7 @@
 ### Epic 1 - Registro y consulta basica de tickets
 
 - BE-1.1 Autenticacion y sesiones con RBAC.
-- BE-1.2 CRUD minimo de tickets: crear con asunto/sistema/descripcion; asunto y descripcion no editables; estado inicial Nuevo.
+- BE-1.2 CRUD minimo de tickets: crear con asunto/sistema/descripcion; sistema debe estar activo; opcional `referencia_ticket_id` para relacion `reabre`; asunto y descripcion no editables; estado inicial Nuevo.
 - BE-1.3 Listado y detalle por rol con orden por ultima actualizacion.
 
 ### Epic 2 - Workflow operativo y asignacion
@@ -195,7 +195,7 @@
 
 - FE-1.1 UI de login.
 - FE-1.2 UI de listado y detalle de tickets con filtros basicos y orden por ultima actualizacion.
-- FE-1.3 UI de creacion de ticket (asunto, sistema, descripcion).
+- FE-1.3 UI de creacion de ticket (asunto, sistema, descripcion, referencia_ticket_id opcional).
 
 ### Epic 2 - Workflow operativo y asignacion
 

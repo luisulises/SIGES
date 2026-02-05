@@ -27,7 +27,7 @@ so that pueda explicar decisiones y avances.
 ## Dev Notes
 
 - Mantener eventos append-only; no editar ni borrar registros.
-- tipo_evento recomendado: estado_cambiado, asignacion_cambiada, prioridad_cambiada, fecha_compromiso_cambiada, fecha_entrega_cambiada, sistema_cambiado, tipo_cambiado, resolucion_registrada, cierre, cancelacion, comentario_creado, adjunto_creado.
+- tipo_evento recomendado: estado_cambiado, asignacion_cambiada, prioridad_cambiada, fecha_compromiso_cambiada, fecha_entrega_cambiada, sistema_cambiado, tipo_cambiado, resolucion_registrada, cierre, cancelacion, comentario_creado, adjunto_creado, involucrado_agregado, involucrado_removido.
 - valores_antes/despues pueden guardarse como JSON string.
 
 ### Project Structure Notes

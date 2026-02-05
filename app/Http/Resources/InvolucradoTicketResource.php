@@ -12,17 +12,18 @@ class InvolucradoTicketResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $user = $request->user();
+
         return [
             'id' => $this->id,
             'ticket_id' => $this->ticket_id,
             'usuario' => $this->whenLoaded('usuario', fn () => [
                 'id' => $this->usuario?->id,
                 'nombre' => $this->usuario?->nombre,
-                'email' => $this->usuario?->email,
+                'email' => $this->when($user && ! $user->isClienteInterno(), $this->usuario?->email),
             ]),
             'created_at' => optional($this->created_at)->toISOString(),
             'deleted_at' => optional($this->deleted_at)->toISOString(),
         ];
     }
 }
-

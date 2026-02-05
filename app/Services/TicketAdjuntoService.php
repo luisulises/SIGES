@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TicketAdjuntoService
 {
@@ -49,8 +50,12 @@ class TicketAdjuntoService
             $this->assertUserCanOperate($user, $ticket);
         }
 
-        $comentario = ComentarioTicket::query()->findOrFail($comentarioId);
-        if ($comentario->ticket_id !== $ticket->id) {
+        $comentario = ComentarioTicket::query()
+            ->where('ticket_id', $ticket->id)
+            ->whereKey($comentarioId)
+            ->first();
+
+        if (! $comentario) {
             throw ValidationException::withMessages([
                 'comentario_id' => 'El comentario no pertenece a este ticket.',
             ]);
@@ -93,6 +98,24 @@ class TicketAdjuntoService
         );
 
         return $adjunto->load('cargadoPor:id,nombre');
+    }
+
+    public function download(User $user, Ticket $ticket, Adjunto $adjunto): StreamedResponse
+    {
+        $this->assertUserCanView($user, $ticket);
+
+        if ($adjunto->visibilidad === 'interno' && ! $this->isRolInterno($user)) {
+            throw new AuthorizationException('No autorizado.');
+        }
+
+        $disk = Storage::disk(config('filesystems.default'));
+        $path = (string) $adjunto->clave_almacenamiento;
+
+        if (! $disk->exists($path)) {
+            abort(404);
+        }
+
+        return $disk->download($path, (string) $adjunto->nombre_archivo);
     }
 
     private function assertUserCanView(User $user, Ticket $ticket): void

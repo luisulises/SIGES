@@ -22,6 +22,8 @@ class TicketOperativoController extends Controller
             $request->validated()
         );
 
+        $ticket->load(['estado:id,nombre', 'sistema:id,nombre']);
+
         return new TicketResource($ticket);
     }
 }

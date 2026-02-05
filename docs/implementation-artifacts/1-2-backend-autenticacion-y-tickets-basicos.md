@@ -11,7 +11,7 @@ so that pueda registrar solicitudes y ver su estado.
 ## Acceptance Criteria
 
 1. Login con credenciales validas permite iniciar sesion y acceder a endpoints protegidos.
-2. Crear ticket con asunto, sistema_id y descripcion crea un ticket en estado "Nuevo", sin responsable_actual y con solicitante_id del usuario autenticado.
+2. Crear ticket con asunto, sistema_id (de un sistema activo) y descripcion crea un ticket en estado "Nuevo", sin responsable_actual y con solicitante_id del usuario autenticado.
 3. Intentar modificar el asunto o la descripcion de un ticket es rechazado.
 4. Listado y detalle aplican visibilidad por rol y relacion:
    - Cliente interno: solo sus tickets y nunca tickets internos.
@@ -20,6 +20,7 @@ so that pueda registrar solicitudes y ver su estado.
    - Admin: todos.
    - Cualquier usuario involucrado puede ver el ticket aunque no sea solicitante/responsable (excepto cliente interno en tickets internos).
 5. El listado ordena por updated_at descendente.
+6. Opcionalmente, al crear ticket se puede enviar `referencia_ticket_id` (ticket en estado "Cerrado" o "Cancelado") para crear una relacion tipo `reabre` hacia ese ticket (reapertura indirecta); si el ticket referenciado no esta Cerrado/Cancelado, la creacion es rechazada.
 
 ## Tasks / Subtasks
 
@@ -79,7 +80,6 @@ Codex (GPT-5)
 - app/Http/Controllers/Api/TicketController.php
 - app/Http/Requests/Api/LoginRequest.php
 - app/Http/Requests/Api/StoreTicketRequest.php
-- app/Http/Requests/Api/UpdateTicketRequest.php
 - app/Http/Resources/TicketResource.php
 - app/Models/EstadoTicket.php
 - app/Models/Role.php

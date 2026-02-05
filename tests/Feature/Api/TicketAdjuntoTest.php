@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Adjunto;
 use App\Models\ComentarioTicket;
 use App\Models\EstadoTicket;
 use App\Models\Role;
@@ -51,15 +52,106 @@ class TicketAdjuntoTest extends TestCase
             ->assertJsonPath('data.visibilidad', 'publico')
             ->assertJsonPath('data.nombre_archivo', 'evidencia.pdf');
 
-        $path = $response->json('data.clave_almacenamiento');
+        $adjuntoId = (int) $response->json('data.id');
+        $adjunto = Adjunto::query()->findOrFail($adjuntoId);
 
-        Storage::disk(config('filesystems.default'))->assertExists($path);
+        Storage::disk(config('filesystems.default'))->assertExists($adjunto->clave_almacenamiento);
         $this->assertDatabaseHas('adjuntos', [
             'ticket_id' => $ticket->id,
             'comentario_id' => $comentario->id,
             'nombre_archivo' => 'evidencia.pdf',
             'visibilidad' => 'publico',
         ]);
+    }
+
+    public function test_puede_descargar_adjunto_publico_por_endpoint(): void
+    {
+        Storage::fake(config('filesystems.default'));
+
+        $cliente = $this->makeUser(Role::CLIENTE_INTERNO);
+        $ticket = $this->makeTicket(['solicitante_id' => $cliente->id]);
+        $comentario = ComentarioTicket::create([
+            'ticket_id' => $ticket->id,
+            'autor_id' => $cliente->id,
+            'cuerpo' => 'Adjunto evidencia.',
+            'visibilidad' => 'publico',
+        ]);
+
+        Sanctum::actingAs($cliente);
+
+        $response = $this->withHeader('Accept', 'application/json')->post("/api/tickets/{$ticket->id}/adjuntos", [
+            'archivo' => UploadedFile::fake()->create('evidencia.pdf', 10, 'application/pdf'),
+            'comentario_id' => $comentario->id,
+        ]);
+
+        $response->assertCreated();
+        $adjuntoId = (int) $response->json('data.id');
+
+        $this->get("/api/tickets/{$ticket->id}/adjuntos/{$adjuntoId}/download")
+            ->assertOk()
+            ->assertDownload('evidencia.pdf');
+    }
+
+    public function test_cliente_interno_no_puede_descargar_adjunto_interno(): void
+    {
+        Storage::fake(config('filesystems.default'));
+
+        $cliente = $this->makeUser(Role::CLIENTE_INTERNO);
+        $soporte = $this->makeUser(Role::SOPORTE);
+        $ticket = $this->makeTicket([
+            'solicitante_id' => $cliente->id,
+            'responsable_actual_id' => $soporte->id,
+        ]);
+        $comentarioInterno = ComentarioTicket::create([
+            'ticket_id' => $ticket->id,
+            'autor_id' => $soporte->id,
+            'cuerpo' => 'Comentario interno.',
+            'visibilidad' => 'interno',
+        ]);
+
+        Sanctum::actingAs($soporte);
+
+        $upload = $this->withHeader('Accept', 'application/json')->post("/api/tickets/{$ticket->id}/adjuntos", [
+            'archivo' => UploadedFile::fake()->create('interno.pdf', 10, 'application/pdf'),
+            'comentario_id' => $comentarioInterno->id,
+        ]);
+
+        $upload->assertCreated();
+        $adjuntoId = (int) $upload->json('data.id');
+
+        Sanctum::actingAs($cliente);
+
+        $this->getJson("/api/tickets/{$ticket->id}/adjuntos/{$adjuntoId}/download")
+            ->assertForbidden();
+    }
+
+    public function test_descargar_adjunto_de_otro_ticket_devuelve_404(): void
+    {
+        Storage::fake(config('filesystems.default'));
+
+        $cliente = $this->makeUser(Role::CLIENTE_INTERNO);
+        $ticketA = $this->makeTicket(['solicitante_id' => $cliente->id]);
+        $ticketB = $this->makeTicket(['solicitante_id' => $cliente->id]);
+
+        $comentario = ComentarioTicket::create([
+            'ticket_id' => $ticketA->id,
+            'autor_id' => $cliente->id,
+            'cuerpo' => 'Adjunto evidencia.',
+            'visibilidad' => 'publico',
+        ]);
+
+        Sanctum::actingAs($cliente);
+
+        $upload = $this->withHeader('Accept', 'application/json')->post("/api/tickets/{$ticketA->id}/adjuntos", [
+            'archivo' => UploadedFile::fake()->create('evidencia.pdf', 10, 'application/pdf'),
+            'comentario_id' => $comentario->id,
+        ]);
+
+        $upload->assertCreated();
+        $adjuntoId = (int) $upload->json('data.id');
+
+        $this->getJson("/api/tickets/{$ticketB->id}/adjuntos/{$adjuntoId}/download")
+            ->assertNotFound();
     }
 
     public function test_rechaza_subir_adjunto_sin_comentario_id(): void

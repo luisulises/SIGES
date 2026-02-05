@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Schema;
 
 class TicketVisibilityService
 {
+    private static ?bool $supportsInvolucradosCache = null;
+    private static ?bool $supportsInvolucradosSoftDeletesCache = null;
+
     public function visibleTicketsQuery(User $user): Builder
     {
         $query = Ticket::query();
@@ -76,11 +79,23 @@ class TicketVisibilityService
 
     private function supportsInvolucrados(): bool
     {
-        return Schema::hasTable('involucrados_ticket');
+        if (self::$supportsInvolucradosCache !== null) {
+            return self::$supportsInvolucradosCache;
+        }
+
+        self::$supportsInvolucradosCache = Schema::hasTable('involucrados_ticket');
+
+        return self::$supportsInvolucradosCache;
     }
 
     private function supportsInvolucradosSoftDeletes(): bool
     {
-        return Schema::hasColumn('involucrados_ticket', 'deleted_at');
+        if (self::$supportsInvolucradosSoftDeletesCache !== null) {
+            return self::$supportsInvolucradosSoftDeletesCache;
+        }
+
+        self::$supportsInvolucradosSoftDeletesCache = Schema::hasColumn('involucrados_ticket', 'deleted_at');
+
+        return self::$supportsInvolucradosSoftDeletesCache;
     }
 }

@@ -10,9 +10,9 @@ so that exista trazabilidad entre solicitudes.
 
 ## Acceptance Criteria
 
-1. Usuario con acceso al ticket puede crear relacion entre tickets con tipo_relacion (relacionado|reabre); marcar duplicado requiere rol coordinador/admin autorizado (coordinador del sistema o admin).
+1. Usuario con acceso al ticket puede crear relacion entre tickets con tipo_relacion (relacionado|reabre). Para tipo_relacion=reabre, el ticket relacionado debe estar en estado "Cerrado" o "Cancelado". Marcar duplicado requiere rol coordinador/admin autorizado (coordinador del sistema o admin).
 2. No se permite relacionar un ticket consigo mismo ni duplicar una relacion existente.
-3. Marcar duplicado actualiza el ticket duplicado a estado "Cancelado" y crea la relacion duplicado_de hacia el ticket valido.
+3. Marcar duplicado actualiza el ticket duplicado a estado "Cancelado" y crea la relacion duplicado_de hacia el ticket valido (que no puede estar en estado "Cancelado").
 4. Se puede listar relaciones de un ticket, respetando visibilidad por rol.
 
 ## Tasks / Subtasks
@@ -31,6 +31,7 @@ so that exista trazabilidad entre solicitudes.
 - Cuando se marca duplicado, mantener referencia al ticket valido con tipo_relacion=duplicado_de.
 - El permiso para duplicados debe alinearse con reglas de cancelacion (Epic 2).
 - Reapertura indirecta: crear nuevo ticket y relacion tipo reabre (no reabrir el ticket cerrado).
+- Nota MVP: `POST /api/tickets` acepta `referencia_ticket_id` para crear automaticamente una relacion tipo `reabre` hacia un ticket Cerrado/Cancelado.
 - Si existe auditoria, registrar evento de relacion creada y duplicado.
 
 ### Project Structure Notes

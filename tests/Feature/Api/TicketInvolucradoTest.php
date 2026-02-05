@@ -43,6 +43,13 @@ class TicketInvolucradoTest extends TestCase
             'usuario_id' => $usuario->id,
         ])->assertCreated();
 
+        $this->assertDatabaseHas('eventos_auditoria_ticket', [
+            'ticket_id' => $ticket->id,
+            'actor_id' => $coordinador->id,
+            'tipo_evento' => 'involucrado_agregado',
+            'valor_despues->usuario_id' => $usuario->id,
+        ]);
+
         $this->assertDatabaseHas('involucrados_ticket', [
             'ticket_id' => $ticket->id,
             'usuario_id' => $usuario->id,
@@ -52,6 +59,13 @@ class TicketInvolucradoTest extends TestCase
         $this->deleteJson("/api/tickets/{$ticket->id}/involucrados/{$usuario->id}")
             ->assertNoContent();
 
+        $this->assertDatabaseHas('eventos_auditoria_ticket', [
+            'ticket_id' => $ticket->id,
+            'actor_id' => $coordinador->id,
+            'tipo_evento' => 'involucrado_removido',
+            'valor_despues->usuario_id' => $usuario->id,
+        ]);
+
         $this->assertSoftDeleted('involucrados_ticket', [
             'ticket_id' => $ticket->id,
             'usuario_id' => $usuario->id,
@@ -60,6 +74,13 @@ class TicketInvolucradoTest extends TestCase
         $this->postJson("/api/tickets/{$ticket->id}/involucrados", [
             'usuario_id' => $usuario->id,
         ])->assertOk();
+
+        $this->assertDatabaseHas('eventos_auditoria_ticket', [
+            'ticket_id' => $ticket->id,
+            'actor_id' => $coordinador->id,
+            'tipo_evento' => 'involucrado_agregado',
+            'valor_despues->usuario_id' => $usuario->id,
+        ]);
 
         $this->assertDatabaseHas('involucrados_ticket', [
             'ticket_id' => $ticket->id,

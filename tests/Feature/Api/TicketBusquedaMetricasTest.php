@@ -107,6 +107,12 @@ class TicketBusquedaMetricasTest extends TestCase
 
         $this->assertSame([$ticketPropio->id], $idsAlpha);
 
+        $idsAlphaLower = $this->getJson('/api/tickets/busqueda?asunto=alpha')
+            ->assertOk()
+            ->json('data.*.id');
+
+        $this->assertSame([$ticketPropio->id], $idsAlphaLower);
+
         $metricas = $this->getJson('/api/tickets/metricas')
             ->assertOk()
             ->json('data');
@@ -127,4 +133,3 @@ class TicketBusquedaMetricasTest extends TestCase
         return (int) Role::query()->where('nombre', $nombre)->value('id');
     }
 }
-

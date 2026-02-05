@@ -22,6 +22,7 @@ class StoreTicketRequest extends FormRequest
                 'integer',
                 Rule::exists('sistemas', 'id')->where('activo', true),
             ],
+            'referencia_ticket_id' => ['sometimes', 'nullable', 'integer', 'exists:tickets,id'],
         ];
     }
 }

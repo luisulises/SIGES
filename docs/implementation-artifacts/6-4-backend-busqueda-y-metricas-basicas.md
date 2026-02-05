@@ -18,7 +18,7 @@ so that pueda priorizar y explicar avances.
 ## Tasks / Subtasks
 
 - [x] Implementar endpoint de busqueda de tickets (AC: #1, #2)
-  - [x] Filtros: asunto (parcial), estado_id, sistema_id
+  - [x] Filtros: asunto (parcial, case-insensitive), estado_id, sistema_id
 - [x] Implementar endpoint de metricas basicas (AC: #3, #4)
   - [x] Conteo por estado y por prioridad
 - [x] Pruebas de feature para busqueda y metricas (AC: #1-#4)
@@ -26,6 +26,7 @@ so that pueda priorizar y explicar avances.
 ## Dev Notes
 
 - Reusar filtros/visibilidad del listado base (Epic 1).
+- La busqueda por asunto es parcial y case-insensitive (en Postgres: ILIKE).
 - Metricas basicas se calculan sobre tickets visibles.
 
 ### Project Structure Notes

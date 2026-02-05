@@ -214,6 +214,7 @@ So that pueda registrar solicitudes y ver su estado.
 **When** el usuario inicia sesion y crea un ticket con asunto, sistema y descripcion
 **Then** el sistema crea el ticket con estado "Nuevo" y sin responsable
 **And** registra al solicitante como propietario
+**And** valida que el sistema/proyecto seleccionado este activo
 
 **Given** un ticket creado
 **When** intenta editar el asunto o la descripcion
@@ -238,6 +239,11 @@ So that pueda enviar solicitudes sin usar otros canales.
 **When** ingresa al formulario y guarda un ticket
 **Then** ve confirmacion y el ticket aparece en su listado
 **And** puede abrir el detalle con asunto, descripcion y estado (solo lectura)
+
+**Given** un ticket cerrado o cancelado
+**When** el usuario crea un nuevo ticket indicando referencia al ticket anterior
+**Then** el sistema crea el ticket y registra la relacion tipo `reabre`
+**And** no reabre el ticket anterior
 
 **Given** el usuario permanece en la lista o detalle
 **When** pasa el intervalo de actualizacion
@@ -398,10 +404,16 @@ So that las personas relevantes sigan el ticket.
 **Given** coordinador autorizado
 **When** agrega un involucrado
 **Then** el usuario aparece en la lista de involucrados del ticket
+**And** se registra un evento de auditoria de alta de involucrado
 
 **Given** coordinador remueve un involucrado
 **When** se actualiza la lista
 **Then** el involucrado deja de aparecer como activo
+**And** se registra un evento de auditoria de baja de involucrado
+
+**Given** coordinador intenta agregar un usuario inactivo
+**When** guarda el cambio
+**Then** el sistema rechaza la operacion
 
 ### Story 3.5: Frontend - UI de comentarios, adjuntos e involucrados
 
@@ -448,7 +460,7 @@ So that pueda explicar decisiones y avances.
 
 **Acceptance Criteria:**
 
-**Given** se cambia estado, responsable, prioridad, fechas, tipo, sistema, cierre, comentarios o adjuntos
+**Given** se cambia estado, responsable, prioridad, fechas, tipo, sistema, cierre, comentarios, adjuntos o involucrados
 **When** se guarda el cambio
 **Then** se genera un evento de auditoria con actor, fecha y detalle
 
@@ -471,10 +483,12 @@ So that exista trazabilidad entre solicitudes.
 **Given** coordinador/admin marca un ticket como duplicado
 **When** selecciona el ticket valido
 **Then** el ticket duplicado queda cancelado y referenciado
+**And** el ticket valido no puede estar en estado Cancelado
 
 **Given** un ticket cerrado o cancelado
 **When** se crea un nuevo ticket referenciandolo
 **Then** se crea un nuevo ticket sin reabrir el anterior
+**And** el ticket referenciado debe estar en estado Cerrado o Cancelado
 
 ### Story 4.4: Backend - Registro de tiempo
 
@@ -630,6 +644,7 @@ So that pueda priorizar y explicar avances.
 **Given** coordinador/admin
 **When** busca por asunto, estado o sistema
 **Then** obtiene resultados filtrados segun su rol
+**And** la busqueda por asunto no distingue mayusculas/minusculas
 
 **Given** coordinador/admin
 **When** consulta metricas basicas

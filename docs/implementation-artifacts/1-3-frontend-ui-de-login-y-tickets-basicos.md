@@ -12,7 +12,7 @@ so that pueda enviar solicitudes sin usar otros canales.
 
 1. Existe UI de login y permite acceder al sistema con credenciales validas.
 2. Existe listado de tickets con orden por ultima actualizacion descendente.
-3. Existe formulario de creacion de ticket (asunto, sistema, descripcion).
+3. Existe formulario de creacion de ticket (asunto, sistema, descripcion, referencia_ticket_id opcional).
 4. El detalle de ticket muestra asunto, descripcion y estado.
 5. La vista se refresca automaticamente en <= 60 s para reflejar cambios.
 6. El detalle no permite editar asunto ni descripcion (solo lectura).

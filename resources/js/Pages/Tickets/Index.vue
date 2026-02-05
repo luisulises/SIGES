@@ -9,8 +9,12 @@ import TextInput from '@/Components/TextInput.vue';
 
 const props = defineProps({
     tickets: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => ({
+            data: [],
+            meta: null,
+            links: [],
+        }),
     },
     sistemas: {
         type: Array,
@@ -22,9 +26,13 @@ const props = defineProps({
     },
 });
 
+const ticketItems = () => props.tickets?.data ?? [];
+const totalTickets = () => props.tickets?.meta?.total ?? ticketItems().length;
+
 const form = useForm({
     asunto: '',
     sistema_id: '',
+    referencia_ticket_id: '',
     descripcion: '',
 });
 
@@ -32,7 +40,7 @@ const submit = () => {
     form.post(route('tickets.store'), {
         preserveScroll: true,
         onSuccess: () => {
-            form.reset('asunto', 'sistema_id', 'descripcion');
+            form.reset('asunto', 'sistema_id', 'referencia_ticket_id', 'descripcion');
         },
     });
 };
@@ -48,6 +56,10 @@ const formatDate = (value) => {
 let intervalId;
 
 const reloadTickets = () => {
+    if (document.visibilityState && document.visibilityState !== 'visible') {
+        return;
+    }
+
     if (form.processing) {
         return;
     }
@@ -133,6 +145,21 @@ onBeforeUnmount(() => {
                                 <InputError class="mt-2" :message="form.errors.descripcion" />
                             </div>
 
+                            <div>
+                                <InputLabel for="referencia_ticket_id" value="Referenciar ticket cerrado/cancelado (opcional)" />
+                                <TextInput
+                                    id="referencia_ticket_id"
+                                    v-model="form.referencia_ticket_id"
+                                    type="number"
+                                    class="mt-1 block w-full"
+                                    min="1"
+                                />
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Si el problema reaparece, crea este ticket vinculado a uno Cerrado/Cancelado.
+                                </p>
+                                <InputError class="mt-2" :message="form.errors.referencia_ticket_id" />
+                            </div>
+
                             <PrimaryButton :disabled="form.processing">
                                 Crear ticket
                             </PrimaryButton>
@@ -142,15 +169,15 @@ onBeforeUnmount(() => {
                     <section class="bg-white shadow sm:rounded-lg p-6">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold text-gray-900">Listado</h3>
-                            <span class="text-sm text-gray-500">{{ tickets.length }} tickets</span>
+                            <span class="text-sm text-gray-500">{{ totalTickets() }} tickets</span>
                         </div>
 
-                        <div v-if="tickets.length === 0" class="mt-6 text-sm text-gray-500">
+                        <div v-if="ticketItems().length === 0" class="mt-6 text-sm text-gray-500">
                             No hay tickets disponibles.
                         </div>
 
                         <div v-else class="mt-6 divide-y divide-gray-200">
-                            <div v-for="ticket in tickets" :key="ticket.id" class="py-4 flex flex-col gap-2">
+                            <div v-for="ticket in ticketItems()" :key="ticket.id" class="py-4 flex flex-col gap-2">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <Link
@@ -173,6 +200,21 @@ onBeforeUnmount(() => {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div v-if="tickets.links?.length" class="mt-6 flex flex-wrap gap-2 justify-center">
+                            <Link
+                                v-for="(link, index) in tickets.links"
+                                :key="index"
+                                :href="link.url || ''"
+                                class="px-3 py-1 rounded-md text-sm border border-gray-200"
+                                :class="{
+                                    'bg-indigo-600 text-white border-indigo-600': link.active,
+                                    'text-gray-500 pointer-events-none opacity-50': !link.url,
+                                    'text-gray-700 hover:bg-gray-50': link.url && !link.active,
+                                }"
+                                v-html="link.label"
+                            />
                         </div>
                     </section>
                 </div>

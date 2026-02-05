@@ -15,9 +15,8 @@ class StoreComentarioTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cuerpo' => ['required', 'string'],
+            'cuerpo' => ['required', 'string', 'max:5000'],
             'visibilidad' => ['required', 'string', Rule::in(['publico', 'interno'])],
         ];
     }
 }
-

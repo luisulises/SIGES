@@ -70,6 +70,75 @@ class TicketApiTest extends TestCase
             ->assertJsonPath('data.interno', false);
     }
 
+    public function test_crear_ticket_puede_referenciar_ticket_cerrado(): void
+    {
+        $user = User::factory()->create([
+            'rol_id' => $this->roleId(Role::CLIENTE_INTERNO),
+        ]);
+        $sistema = Sistema::create(['nombre' => 'Core', 'activo' => true]);
+        $estadoCerradoId = (int) EstadoTicket::query()->where('nombre', EstadoTicket::CERRADO)->value('id');
+
+        $ticketCerrado = Ticket::create([
+            'asunto' => 'Viejo',
+            'descripcion' => 'Desc',
+            'solicitante_id' => $user->id,
+            'sistema_id' => $sistema->id,
+            'estado_id' => $estadoCerradoId,
+            'responsable_actual_id' => null,
+            'interno' => false,
+            'cerrado_at' => now(),
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson('/api/tickets', [
+            'asunto' => 'Reaparece el problema',
+            'descripcion' => 'Detalle',
+            'sistema_id' => $sistema->id,
+            'referencia_ticket_id' => $ticketCerrado->id,
+        ]);
+
+        $response->assertCreated();
+        $nuevoTicketId = (int) $response->json('data.id');
+
+        $this->assertDatabaseHas('relaciones_ticket', [
+            'ticket_id' => $nuevoTicketId,
+            'ticket_relacionado_id' => $ticketCerrado->id,
+            'tipo_relacion' => 'reabre',
+            'creado_por_id' => $user->id,
+        ]);
+    }
+
+    public function test_crear_ticket_referenciando_no_cerrado_falla(): void
+    {
+        $user = User::factory()->create([
+            'rol_id' => $this->roleId(Role::CLIENTE_INTERNO),
+        ]);
+        $sistema = Sistema::create(['nombre' => 'Core', 'activo' => true]);
+
+        $estadoAnalisisId = (int) EstadoTicket::query()->where('nombre', EstadoTicket::EN_ANALISIS)->value('id');
+        $ticketNoCerrado = Ticket::create([
+            'asunto' => 'Abierto',
+            'descripcion' => 'Desc',
+            'solicitante_id' => $user->id,
+            'sistema_id' => $sistema->id,
+            'estado_id' => $estadoAnalisisId,
+            'responsable_actual_id' => null,
+            'interno' => false,
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/tickets', [
+            'asunto' => 'Nuevo ticket',
+            'descripcion' => 'Detalle',
+            'sistema_id' => $sistema->id,
+            'referencia_ticket_id' => $ticketNoCerrado->id,
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['referencia_ticket_id']);
+    }
+
     public function test_no_permite_crear_ticket_con_sistema_inactivo(): void
     {
         $user = User::factory()->create([
@@ -88,7 +157,7 @@ class TicketApiTest extends TestCase
             ->assertJsonValidationErrors(['sistema_id']);
     }
 
-    public function test_update_rechaza_cambio_de_asunto_o_descripcion(): void
+    public function test_patch_ticket_endpoint_no_esta_disponible(): void
     {
         $user = User::factory()->create([
             'rol_id' => $this->roleId(Role::CLIENTE_INTERNO),
@@ -99,7 +168,7 @@ class TicketApiTest extends TestCase
 
         $this->patchJson("/api/tickets/{$ticket->id}", [
             'asunto' => 'Nuevo asunto',
-        ])->assertStatus(422);
+        ])->assertStatus(405);
     }
 
     public function test_cliente_interno_solo_ve_sus_tickets_no_internos(): void

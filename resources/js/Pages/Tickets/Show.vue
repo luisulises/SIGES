@@ -101,8 +101,8 @@ const isSolicitante = computed(() => authUser.value && ticketState.solicitante_i
 
 const canOperate = computed(() => props.permissions?.can_operate ?? false);
 const canCloseCancel = computed(() => props.permissions?.can_close_cancel ?? false);
-const canAssign = computed(() => isAdmin.value || (isCoordinador.value && props.permissions?.is_coordinador_sistema));
-const canCoordinatorFields = computed(() => isAdmin.value || (isCoordinador.value && props.permissions?.is_coordinador_sistema));
+const canAssign = computed(() => props.permissions?.can_assign ?? false);
+const canCoordinatorFields = computed(() => canAssign.value);
 const canSoporteFields = computed(() => isAdmin.value || (isSoporte.value && isResponsable.value));
 const canEditOperativo = computed(() => canAssign.value || canCoordinatorFields.value || canSoporteFields.value);
 const canCrearComentario = computed(() => (isRolInterno.value ? canOperate.value : isSolicitante.value));
@@ -626,6 +626,10 @@ const auditSummary = (evento) => {
             return `Relacion creada: ${despues.tipo_relacion} (#${despues.ticket_relacionado_id}).`;
         case 'tiempo_registrado':
             return `Tiempo registrado: ${despues.minutos} min.`;
+        case 'involucrado_agregado':
+            return `Involucrado agregado: ${usuarioLabel(despues.usuario_id)}`;
+        case 'involucrado_removido':
+            return `Involucrado removido: ${usuarioLabel(despues.usuario_id)}`;
         default:
             return evento?.tipo_evento || 'Evento';
     }
@@ -863,6 +867,10 @@ const cancelTicket = async () => {
 let intervalId;
 
 const reloadTicket = () => {
+    if (document.visibilityState && document.visibilityState !== 'visible') {
+        return;
+    }
+
     const isBusy =
         processing.estado ||
         processing.operativo ||
@@ -1347,7 +1355,16 @@ watch(
                                             :key="adjunto.id"
                                             class="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-700"
                                         >
-                                            <span class="truncate">{{ adjunto.nombre_archivo }}</span>
+                                            <a
+                                                v-if="adjunto.download_url"
+                                                :href="adjunto.download_url"
+                                                class="truncate text-indigo-600 hover:underline"
+                                                target="_blank"
+                                                rel="noopener"
+                                            >
+                                                {{ adjunto.nombre_archivo }}
+                                            </a>
+                                            <span v-else class="truncate">{{ adjunto.nombre_archivo }}</span>
                                             <span class="text-xs text-gray-500">
                                                 {{ adjunto.cargado_por?.nombre || 'Usuario' }} · {{ formatDate(adjunto.created_at) }}
                                             </span>
@@ -1403,7 +1420,7 @@ watch(
                             >
                                 <div class="text-sm">
                                     <div class="font-medium text-gray-900">{{ item.usuario?.nombre || 'Usuario' }}</div>
-                                    <div class="text-xs text-gray-500">{{ item.usuario?.email }}</div>
+                                    <div v-if="item.usuario && item.usuario.email" class="text-xs text-gray-500">{{ item.usuario.email }}</div>
                                 </div>
                                 <DangerButton
                                     v-if="canGestionarInvolucrados"

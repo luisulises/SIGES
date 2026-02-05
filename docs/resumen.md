@@ -39,7 +39,7 @@ Estado general: **todas las épicas 1–6 están completadas (“done”)**.
 
 ### Epic 3 (Done): Seguimiento del ticket (comentarios/adjuntos/involucrados)
 - Comentarios públicos e internos (visibilidad por rol; cliente interno solo “público”).
-- Adjuntos: se suben **solo dentro de un comentario**; heredan visibilidad; **no hay descarga** (solo listar).
+- Adjuntos: se suben **solo dentro de un comentario**; heredan visibilidad; **hay descarga** vía endpoint dedicado (ver `download_url`).
 - Involucrados: gestión por coordinador/admin (soft delete y restauración).
 - UI: sección “Seguimiento del ticket” (comentarios + adjuntos + involucrados) con refresco sin recarga completa.
 
@@ -47,6 +47,7 @@ Estado general: **todas las épicas 1–6 están completadas (“done”)**.
 - Auditoría append-only de cambios relevantes (estado, asignación, prioridad/fechas/tipo/sistema, resolución, cierre/cancelación).
 - Historial filtrado por rol (cliente interno solo eventos de estado/cierre/cancelación).
 - Relaciones de tickets (relacionado/reabre) + duplicados (cancela ticket duplicado y referencia al válido).
+- Reapertura indirecta: crear ticket referenciando uno Cerrado/Cancelado (sin reabrir el anterior).
 - Registro de tiempo append-only (visible solo para roles internos autorizados).
 - UI: secciones de historial, relaciones y tiempo en el detalle del ticket (con paginación/cargar más si aplica).
 
@@ -88,19 +89,19 @@ Notificaciones:
 
 ## 4) Endpoints importantes (API)
 
-Formato (convención de MVP):
-- Success: `{ data, meta }`
-- Error: `{ error: { code, message, details } }`
+Formato (actual):
+- Success (Resources): `{ data }` (en paginados: `{ data, links, meta }`)
+- Error de validación: `422` con `{ message, errors }`
+- Error de auth/permisos: `401/403` con `{ message }`
 
 Auth:
 - `POST /api/login`
 - `POST /api/logout`
 
 Tickets:
-- `GET /api/tickets`
-- `POST /api/tickets`
+- `GET /api/tickets` (paginado; query param opcional `per_page` (1..200))
+- `POST /api/tickets` (opcional: `referencia_ticket_id` para referenciar un ticket Cerrado/Cancelado)
 - `GET /api/tickets/{ticket}`
-- `PATCH /api/tickets/{ticket}`
 - `PATCH /api/tickets/{ticket}/operativo`
 
 Workflow:
@@ -110,7 +111,9 @@ Workflow:
 
 Colaboración:
 - `GET|POST /api/tickets/{ticket}/comentarios`
-- `GET|POST /api/tickets/{ticket}/adjuntos`
+- `GET /api/tickets/{ticket}/adjuntos`
+- `POST /api/tickets/{ticket}/adjuntos`
+- `GET /api/tickets/{ticket}/adjuntos/{adjunto}/download`
 - `GET|POST /api/tickets/{ticket}/involucrados`
 - `DELETE /api/tickets/{ticket}/involucrados/{usuario}`
 
@@ -284,7 +287,7 @@ Manual (por rol, en `GET /tickets/{ticket}`):
 
 ## 9) Limitaciones / post‑MVP (pendiente)
 
-- Adjuntos: **no hay descarga/vista previa** (solo listar/subir) y falta definir permisos de descarga (público vs interno).
+- Adjuntos: hay **descarga** pero no hay vista previa; definir hardening adicional (p. ej. antivirus/retención) si aplica.
 - Notificaciones: canal `email` está en esquema pero MVP usa `in_app` (campanita).
 - Gobierno/operación: definir retención y/o paginación visible en UI si crece el volumen (historial/tiempo/notificaciones).
 - Roadmap típico: SLA/alertas, dashboards, integraciones, automatizaciones.

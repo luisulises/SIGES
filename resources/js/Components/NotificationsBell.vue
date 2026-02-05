@@ -43,6 +43,14 @@ const fetchNotifications = async ({ page: requestedPage = 1, append = false } = 
     }
 };
 
+const pollNotifications = () => {
+    if (document.visibilityState && document.visibilityState !== 'visible') {
+        return;
+    }
+
+    fetchNotifications();
+};
+
 const loadMore = async () => {
     if (loading.value || !hasMore.value) {
         return;
@@ -65,7 +73,7 @@ const hasNotifications = computed(() => notifications.value.length > 0);
 
 onMounted(() => {
     fetchNotifications();
-    timerId = window.setInterval(fetchNotifications, pollInterval);
+    timerId = window.setInterval(pollNotifications, pollInterval);
 });
 
 onBeforeUnmount(() => {

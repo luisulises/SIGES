@@ -11,9 +11,11 @@ so that las personas relevantes sigan el ticket.
 ## Acceptance Criteria
 
 1. Coordinador o admin puede agregar involucrados a un ticket de sus sistemas; el involucrado queda registrado en involucrados_ticket.
-2. Coordinador o admin puede remover involucrados; el registro se elimina (o marca inactivo si se decide soft delete).
+2. Coordinador o admin puede remover involucrados; el registro se elimina (soft delete).
 3. No se permite duplicar involucrados (unico por ticket_id + usuario_id).
 4. Los involucrados agregados pueden ver el ticket aunque no sean solicitante/responsable (excepto cliente interno en tickets internos).
+5. No se permite agregar usuarios inactivos como involucrados.
+6. Agregar/remover involucrados registra eventos de auditoria (`involucrado_agregado` / `involucrado_removido`).
 
 ## Tasks / Subtasks
 
@@ -25,10 +27,10 @@ so that las personas relevantes sigan el ticket.
 
 ## Dev Notes
 
-- En MVP basta con hard delete del involucrado; si se requiere historial, migrar a soft delete.
+- En MVP se usa soft delete en `involucrados_ticket`; re-agregar un involucrado restaura el registro.
 - La visibilidad extendida aplica a listado/detalle de tickets (coordinar con endpoints de Epic 1/2).
 - En tickets internos, clientes internos no deben tener visibilidad aunque esten involucrados.
-- Si existe auditoria, registrar evento de alta/baja de involucrado.
+- Registrar evento de auditoria de alta/baja de involucrado (`involucrado_agregado` / `involucrado_removido`).
 
 ### Project Structure Notes
 
@@ -68,4 +70,3 @@ GPT-5.2
 - database/migrations/2026_01_21_000003_add_soft_deletes_to_involucrados_ticket_table.php
 - routes/api.php
 - tests/Feature/Api/TicketInvolucradoTest.php
-

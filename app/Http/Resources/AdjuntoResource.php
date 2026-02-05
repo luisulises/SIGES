@@ -21,10 +21,9 @@ class AdjuntoResource extends JsonResource
                 'nombre' => $this->cargadoPor?->nombre,
             ]),
             'nombre_archivo' => $this->nombre_archivo,
-            'clave_almacenamiento' => $this->clave_almacenamiento,
+            'download_url' => "/api/tickets/{$this->ticket_id}/adjuntos/{$this->id}/download",
             'visibilidad' => $this->visibilidad,
             'created_at' => optional($this->created_at)->toISOString(),
         ];
     }
 }
-

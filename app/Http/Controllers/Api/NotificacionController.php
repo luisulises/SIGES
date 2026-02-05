@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\NotificacionResource;
 use App\Models\Notificacion;
 use App\Services\TicketVisibilityService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Validation\ValidationException;
 
 class NotificacionController extends Controller
 {
@@ -51,9 +51,7 @@ class NotificacionController extends Controller
         $user = $request->user();
 
         if ((int) $notificacion->usuario_id !== (int) $user->id) {
-            throw ValidationException::withMessages([
-                'notificacion' => 'No autorizado.',
-            ]);
+            throw new AuthorizationException('No autorizado.');
         }
 
         if (! $notificacion->leido_at) {

@@ -12,17 +12,25 @@ use Illuminate\Validation\ValidationException;
 
 class TicketInvolucradoService
 {
-    public function __construct(private readonly TicketVisibilityService $visibilityService)
-    {
+    public function __construct(
+        private readonly TicketVisibilityService $visibilityService,
+        private readonly TicketAuditoriaService $auditoriaService
+    ) {
     }
 
     public function list(User $user, Ticket $ticket): Collection
     {
         $this->assertUserCanView($user, $ticket);
 
+        $usuarioColumns = $user->isClienteInterno()
+            ? ['id', 'nombre']
+            : ['id', 'nombre', 'email'];
+
         return InvolucradoTicket::query()
             ->where('ticket_id', $ticket->id)
-            ->with('usuario:id,nombre,email')
+            ->with([
+                'usuario' => fn ($query) => $query->select($usuarioColumns),
+            ])
             ->orderBy('created_at')
             ->get();
     }
@@ -47,6 +55,16 @@ class TicketInvolucradoService
 
             $ticket->touch();
 
+            $this->auditoriaService->record(
+                $ticket,
+                $user,
+                'involucrado_agregado',
+                null,
+                [
+                    'usuario_id' => $usuarioId,
+                ]
+            );
+
             return $existing->load('usuario:id,nombre,email');
         }
 
@@ -57,6 +75,16 @@ class TicketInvolucradoService
         ]);
 
         $ticket->touch();
+
+        $this->auditoriaService->record(
+            $ticket,
+            $user,
+            'involucrado_agregado',
+            null,
+            [
+                'usuario_id' => $usuarioId,
+            ]
+        );
 
         return $created->load('usuario:id,nombre,email');
     }
@@ -78,6 +106,16 @@ class TicketInvolucradoService
 
         $involucrado->delete();
         $ticket->touch();
+
+        $this->auditoriaService->record(
+            $ticket,
+            $user,
+            'involucrado_removido',
+            null,
+            [
+                'usuario_id' => $usuarioId,
+            ]
+        );
     }
 
     private function assertUserCanView(User $user, Ticket $ticket): void
