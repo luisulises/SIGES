@@ -476,6 +476,21 @@ const tiempoErrors = ref({});
 const tiempoProcessing = ref(false);
 const tiempoSubmitError = ref('');
 
+const hasUnsavedOperativoChanges = computed(() => Object.keys(buildOperativoPayload()).length > 0);
+const hasUnsavedEstadoChange = computed(() => Boolean(estadoForm.estado));
+const hasUnsavedComentario = computed(() => comentarioForm.cuerpo.trim() !== '' || (comentarioForm.archivos?.length ?? 0) > 0);
+const hasUnsavedInvolucrado = computed(() => Boolean(involucradoForm.usuario_id));
+const hasUnsavedRelacion = computed(() => Boolean(relacionForm.ticket_relacionado_id) || relacionForm.tipo_relacion !== 'relacionado');
+const hasUnsavedTiempo = computed(() => Boolean(tiempoForm.minutos) || tiempoForm.nota.trim() !== '');
+const hasUnsavedChanges = computed(() => (
+    hasUnsavedOperativoChanges.value
+    || hasUnsavedEstadoChange.value
+    || hasUnsavedComentario.value
+    || hasUnsavedInvolucrado.value
+    || hasUnsavedRelacion.value
+    || hasUnsavedTiempo.value
+));
+
 const fetchTiempo = async ({ page = 1, append = false } = {}) => {
     if (!canManageTiempo.value) {
         return;
@@ -871,6 +886,10 @@ const reloadTicket = () => {
         return;
     }
 
+    if (hasUnsavedChanges.value) {
+        return;
+    }
+
     const isBusy =
         processing.estado ||
         processing.operativo ||
@@ -961,7 +980,8 @@ watch(
                         Ticket #{{ ticketState.id }}
                     </h2>
                     <p class="text-sm text-gray-500 mt-1">
-                        Actualizacion automatica cada 60s
+                        <span v-if="hasUnsavedChanges">Autoactualizacion pausada mientras editas</span>
+                        <span v-else>Actualizacion automatica cada 60s</span>
                     </p>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
@@ -36,6 +36,13 @@ const form = useForm({
     descripcion: '',
 });
 
+const hasUnsavedChanges = computed(() => (
+    form.asunto.trim() !== ''
+    || Boolean(form.sistema_id)
+    || Boolean(form.referencia_ticket_id)
+    || form.descripcion.trim() !== ''
+));
+
 const submit = () => {
     form.post(route('tickets.store'), {
         preserveScroll: true,
@@ -61,6 +68,10 @@ const reloadTickets = () => {
     }
 
     if (form.processing) {
+        return;
+    }
+
+    if (hasUnsavedChanges.value) {
         return;
     }
 
@@ -91,7 +102,10 @@ onBeforeUnmount(() => {
         <template #header>
             <div class="flex items-center justify-between">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">Tickets</h2>
-                <span class="text-sm text-gray-500">Actualizacion automatica cada 60s</span>
+                <span class="text-sm text-gray-500">
+                    <span v-if="hasUnsavedChanges">Autoactualizacion pausada mientras editas</span>
+                    <span v-else>Actualizacion automatica cada 60s</span>
+                </span>
             </div>
         </template>
 
